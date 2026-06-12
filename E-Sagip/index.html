@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>E-Sagip – Sign In</title>
+  <link rel="stylesheet" href="style.css" />
+  <link rel="icon" href="Images/628_icon.png" type="image/png" />
+</head>
+<body class="login-page">
+
+  <!-- Logo -->
+  <div class="login-logo">
+    <div class="shield-icon">
+     <img src="Images/628_logo.png" alt="E-Sagip Logo">
+    </div>
+    <h1>E-Sagip</h1>
+    <p>Barangay 628 BDRRMC Volunteer System</p>
+  </div>
+
+  <!-- Card -->
+  <div class="login-card">
+
+    <!-- Tabs -->
+    <div class="login-tabs">
+      <button class="tab-btn active" id="tab-volunteer" onclick="switchTab('volunteer')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/>
+        </svg>
+        Volunteer
+      </button>
+      <button class="tab-btn" id="tab-admin" onclick="switchTab('admin')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="3"/><path d="M19.07 4.93A10 10 0 1 0 21 12"/>
+        </svg>
+        Admin Portal
+      </button>
+    </div>
+
+    <!-- Volunteer Form -->
+    <div id="form-volunteer">
+      <div class="form-group">
+        <label for="v-email">Email Address</label>
+        <div class="input-wrap">
+          <input type="email" id="v-email" placeholder="juan@email.com" autocomplete="email" />
+        </div>
+      </div>
+      <div class="form-group">
+        <label for="v-password">Password</label>
+        <div class="input-wrap">
+          <input type="password" id="v-password" placeholder="••••••••" autocomplete="current-password" />
+          <button class="toggle-pw" onclick="togglePassword('v-password', this)" type="button" aria-label="Show password">
+            <svg id="eye-v" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M1 12S5 5 12 5s11 7 11 7-4 7-11 7S1 12 1 12z"/>
+              <circle cx="12" cy="12" r="3"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+      <button class="btn-signin" onclick="handleVolunteerLogin()">Sign In</button>
+      <div class="form-links">
+        <a href="#">Forgot Password?</a>
+        <a href="#">Register as Volunteer →</a>
+      </div>
+    </div>
+
+    <!-- Admin Form -->
+    <div id="form-admin" class="hidden">
+      <div class="alert-warning">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+          <line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>
+        </svg>
+        Restricted access for BDRRMC Coordinator only.
+      </div>
+      <div class="form-group">
+        <label for="a-email">Admin Email</label>
+        <div class="input-wrap">
+          <input type="email" id="a-email" placeholder="admin@brgy628.gov.ph" autocomplete="email" />
+        </div>
+      </div>
+      <div class="form-group">
+        <label for="a-password">Password</label>
+        <div class="input-wrap">
+          <input type="password" id="a-password" placeholder="••••••••" autocomplete="current-password" />
+          <button class="toggle-pw" onclick="togglePassword('a-password', this)" type="button" aria-label="Show password">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M1 12S5 5 12 5s11 7 11 7-4 7-11 7S1 12 1 12z"/>
+              <circle cx="12" cy="12" r="3"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+      <button class="btn-signin" onclick="handleAdminLogin()">Sign In</button>
+      <div class="form-links-center">
+        <a href="#">Forgot Password?</a>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Footer -->
+  <p class="login-footer">Sta. Mesa, Manila — BDRRMC Coordination Platform</p>
+
+  <script src="script.js"></script>
+</body>
+</html>
