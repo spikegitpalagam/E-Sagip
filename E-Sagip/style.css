@@ -937,41 +937,51 @@ a {
 
 .feed-hero {
   background: var(--white);
-  border-radius: 10px;
+  border-radius: 20px;
   padding: 0;
   height: 12rem;
   box-shadow: 0 2px 8px rgba(74,0,21,0.07);
+  overflow: hidden; 
+}
 
+.feed-hero-overlay {
+  background-image: url('Images/outreach.jpg');
+  background-size: cover;
+  background-position: center;
+  height: 100%;
+  width: 100%;
+  border-radius: 10px;
+  background-blend-mode: normal;
+  position: relative;
+  display: flex;           
+  align-items: flex-end;  
+}
+
+.feed-hero-overlay::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, rgba(74,0,21,0.7) 0%, transparent 80%);
+  border-radius: 10px;
 }
 
 .feed-hero-text {
-
-  margin-top: 15%;
-  margin-left: 2%;
+  position: relative; 
+  z-index: 1;
+  padding: 16px 20px;  
 }
 
 .feed-hero h2 {
   font-size: 16px;
   font-weight: 700;
   color: var(--white);
-  margin-bottom: 8px;
+  margin-bottom: 4px;
 }
 
 .feed-hero p {
   font-size: 13px;
   color: var(--light-gray);
-}
-
-.feed-hero-overlay {
-
-  background-image: url('Images/outreach.jpg');
-  background-size: cover;
-  background-position: center;
-  height: 100%;
-  width: 100%;
   margin: 0;
-  overflow: hidden;
-  border-radius: 10px;
 }
 
 .feed-quote-card {
