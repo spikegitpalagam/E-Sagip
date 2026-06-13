@@ -723,7 +723,7 @@ a {
   background: var(--primary);
   color: var(--white);
   border: none;
-  border-radius: 7px;
+  border-radius: 20px;
   padding: 11px 18px;
   font-size: 14px;
   font-weight: 600;
