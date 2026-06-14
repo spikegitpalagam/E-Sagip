@@ -147,8 +147,21 @@ function goToStep(step) {
     const lname   = document.getElementById('lname')?.value.trim();
     const contact = document.getElementById('contact')?.value.trim();
     const email   = document.getElementById('email')?.value.trim();
-    if (!fname || !lname || !contact || !email) {
-      alert('Please fill in all required fields (First Name, Last Name, Contact Number, Email).');
+    const resident = document.getElementById('resident')?.value;
+    const residentAddress = document.getElementById('resident-address')?.value.trim();
+    const outsideAddress  = document.getElementById('outside-address')?.value.trim();
+
+    if (!fname || !lname || !contact || !email || !resident) {
+      alert('Please fill in all required fields (First Name, Last Name, Contact Number, Email, and residency confirmation).');
+      return;
+    }
+
+    if (resident === 'yes' && !residentAddress) {
+      alert('Please enter your home address in Brgy. 628.');
+      return;
+    }
+    if (resident === 'no' && !outsideAddress) {
+      alert('Please enter the barangay you are from.');
       return;
     }
   }
@@ -228,13 +241,20 @@ function toggleResidentAddressFields() {
   const resident = document.getElementById('resident')?.value;
   const div1 = document.querySelector('.address-div1');
   const div2 = document.querySelector('.address-div2');
-  if (!div1 || !div2) return;
+  const input1 = document.getElementById('resident-address');
+  const input2 = document.getElementById('outside-address');
+  if (!div1 || !div2 || !input1 || !input2) return;
 
   const showDiv1 = resident === 'yes';
   const showDiv2 = resident === 'no';
 
   div1.classList.toggle('active', showDiv1);
   div2.classList.toggle('active', showDiv2);
+  input1.required = showDiv1;
+  input2.required = showDiv2;
+
+  if (!showDiv1) input1.value = '';
+  if (!showDiv2) input2.value = '';
 }
 
 document.addEventListener('DOMContentLoaded', () => {
