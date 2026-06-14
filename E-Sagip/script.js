@@ -132,3 +132,152 @@ function handleLogout() {
     window.location.href = 'index.html';
   }
 }
+
+/* ===== REGISTRATION PAGE ===== */
+
+let currentStep = 1;
+
+/**
+ * Navigate to a registration step.
+ */
+function goToStep(step) {
+  if (step === 2) {
+    // Validate step 1 required fields
+    const fname   = document.getElementById('fname')?.value.trim();
+    const lname   = document.getElementById('lname')?.value.trim();
+    const contact = document.getElementById('contact')?.value.trim();
+    const email   = document.getElementById('email')?.value.trim();
+    if (!fname || !lname || !contact || !email) {
+      alert('Please fill in all required fields (First Name, Last Name, Contact Number, Email).');
+      return;
+    }
+  }
+  if (step === 3) {
+    updateSummary();
+  }
+
+  document.querySelectorAll('.reg-step-panel').forEach(p => p.classList.remove('active'));
+  const panel = document.getElementById('panel-' + step);
+  if (panel) panel.classList.add('active');
+
+  currentStep = step;
+  updateStepUI(step);
+  window.scrollTo(0, 0);
+}
+
+/**
+ * Update step circles, labels, connectors, and topbar dots.
+ */
+function updateStepUI(step) {
+  for (let i = 1; i <= 3; i++) {
+    const circle = document.getElementById('sc-' + i);
+    const label  = document.getElementById('sl-' + i);
+    const dot    = document.getElementById('dot-' + i);
+    if (!circle) continue;
+
+    circle.classList.remove('active', 'done');
+    label.classList.remove('active');
+    if (dot) dot.classList.remove('active');
+
+    if (i < step) {
+      circle.classList.add('done');
+      circle.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" width="14" height="14"><polyline points="20 6 9 17 4 12"/></svg>`;
+    } else if (i === step) {
+      circle.classList.add('active');
+      circle.textContent = i;
+      label.classList.add('active');
+      if (dot) dot.classList.add('active');
+    } else {
+      circle.textContent = i;
+    }
+  }
+
+  // Connectors
+  for (let c = 1; c <= 2; c++) {
+    const conn = document.getElementById('conn-' + c);
+    if (conn) conn.classList.toggle('done', step > c);
+  }
+}
+
+/**
+ * Go back one step or to login if on step 1.
+ */
+function goBack() {
+  if (currentStep <= 1) {
+    window.location.href = 'index.html';
+  } else {
+    goToStep(currentStep - 1);
+  }
+}
+
+/**
+ * Go back to previous step from Step 2+.
+ */
+function backtoS1() {
+  if (currentStep <= 1) {
+    window.location.href = 'index.html';
+  } else {
+    goToStep(currentStep - 1);
+  }
+}
+
+/**
+ * Toggle a skill category accordion.
+ */
+function toggleCategory(headerEl) {
+  const body    = headerEl.nextElementSibling;
+  const chevron = headerEl.querySelector('.skill-cat-chevron');
+  const isOpen  = body.classList.toggle('open');
+  chevron.classList.toggle('open', isOpen);
+}
+
+/**
+ * Update the registration summary on Step 3.
+ */
+function updateSummary() {
+  const fname   = document.getElementById('fname')?.value.trim() || '';
+  const lname   = document.getElementById('lname')?.value.trim() || '';
+  const email   = document.getElementById('email')?.value.trim() || '—';
+  const contact = document.getElementById('contact')?.value.trim() || '—';
+
+  const fullName = (fname + ' ' + lname).trim() || '—';
+  const skills   = [...document.querySelectorAll('input[name="skill"]:checked')].map(c => c.value);
+
+  const sumName    = document.getElementById('sum-name');
+  const sumEmail   = document.getElementById('sum-email');
+  const sumContact = document.getElementById('sum-contact');
+  const sumSkills  = document.getElementById('sum-skills');
+
+  if (sumName)    sumName.textContent    = fullName.toUpperCase();
+  if (sumEmail)   sumEmail.textContent   = email;
+  if (sumContact) sumContact.textContent = contact;
+  if (sumSkills)  sumSkills.textContent  = skills.length + ' skill' + (skills.length !== 1 ? 's' : '') + ' selected';
+}
+
+/**
+ * Final registration submission.
+ */
+function completeRegistration() {
+  const password = document.getElementById('reg-password')?.value;
+  const confirm  = document.getElementById('reg-confirm')?.value;
+  const question = document.getElementById('sec-question')?.value;
+  const answer   = document.getElementById('sec-answer')?.value.trim();
+
+  if (!question || !answer) {
+    alert('Please select a security question and provide your answer.');
+    return;
+  }
+  if (!password || password.length < 6) {
+    alert('Password must be at least 6 characters.');
+    return;
+  }
+  if (password !== confirm) {
+    alert('Passwords do not match. Please try again.');
+    return;
+  }
+
+  document.querySelectorAll('.reg-step-panel').forEach(p => p.classList.remove('active'));
+  const success = document.getElementById('reg-success');
+  if (success) success.classList.add('active');
+  window.scrollTo(0, 0);
+}
