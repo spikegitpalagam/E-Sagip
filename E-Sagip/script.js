@@ -291,7 +291,7 @@ function completeRegistration() {
     alert('Please select a security question and provide your answer.');
     return;
   }
-  if (!password || password.length < 6) {
+  if (!password || password.length < 8) {
     alert('Password must be at least 8 characters.');
     return;
   }
