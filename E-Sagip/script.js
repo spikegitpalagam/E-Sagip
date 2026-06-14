@@ -292,7 +292,7 @@ function completeRegistration() {
     return;
   }
   if (!password || password.length < 6) {
-    alert('Password must be at least 6 characters.');
+    alert('Password must be at least 8 characters.');
     return;
   }
   if (password !== confirm) {
