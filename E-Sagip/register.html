@@ -81,24 +81,34 @@
 
       <div class="form-group">
         <label>
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-          Physical Capabilities
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12"><path d="M21 10c0 7-9 13-9 13S3 17 3 10a9 9 0 1 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+            Resident in Brgy. 628?
         </label>
-        <select id="capabilities">
-          <option value="" disabled selected>Select Capabilities</option>
-          <option>Full mobility</option>
-          <option>Limited mobility</option>
-          <option>Requires assistance</option>
-          <option>Physically disabled</option>
+        <select id="resident">
+            <option value="" disabled selected></option>
+            <option value="yes">Yes</option>
+            <option value="no">No</option>
         </select>
-      </div>
 
-      <div class="form-group">
+        <div class="address-div1">
+
         <label>
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12"><path d="M21 10c0 7-9 13-9 13S3 17 3 10a9 9 0 1 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
-          Home Address in Brgy. 628
+            Home Address in Brgy. 628
         </label>
-        <input type="text" id="address" placeholder="House No., Street, Purok, Brgy. 628, Sta. Mesa" />
+        <input type="text" placeholder="House No.,Street, Purok,Brgy. 628, Sta. Mesa">
+
+        </div>
+
+         <div class="address-div2">
+
+        <label>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12"><path d="M21 10c0 7-9 13-9 13S3 17 3 10a9 9 0 1 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+           Where are you from?
+        </label>
+        <input type="text" placeholder="Brgy 425">
+
+        </div>
       </div>
 
       <div class="form-group">
