@@ -1132,12 +1132,17 @@ a {
   border-radius: 30px;
 }
 
+.feed-section-header .span1 {
+
+  margin-top: 10px;
+}
+
 .feed-section-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 12px;
-  margin: 5px 0 5px 10px;
+  margin: 10px 0 5px 10px;
   font-size: 1.1rem;
   color: var(--bg-dark);
   font-weight: bold;
@@ -1155,6 +1160,8 @@ a {
 .feed-section-header .feed-month {
   margin-left: 0;
   color: var(--gray);
+  margin-right: 10px;
+  margin-top: 10px;
 }
 
 .feed-section-header .a-view {
@@ -1270,6 +1277,244 @@ a {
   color:var(--primary);
   font-weight:500;
 
+}
+
+
+.feed-section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 14px;
+}
+
+.rso {
+  font-size: 16px;
+  font-weight: 500;
+}
+
+.a-view {
+  font-size: 13px;
+  color: #c0392b;
+  text-decoration: none;
+}
+
+
+.recent-op-card {
+  background: #fff;
+  border: 0.5px solid rgba(0, 0, 0, 0.12);
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+
+.recent-op-img {
+  position: relative;
+  height: 160px;
+  background: linear-gradient(160deg, #b0bec5 0%, #78909c 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.recent-op-img-placeholder svg {
+  opacity: 0.4;
+}
+
+
+.recent-op-date {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  background: #c0392b;
+  color: #fff;
+  font-size: 12px;
+  font-weight: 500;
+  padding: 4px 10px;
+  border-radius: 20px;
+}
+
+.recent-op-label {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: rgba(255, 255, 255, 0.92);
+  padding: 6px 12px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 500;
+  color: #7a6000;
+}
+
+.recent-op-label svg {
+  stroke: #e8a000;
+  flex-shrink: 0;
+}
+
+.recent-op-body {
+  padding: 14px 14px 10px;
+}
+
+.recent-op-name {
+  font-size: 15px;
+  font-weight: 500;
+  margin: 0 0 3px;
+}
+
+.recent-op-loc {
+  font-size: 12px;
+  color: #666;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-bottom: 10px;
+}
+
+.recent-op-badges {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 12px;
+}
+
+.badge-vol {
+  background: #fce8e8;
+  color: #a32d2d;
+  font-size: 12px;
+  font-weight: 500;
+  padding: 4px 10px;
+  border-radius: 20px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.badge-helped {
+  background: #e6f4ea;
+  color: #27500a;
+  font-size: 12px;
+  font-weight: 500;
+  padding: 4px 10px;
+  border-radius: 20px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+
+.recent-op-desc {
+  font-size: 13px;
+  color: #555;
+  line-height: 1.6;
+  margin: 0 0 12px;
+}
+
+
+.recent-op-tags {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-bottom: 12px;
+}
+
+.recent-op-tag {
+  font-size: 11px;
+  color: #1a5fa5;
+  background: #e6f1fb;
+  padding: 3px 9px;
+  border-radius: 20px;
+  font-weight: 500;
+}
+
+.recent-op-footer {
+  border-top: 0.5px solid rgba(0, 0, 0, 0.1);
+  padding: 10px 14px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.recent-op-icon-btn {
+  background: none;
+  border: none;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 13px;
+  color: #666;
+  cursor: pointer;
+}
+
+.recent-op-icon-btn:hover {
+
+  color: #2e000d;
+  
+}
+
+/* Like checkbox as visual button */
+.recent-op-like {
+  display: inline-flex;
+  align-items: center;
+  cursor: pointer;
+}
+
+.recent-op-like-input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+  width: 0;
+  height: 0;
+}
+
+.recent-op-like-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: #666;
+  transition: color 0.15s ease, transform 0.08s ease;
+}
+
+.recent-op-like-input:checked + .recent-op-like-btn {
+  color: #c0003c;
+  transform: scale(1.02);
+}
+
+.recent-op-like .like-count {
+  font-size: 13px;
+  color: inherit;
+}
+
+/* Last footer button (action/overflow) styling */
+.recent-op-btn {
+  background: transparent;
+  border: 1px solid rgba(0,0,0,0.06);
+  padding: 8px;
+  border-radius: 10px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  color: #666;
+  transition: background 0.15s ease, color 0.15s ease, transform 0.08s ease;
+}
+
+.recent-op-btn svg {
+  width: 16px;
+  height: 16px;
+}
+
+.recent-op-btn:hover {
+  background: rgba(122,0,36,0.06);
+  color: #2e000d;
+  transform: translateY(-2px);
+}
+
+.recent-op-btn:active {
+  transform: translateY(0);
 }
 
   /* ===== REGISTER PAGE ===== */
