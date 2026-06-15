@@ -63,14 +63,12 @@ function handleVolunteerLogin() {
     return;
   }
 
-  // Email validity check
   if (!email.endsWith('@gmail.com')) {
     alert('Email must be a @gmail.com address.');
-    document.getElementById('a-email').focus();
+    document.getElementById('v-email').focus();
     return;
   }
 
-  // Demo: any credentials redirect to admin dashboard
   window.location.href = 'admin_page.html';
 }
 
@@ -78,7 +76,6 @@ function handleVolunteerLogin() {
  * Handle admin login form submission.
  * Redirects to admin.html on success.
  */
-
 function handleAdminLogin() {
   const email    = document.getElementById('a-email')?.value.trim();
   const password = document.getElementById('a-password')?.value;
@@ -88,14 +85,12 @@ function handleAdminLogin() {
     return;
   }
 
-  // Email validity check
   if (!email.endsWith('@gmail.com')) {
     alert('Email must be a @gmail.com address.');
     document.getElementById('a-email').focus();
     return;
   }
 
-  // Demo: any credentials redirect to admin dashboard
   window.location.href = 'admin_page.html';
 }
 
@@ -108,11 +103,9 @@ function handleAdminLogin() {
  * @param {string}      tab  - Tab identifier
  */
 function switchSubNav(btn, tab) {
-  // Update button states
   document.querySelectorAll('.subnav-btn').forEach(b => b.classList.remove('active'));
   btn.classList.add('active');
 
-  // Show/hide panels
   const panels = ['dashboard', 'newop', 'volunteers', 'feed'];
   panels.forEach(id => {
     const el = document.getElementById('tab-' + id);
@@ -148,6 +141,7 @@ function handleLogout() {
   }
 }
 
+
 /* ===== REGISTRATION PAGE ===== */
 
 let currentStep = 1;
@@ -157,13 +151,12 @@ let currentStep = 1;
  */
 function goToStep(step) {
   if (step === 2) {
-
-    const fname   = document.getElementById('fname')?.value.trim();
-    const lname   = document.getElementById('lname')?.value.trim();
-    const birthdate = document.getElementById('birthdate')?.value;
-    const contact = document.getElementById('contact')?.value.trim();
-    const email   = document.getElementById('email')?.value.trim();
-    const resident = document.getElementById('resident')?.value;
+    const fname           = document.getElementById('fname')?.value.trim();
+    const lname           = document.getElementById('lname')?.value.trim();
+    const birthdate       = document.getElementById('birthdate')?.value;
+    const contact         = document.getElementById('contact')?.value.trim();
+    const email           = document.getElementById('email')?.value.trim();
+    const resident        = document.getElementById('resident')?.value;
     const residentAddress = document.getElementById('resident-address')?.value.trim();
     const outsideAddress  = document.getElementById('outside-address')?.value.trim();
 
@@ -172,7 +165,6 @@ function goToStep(step) {
       return;
     }
 
-    // Email validity check
     if (!email.endsWith('@gmail.com')) {
       alert('Email must be a @gmail.com address.');
       document.getElementById('email').focus();
@@ -181,7 +173,9 @@ function goToStep(step) {
 
     const birth = new Date(birthdate);
     const today = new Date();
-    const age = today.getFullYear() - birth.getFullYear() - (today.getMonth() < birth.getMonth() || (today.getMonth() === birth.getMonth() && today.getDate() < birth.getDate()) ? 1 : 0);
+    const age = today.getFullYear() - birth.getFullYear() -
+      (today.getMonth() < birth.getMonth() ||
+      (today.getMonth() === birth.getMonth() && today.getDate() < birth.getDate()) ? 1 : 0);
 
     if (age < 18) {
       alert('You must be at least 18 years old to register.');
@@ -221,152 +215,6 @@ function goToStep(step) {
 }
 
 /**
- * Can't input numbers and special characters in first name, last name and emergency contact name
- */
-
- const fname = document.getElementById('fname');
-
-    fname.addEventListener('keydown', (e) => {
-      const allowedKeys = ['Backspace', 'Delete', 'ArrowLeft', 'ArrowRight', 'Tab', ' '];
-      if (allowedKeys.includes(e.key)) return;
-
-  
-      if (!/^[a-zA-Z\s]$/.test(e.key)) {
-        e.preventDefault();
-      }
-    });
-
-
-    fname.addEventListener('paste', (e) => {
-      const pasted = e.clipboardData.getData('text');
-      if (/[^a-zA-Z\s]/.test(pasted)) {
-        e.preventDefault();
-      }
-    });
-
-    fname.addEventListener('drop', (e) => {
-      const dropped = e.dataTransfer.getData('text');
-      if (/[^a-zA-Z\s]/.test(dropped)) {
-        e.preventDefault();
-      }
-    });
-
-     const lname = document.getElementById('lname');
-
-    lname.addEventListener('keydown', (e) => {
-      const allowedKeys = ['Backspace', 'Delete', 'ArrowLeft', 'ArrowRight', 'Tab', ' '];
-      if (allowedKeys.includes(e.key)) return;
-
-   
-      if (!/^[a-zA-Z\s]$/.test(e.key)) {
-        e.preventDefault();
-      }
-    });
-
-  
-    lname.addEventListener('paste', (e) => {
-      const pasted = e.clipboardData.getData('text');
-      if (/[^a-zA-Z\s]/.test(pasted)) {
-        e.preventDefault();
-      }
-    });
-
-  
-    lname.addEventListener('drop', (e) => {
-      const dropped = e.dataTransfer.getData('text');
-      if (/[^a-zA-Z\s]/.test(dropped)) {
-        e.preventDefault();
-      }
-    });
-
-    const ename = document.getElementById('ec-name');
-
-    ename.addEventListener('keydown', (e) => {
-      const allowedKeys = ['Backspace', 'Delete', 'ArrowLeft', 'ArrowRight', 'Tab', ' '];
-      if (allowedKeys.includes(e.key)) return;
-
-   
-      if (!/^[a-zA-Z\s]$/.test(e.key)) {
-        e.preventDefault();
-      }
-    });
-
-  
-    ename.addEventListener('paste', (e) => {
-      const pasted = e.clipboardData.getData('text');
-      if (/[^a-zA-Z\s]/.test(pasted)) {
-        e.preventDefault();
-      }
-    });
-
-  
-    ename.addEventListener('drop', (e) => {
-      const dropped = e.dataTransfer.getData('text');
-      if (/[^a-zA-Z\s]/.test(dropped)) {
-        e.preventDefault();
-      }
-    });
-
-    /**
- * Can't input text and special characters in contact num and emergency contact
- */
-     const contact = document.getElementById('contact');
-
-
-  contact.addEventListener('keydown', (e) => {
-    const allowedKeys = ['Backspace', 'Delete', 'ArrowLeft', 'ArrowRight'];
-    if (allowedKeys.includes(e.key)) return;
-
-    if (!/^[0-9]$/.test(e.key)) {
-      e.preventDefault();
-    }
-  });
-
-  
-  contact.addEventListener('paste', (e) => {
-    const pasted = e.clipboardData.getData('text');
-    if (/[^0-9]/.test(pasted)) {
-      e.preventDefault();
-    }
-  });
-
-  
-  contact.addEventListener('drop', (e) => {
-    const dropped = e.dataTransfer.getData('text');
-    if (/[^0-9]/.test(dropped)) {
-      e.preventDefault();
-    }
-  });
-
-  const emnum = document.getElementById('ec-num');
-
-
-  emnum.addEventListener('keydown', (e) => {
-    const allowedKeys = ['Backspace', 'Delete', 'ArrowLeft', 'ArrowRight'];
-    if (allowedKeys.includes(e.key)) return;
-
-    if (!/^[0-9]$/.test(e.key)) {
-      e.preventDefault();
-    }
-  });
-
-  
-  emnum.addEventListener('paste', (e) => {
-    const pasted = e.clipboardData.getData('text');
-    if (/[^0-9]/.test(pasted)) {
-      e.preventDefault();
-    }
-  });
-
-  
-  emnum.addEventListener('drop', (e) => {
-    const dropped = e.dataTransfer.getData('text');
-    if (/[^0-9]/.test(dropped)) {
-      e.preventDefault();
-    }
-  });
-
-/**
  * Update step circles, labels, connectors, and topbar dots.
  */
 function updateStepUI(step) {
@@ -382,7 +230,7 @@ function updateStepUI(step) {
 
     if (i < step) {
       circle.classList.add('done');
-      circle.innerHTML = "✓";
+      circle.innerHTML = '✓';
     } else if (i === step) {
       circle.classList.add('active');
       circle.textContent = i;
@@ -393,7 +241,6 @@ function updateStepUI(step) {
     }
   }
 
-  // Connectors
   for (let c = 1; c <= 2; c++) {
     const conn = document.getElementById('conn-' + c);
     if (conn) conn.classList.toggle('done', step > c);
@@ -427,10 +274,10 @@ function backtoS1() {
  */
 function toggleResidentAddressFields() {
   const resident = document.getElementById('resident')?.value;
-  const div1 = document.querySelector('.address-div1');
-  const div2 = document.querySelector('.address-div2');
-  const input1 = document.getElementById('resident-address');
-  const input2 = document.getElementById('outside-address');
+  const div1     = document.querySelector('.address-div1');
+  const div2     = document.querySelector('.address-div2');
+  const input1   = document.getElementById('resident-address');
+  const input2   = document.getElementById('outside-address');
   if (!div1 || !div2 || !input1 || !input2) return;
 
   const showDiv1 = resident === 'yes';
@@ -444,45 +291,6 @@ function toggleResidentAddressFields() {
   if (!showDiv1) input1.value = '';
   if (!showDiv2) input2.value = '';
 }
-
-document.addEventListener('DOMContentLoaded', () => {
-  const residentSelect = document.getElementById('resident');
-  if (residentSelect) {
-    residentSelect.addEventListener('change', toggleResidentAddressFields);
-  }
-  toggleResidentAddressFields();
-
-  const registrationForm = document.getElementById('registration-form');
-  if (registrationForm) {
-    registrationForm.addEventListener('submit', event => {
-      event.preventDefault();
-      if (currentStep === 3) {
-        completeRegistration();
-      } else if (currentStep === 1) {
-        goToStep(2);
-      } else if (currentStep === 2) {
-        goToStep(3);
-      }
-    });
-  }
-
-  const birthdateInput = document.getElementById('birthdate');
-  if (birthdateInput) {
-    const today = new Date();
-    const yyyy = today.getFullYear();
-    const mm = String(today.getMonth() + 1).padStart(2, '0');
-    const dd = String(today.getDate()).padStart(2, '0');
-    birthdateInput.max = `${yyyy}-${mm}-${dd}`;
-  }
-
-  const othersCheckbox = document.getElementById('skill-others');
-  const othersDiv = document.getElementById('others-div');
-  if (othersCheckbox && othersDiv) {
-    othersCheckbox.addEventListener('change', () => {
-      othersDiv.classList.toggle('hidden', !othersCheckbox.checked);
-    });
-  }
-});
 
 /**
  * Toggle a skill category accordion.
@@ -544,3 +352,84 @@ function completeRegistration() {
   if (success) success.classList.add('active');
   window.scrollTo(0, 0);
 }
+
+
+/* ===== DOM READY ===== */
+
+document.addEventListener('DOMContentLoaded', () => {
+
+  // ── restrict input to letters only ──────────────────────
+  function restrictToLetters(el) {
+    if (!el) return;
+    const allowed = ['Backspace', 'Delete', 'ArrowLeft', 'ArrowRight', 'Tab', ' '];
+    el.addEventListener('keydown', e => {
+      if (!allowed.includes(e.key) && !/^[a-zA-Z\s]$/.test(e.key)) e.preventDefault();
+    });
+    el.addEventListener('paste', e => {
+      if (/[^a-zA-Z\s]/.test(e.clipboardData.getData('text'))) e.preventDefault();
+    });
+    el.addEventListener('drop', e => {
+      if (/[^a-zA-Z\s]/.test(e.dataTransfer.getData('text'))) e.preventDefault();
+    });
+  }
+
+  // ── restrict input to numbers only ──────────────────────
+  function restrictToNumbers(el) {
+    if (!el) return;
+    const allowed = ['Backspace', 'Delete', 'ArrowLeft', 'ArrowRight'];
+    el.addEventListener('keydown', e => {
+      if (!allowed.includes(e.key) && !/^[0-9]$/.test(e.key)) e.preventDefault();
+    });
+    el.addEventListener('paste', e => {
+      if (/[^0-9]/.test(e.clipboardData.getData('text'))) e.preventDefault();
+    });
+    el.addEventListener('drop', e => {
+      if (/[^0-9]/.test(e.dataTransfer.getData('text'))) e.preventDefault();
+    });
+  }
+
+  // ── Apply input restrictions ────────────────────────────────────
+  restrictToLetters(document.getElementById('fname'));
+  restrictToLetters(document.getElementById('lname'));
+  restrictToLetters(document.getElementById('ec-name'));
+  restrictToNumbers(document.getElementById('contact'));
+  restrictToNumbers(document.getElementById('ec-num'));
+
+  // ── Resident address toggle ─────────────────────────────────────
+  const residentSelect = document.getElementById('resident');
+  if (residentSelect) {
+    residentSelect.addEventListener('change', toggleResidentAddressFields);
+  }
+  toggleResidentAddressFields();
+
+  // ── Registration form submit ────────────────────────────────────
+  const registrationForm = document.getElementById('registration-form');
+  if (registrationForm) {
+    registrationForm.addEventListener('submit', event => {
+      event.preventDefault();
+      if (currentStep === 3)      completeRegistration();
+      else if (currentStep === 1) goToStep(2);
+      else if (currentStep === 2) goToStep(3);
+    });
+  }
+
+  // ── Birthdate max (today) ───────────────────────────────────────
+  const birthdateInput = document.getElementById('birthdate');
+  if (birthdateInput) {
+    const today = new Date();
+    const yyyy  = today.getFullYear();
+    const mm    = String(today.getMonth() + 1).padStart(2, '0');
+    const dd    = String(today.getDate()).padStart(2, '0');
+    birthdateInput.max = `${yyyy}-${mm}-${dd}`;
+  }
+
+  // ── Others checkbox toggle ──────────────────────────────────────
+  const othersCheckbox = document.getElementById('skill-others');
+  const othersDiv      = document.getElementById('others-div');
+  if (othersCheckbox && othersDiv) {
+    othersCheckbox.addEventListener('change', () => {
+      othersDiv.classList.toggle('hidden', !othersCheckbox.checked);
+    });
+  }
+
+}); 
