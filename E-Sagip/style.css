@@ -593,6 +593,19 @@ a {
   margin-bottom: 8px;
 }
 
+.meta-container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 8px;
+  flex-wrap: wrap;
+}
+
+.comp-container {
+  margin-left: auto;
+}
+
 .op-meta span {
   font-size: 11px;
   color: var(--text-muted);
@@ -605,6 +618,23 @@ a {
   width: 11px;
   height: 11px;
   flex-shrink: 0;
+}
+
+.complete {
+
+  border: 1px;
+  background-color: #22a050;
+  color: var(--white);
+  border-radius: 10px;
+  padding: 5px;
+  font-family: var(--font-main);
+}
+
+.complete:hover {
+
+  background-color: #1a7a40;
+  transition: background-color 0.3 ease;
+  cursor: pointer;
 }
 
 .op-progress-bar {
@@ -731,6 +761,39 @@ a {
   transition: background 0.2s ease;
 }
 
+.skill-tags-wrap label input[type="checkbox"].others + .skill-tag {
+  min-width: 150px;
+}
+
+.others-div {
+  width: 100%;
+  display: none;
+  margin-top: 10px;
+}
+
+.others-div:not(.hidden) {
+  display: block;
+}
+
+.others-div label {
+  display: block;
+  margin-bottom: 6px;
+  font-size: 13px;
+  color: var(--text-dark);
+}
+
+.others-div textarea.other-skill {
+  width: 100%;
+  min-height: 90px;
+  border: 1.5px solid var(--input-border);
+  border-radius: 12px;
+  padding: 12px;
+  resize: vertical;
+  background: var(--white);
+  color: var(--text-dark);
+  font-size: 13px;
+}
+
 .skill-tags-wrap label .skill-tag:hover {
   background: rgba(122,0,36,0.12);
 }
@@ -855,14 +918,14 @@ a {
 }
 
 .vol-card {
-
   background: var(--white);
   border-radius: 10px;
   padding: 14px 16px;
   box-shadow: 0 2px 8px rgba(74,0,21,0.07);
   display: flex;
-  gap: 12px;
-
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
 }
 
 .vol-avatar {
@@ -881,7 +944,8 @@ a {
   display: flex;
   flex-direction: column;
   gap: 4px;
-  margin-right: 60%;
+  flex: 1;
+  min-width: 0;
 }
 
 .vol-name {
@@ -1063,23 +1127,40 @@ a {
 .feed-section-card{
 
   margin-top: 40px;
-  background: var(--off-white);
+  background: var(--white);
   box-shadow: 0 5px 5px 0 rgba(32, 31, 31, 0.418);
   border-radius: 30px;
 }
 
 .feed-section-header {
-
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
   margin: 5px 0 5px 10px;
   font-size: 1.1rem;
   color: var(--bg-dark);
   font-weight: bold;
 }
 
-.feed-section-header .feed-month {
+.feed-section-header .span1,
+.feed-section-header .rso {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
 
-  margin-left: 60%;
+
+
+.feed-section-header .feed-month {
+  margin-left: 0;
   color: var(--gray);
+}
+
+.feed-section-header .a-view {
+  color: var(--primary);
+  font-size: 0.95rem;
+  font-weight: 500;
 }
 
 .leaderboard-list {
@@ -1091,16 +1172,14 @@ a {
 }
 
 .lb-row {
-
   display: flex;
   flex-direction: row;
+  align-items: center;
   padding: 20px;
   gap: 15px;
-
 }
 
 .lb-medal {
-
   height: 2rem;
   width: 2rem;
   font-size: 1.5rem;
@@ -1130,10 +1209,13 @@ a {
 }
 
 .lb-right {
-
-  margin-left: 65%;
+  margin-left: auto;
   color: var(--primary);
   font-weight: bold;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 4px;
 }
 
 .lb-right .time {
@@ -1484,6 +1566,11 @@ a {
       margin: 0;
       padding: 0;
       border-radius: 3px;
+    }
+
+    .skill-fil {
+
+      color: var(--text-muted);
     }
 
     /* ===== STEP 3 – ACCOUNT ===== */
