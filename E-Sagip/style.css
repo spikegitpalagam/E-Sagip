@@ -623,8 +623,8 @@ a {
 .complete {
 
   border: 1px;
-  background-color: #22a050;
-  color: var(--white);
+  background-color: #2db35e3f;
+  color: rgb(0, 46, 13);
   border-radius: 10px;
   padding: 5px;
   font-family: var(--font-main);
@@ -632,7 +632,7 @@ a {
 
 .complete:hover {
 
-  background-color: #1a7a40;
+  background-color: #30ce6f75;
   transition: background-color 0.3 ease;
   cursor: pointer;
 }
