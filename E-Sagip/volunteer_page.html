@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>E-Sagip – Volunteer Portal</title>
+  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="style2.css">
+  <link rel="icon" href="Images/628_icon.png" type="image/png" />
+</head>
+<body class="admin-page">
+
+  <!-- Top Nav -->
+  <nav class="topnav">
+    <div class="topnav-logo">
+      <div class="shield-sm"><img src="Images/628_logo.png" alt="Logo"></div>
+      <div class="topnav-brand">
+        <h2>E-Sagip</h2>
+        <p>Welcome, <span id="volunteerName">Volunteer</span></p>
+      </div>
+    </div>
+    <div class="topnav-spacer"></div>
+    <div class="topnav-actions">
+      <button class="icon-btn" onclick="window.location.href='community.html'"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13S3 17 3 10a9 9 0 1 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg></button>
+      <button class="icon-btn" onclick="handleVolunteerLogout()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg></button>
+    </div>
+  </nav>
+
+  <!-- Sub Nav -->
+  <nav class="subnav">
+    <button class="subnav-btn" onclick="switchVolunteerTab(this, 'operations')">Operations</button>
+    <button class="subnav-btn" onclick="switchVolunteerTab(this, 'mytasks')">My Tasks</button>
+    <button class="subnav-btn" onclick="switchVolunteerTab(this, 'history')">History</button>
+    <button class="subnav-btn active" onclick="switchVolunteerTab(this, 'feed')">Feed</button>
+  </nav>
+
+  <div class="dashboard-content portal-container">
+
+    <div id="vtab-operations" class="tab-panel hidden">
+
+    <div id="operationsContainer">
+
+    <div class="empty-state">
+
+        <div class="empty-icon">
+            🛟
+        </div>
+
+        <h3>No Active Operations</h3>
+
+        <p>
+            There are currently no active disaster response or community
+            operations. Please check back later for new volunteer opportunities.
+        </p>
+
+        <button class="empty-btn"
+                onclick="window.location.href='community.html'">
+            Community Information
+        </button>
+
+    </div>
+
+</div>
+    
+
+</div>
+
+<div id="vtab-mytasks" class="tab-panel hidden">
+
+   <div id="taskContainer">
+
+    <div class="empty-state">
+
+        <div class="empty-icon">
+            📋
+        </div>
+
+        <h3>No Assigned Tasks</h3>
+
+        <p>
+            You haven't joined any volunteer operations yet.
+            Once assigned, your tasks will appear here.
+        </p>
+
+        <button class="empty-btn"
+                onclick="switchVolunteerTab(document.querySelector('[onclick*=feed]'),'feed')">
+            Browse Feed
+        </button>
+
+    </div>
+
+</div>
+</div>
+
+<div id="vtab-history" class="tab-panel hidden">
+
+    <div id="historyContainer">
+
+    <div class="empty-state">
+
+        <div class="empty-icon">
+            🏅
+        </div>
+
+        <h3>No Volunteer History</h3>
+
+        <p>
+            Your completed volunteer activities
+            will be displayed here after participating
+            in community operations.
+        </p>
+
+        <button class="empty-btn"
+                onclick="switchVolunteerTab(document.querySelector('[onclick*=operations]'),'operations')">
+            View Operations
+        </button>
+
+    </div>
+
+</div>
+</div>
+
+   <!-- Volunteer Feed -->
+<div id="vtab-feed" class="tab-panel">
+    
+      
+      <!-- Alert Marquee -->
+<div class="marquee-card">
+    <marquee id="activeOperationTicker">
+        🚨 No active operations at the moment.
+    </marquee>
+</div>
+
+      <!-- Hero Section -->
+<div class="feed-hero">
+    <div class="feed-hero-overlay">
+        <div class="feed-hero-text">
+            <h2>Community Impact Feed</h2>
+            <p>Documenting the heart of Barangay 628</p>
+        </div>
+    </div>
+</div>
+
+      <!-- Quote Card -->
+      <div class="feed-body">
+
+<div class="feed-quote-card">
+
+    <div class="feed-quote-avatar">
+        <h1>❝</h1>
+    </div>
+
+    <div class="feed-quote-text">
+        <em>
+            Ang pagtulong sa kapwa ay pagtulong sa sarili.
+            Every hand we extend in service multiplies the strength of our community.
+        </em>
+
+        <div class="feed-quote-attr">
+            — BDRRMC Brgy. 628
+        </div>
+
+    </div>
+
+</div>
+
+      <!-- Leaderboard Shell -->
+     <div class="feed-section-card">
+
+    <div class="feed-section-header">
+
+        <span class="span1">
+            <svg viewBox="0 0 24 24"
+                 fill="none"
+                 stroke="currentColor"
+                 stroke-width="2"
+                 width="20"
+                 height="20">
+                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                <circle cx="9" cy="7" r="4"/>
+            </svg>
+
+            Volunteer Leaderboard
+
+        </span>
+
+        <span class="feed-month" id="leaderboardMonth">
+                     June 2026
+            </span> 
+
+    </div>
+
+    <div class="leaderboard-list" id="leaderboardContainer">
+
+        <div class="leaderboard-empty">
+            No leaderboard data available yet.
+        </div>
+
+    </div>
+
+</div>
+
+<!-- Impact Stats -->
+<div class="impact-stats-row">
+
+  <div class="impact-stat">
+    <svg viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2" width="22" height="22">
+      <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+      <circle cx="9" cy="7" r="4"/>
+      <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+      <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+    </svg>
+
+    <div class="impact-num" id="totalVolunteers">
+      0
+    </div>
+
+    <div class="impact-lbl">
+      Volunteers
+    </div>
+  </div>
+
+  <div class="impact-stat">
+    <svg viewBox="0 0 24 24" fill="none" stroke="#e0003c" stroke-width="2" width="30" height="30">
+      <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+    </svg>
+
+    <div class="impact-num" id="familiesHelped">
+      0
+    </div>
+
+    <div class="impact-lbl">
+      Families Helped
+    </div>
+  </div>
+
+  <div class="impact-stat">
+    <svg viewBox="0 0 24 24" fill="none" stroke="#e8a000" stroke-width="2" width="22" height="22">
+      <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+    </svg>
+
+    <div class="impact-num" id="completedOperations">
+      0
+    </div>
+
+    <div class="impact-lbl">
+      Operations
+    </div>
+  </div>
+
+</div>  
+
+     <!-- Recent Successful Operations -->
+<div class="feed-section-header">
+
+    <span class="rso">
+        Recent Successful Operations
+    </span>
+
+    <a href="#" class="a-view">
+        View all →
+    </a>
+
+</div>
+
+<div id="feedContainer">
+
+    <div class="empty-feed-placeholder">
+
+     No community updates available yet.
+
+Successful operations published by the administrator
+will appear here.
+
+    </div>
+</div>
+</div>
+</div>
+
+  <script src="script.js"></script>
+</body>
+</html>
