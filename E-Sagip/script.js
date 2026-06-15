@@ -423,6 +423,12 @@ document.addEventListener('DOMContentLoaded', () => {
     birthdateInput.max = `${yyyy}-${mm}-${dd}`;
   }
 
+   // ──Remove past dates In Schedule ──────────────────────────────────────
+  const now = new Date();
+  
+  const formatted = now.toISOString().slice(0, 16);
+  document.getElementById('sched').min = formatted;
+
   // ── Others checkbox toggle ──────────────────────────────────────
   const othersCheckbox = document.getElementById('skill-others');
   const othersDiv      = document.getElementById('others-div');
