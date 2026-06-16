@@ -1,3 +1,6 @@
+
+
+
 /* ===== CLIENT: COMMUNITY INFORMATION PAGE ===== */
 
 /**
@@ -343,3 +346,18 @@ function handleResetPassword() {
   showStep("step-success");
 }
  
+
+function setFilter(button){
+
+    document.querySelectorAll(".ops-filters button")
+        .forEach(btn => btn.classList.remove("active"));
+
+    button.classList.add("active");
+
+}
+
+
+
+
+
+
