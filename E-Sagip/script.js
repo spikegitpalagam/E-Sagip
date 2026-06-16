@@ -69,7 +69,7 @@ function handleVolunteerLogin() {
     return;
   }
 
-  window.location.href = 'admin_page.html';
+  window.location.href = 'volunteer_page.html';
 }
 
 /**
@@ -388,12 +388,34 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
+  // ── restrict input to numbers only, to 1–1000 ───
+
+  function restrictToSlots(el) {
+    if (!el) return;
+    const allowed = ['Backspace', 'Delete', 'ArrowLeft', 'ArrowRight', 'Tab', 'Home', 'End'];
+    el.addEventListener('keydown', e => {
+      if (!allowed.includes(e.key) && !/^\d$/.test(e.key)) e.preventDefault();
+    });
+    el.addEventListener('input', () => {
+      const val = parseInt(el.value);
+      if (isNaN(val) || val < 1) el.value = '';
+      else if (val > 1000) el.value = 1000;
+    });
+    el.addEventListener('paste', e => {
+      e.preventDefault();
+      const text = (e.clipboardData || window.clipboardData).getData('text');
+      const num  = parseInt(text.replace(/\D/g, ''));
+      if (!isNaN(num)) el.value = Math.min(Math.max(num, 1), 1000);
+    });
+  }
+
   // ── Apply input restrictions ────────────────────────────────────
   restrictToLetters(document.getElementById('fname'));
   restrictToLetters(document.getElementById('lname'));
   restrictToLetters(document.getElementById('ec-name'));
   restrictToNumbers(document.getElementById('contact'));
   restrictToNumbers(document.getElementById('ec-num'));
+  restrictToSlots(document.getElementById('slots'));
 
   // ── Resident address toggle ─────────────────────────────────────
   const residentSelect = document.getElementById('resident');
@@ -423,11 +445,12 @@ document.addEventListener('DOMContentLoaded', () => {
     birthdateInput.max = `${yyyy}-${mm}-${dd}`;
   }
 
-   // ──Remove past dates In Schedule ──────────────────────────────────────
-  const now = new Date();
-  
-  const formatted = now.toISOString().slice(0, 16);
-  document.getElementById('sched').min = formatted;
+  // ── Remove past dates In Schedule ──────────────────────────────
+ const now = new Date();
+const offset = now.getTimezoneOffset() * 60000;
+const local = new Date(now - offset);
+const formatted = local.toISOString().slice(0, 16);
+document.getElementById('sched').min = formatted;
 
   // ── Others checkbox toggle ──────────────────────────────────────
   const othersCheckbox = document.getElementById('skill-others');
@@ -438,4 +461,4 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-}); 
+});
