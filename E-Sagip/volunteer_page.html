@@ -36,32 +36,89 @@
 
   <div class="dashboard-content portal-container">
 
-    <div id="vtab-operations" class="tab-panel hidden">
+<div id="vtab-operations" class="tab-panel hidden">
 
-    <div id="operationsContainer">
+    <!-- Search -->
+    <div class="ops-search">
 
-    <div class="empty-state">
+    <span class="search-icon">
+        <svg viewBox="0 0 24 24"
+             fill="none"
+             stroke="currentColor"
+             stroke-width="2"
+             stroke-linecap="round"
+             stroke-linejoin="round"
+             width="16"
+             height="16">
 
-        <div class="empty-icon">
-            🛟
-        </div>
+            <circle cx="11" cy="11" r="7"></circle>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
 
-        <h3>No Active Operations</h3>
+        </svg>
+    </span>
 
-        <p>
-            There are currently no active disaster response or community
-            operations. Please check back later for new volunteer opportunities.
-        </p>
-
-        <button class="empty-btn"
-                onclick="window.location.href='community.html'">
-            Community Information
-        </button>
-
-    </div>
+    <input type="text" placeholder="Search operations...">
 
 </div>
-    
+
+    <!-- Filters -->
+<div class="ops-filters">
+
+    <button class="active" onclick="setFilter(this)">
+        All
+    </button>
+
+    <button onclick="setFilter(this)">
+        Relief Goods Packing
+    </button>
+
+    <button onclick="setFilter(this)">
+        Debris Clearing
+    </button>
+
+    <button onclick="setFilter(this)">
+        Basic First Aid / CPR
+    </button>
+
+    <button onclick="setFilter(this)">
+        Medical Professional
+    </button>
+
+</div>
+    <!-- Results Count -->
+    <small class="ops-count">
+        0 active operations
+    </small>
+
+    <!-- Container -->
+    <div id="operationsContainer">
+
+        <!-- Empty State -->
+        <div class="empty-state">
+
+            <div class="empty-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+    <circle cx="12" cy="12" r="10"/>
+    <path d="M12 8v8"/>
+    <path d="M8 12h8"/>
+</svg>
+</div>
+
+            <h3>No Active Operations</h3>
+
+            <p>
+                There are currently no active disaster response or community
+                operations. Please check back later for new volunteer opportunities.
+            </p>
+
+            <button class="empty-btn"
+                    onclick="window.location.href='community.html'">
+                Community Information
+            </button>
+
+        </div>
+
+    </div>
 
 </div>
 
@@ -71,9 +128,14 @@
 
     <div class="empty-state">
 
-        <div class="empty-icon">
-            📋
-        </div>
+<div class="empty-icon">
+<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+    <rect x="8" y="3" width="8" height="4" rx="1"/>
+    <path d="M9 7H5a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-4"/>
+    <path d="M8 12h8"/>
+    <path d="M8 16h5"/>
+</svg>
+</div>
 
         <h3>No Assigned Tasks</h3>
 
@@ -98,9 +160,12 @@
 
     <div class="empty-state">
 
-        <div class="empty-icon">
-            🏅
-        </div>
+<div class="empty-icon">
+<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+    <circle cx="12" cy="8" r="6"/>
+    <path d="M8 14l-2 7 6-3 6 3-2-7"/>
+</svg>
+</div>
 
         <h3>No Volunteer History</h3>
 
@@ -276,7 +341,81 @@ will appear here.
 </div>
 </div>
 </div>
-  <script src="script2.js"></script>
+
+<!-- Join Operation Modal -->
+<div id="joinModal" class="modal-overlay hidden">
+
+    <div class="join-modal">
+
+        <div class="modal-header">
+
+            <h3>
+                Volunteer Disclaimer
+            </h3>
+
+            <button onclick="closeJoinModal()">
+                ×
+            </button>
+
+        </div>
+
+        <p class="join-operation-title">
+            You are about to join:
+            <strong id="joinOperationName"></strong>
+        </p>
+
+        <div class="join-warning">
+
+            <strong>⚠ Please read before proceeding:</strong>
+
+            <ul>
+
+                <li>Disaster response operations may involve physical risks.</li>
+
+                <li>Follow all instructions from the BDRRMC Coordinator.</li>
+
+                <li>Do not perform duties outside your assigned role.</li>
+
+                <li>Wear protective equipment whenever required.</li>
+
+                <li>Your safety is your responsibility.</li>
+
+            </ul>
+
+        </div>
+
+        <p class="join-note">
+
+            By clicking
+            <strong>I Agree & Join</strong>,
+            you acknowledge these risks and agree to follow the
+            BDRRMC Volunteer Code of Conduct.
+
+        </p>
+
+        <div class="modal-actions">
+
+            <button class="cancel-btn"
+                    onclick="closeJoinModal()">
+
+                Cancel
+
+            </button>
+
+            <button class="agree-btn"
+                    onclick="confirmJoin()">
+
+                I Agree & Join
+
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
+
   <script src="script.js"></script>
+  <script src="script2.js"></script>
 </body>
 </html>
