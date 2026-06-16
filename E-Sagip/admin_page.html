@@ -82,7 +82,7 @@
       <div class="stat-card">
         <div class="stat-info">
           <div class="stat-label">Total Volunteers</div>
-          <div class="stat-value">0</div>
+          <div class="stat-value-v">0</div>
           <div class="stat-sub">0 active</div>
         </div>
         <div class="stat-icon red">
@@ -97,7 +97,7 @@
       <div class="stat-card">
         <div class="stat-info">
           <div class="stat-label">Active Operations</div>
-          <div class="stat-value">0</div>
+          <div class="stat-value-op">0</div>
           <div class="stat-sub">0 enrolled</div>
         </div>
         <div class="stat-icon orange">
@@ -146,9 +146,9 @@
     <!-- Active Operations -->
     <!--------Sample-------->
     <div class="section-title">Active Operations</div>
-    <div class="operations-list">
+    <div class="operations-list" id="operation-list">
 
-      <div class="op-card">
+  <div class="op-card">
         <div class="op-header">
           <span class="op-name">Flood Relief Distribution</span>
           <span class="op-count">
@@ -228,7 +228,7 @@
             Volunteer Slots <span class="req">*</span>
           </label>
           <div class="input-wrap">
-            <input type="number" placeholder="e.g. 20" min="1" max="1000" />
+            <input type="number" placeholder="e.g. 20" min="1" max="1000" id="slots"/>
           </div>
         </div>
       </div>
@@ -297,6 +297,7 @@
     <div class="vol-list" id="vol-list">
 
       <div class="vol-card">
+        <div class="vol-ops">
         <div class="vol-avatar">MS</div>
         <div class="vol-info">
           <div class="vol-name">Maria Santos <span class="vol-badge active">active</span></div>
@@ -306,23 +307,18 @@
             <span class="vstag">Medical Professional</span>
           </div>
         </div>
-        <div class="vol-ops">
-          <div class="vol-ops-btn">
-            <button id="v-edit" class="v-edit">Edit</button>
-            <button id="v-delete" class="v-delete"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
-             <polyline points="3 6 5 6 21 6"/>
-             <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/>
-             <path d="M10 11v6"/>
-             <path d="M14 11v6"/> 
-            <path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/>
-            </svg>
-          </button>
-          </div>
+        
+          
           <div class="vol-ops-text">
           <span class="vol-ops-num">5</span>
           <span class="vol-ops-lbl">ops</span>
           </div>
+          </div>
+          <div class="vol-ops-btn">
+            <button id="v-edit" class="v-edit">Edit</button>
+            <button id="v-delete" class="v-delete">Delete</button>
         </div>
+
       </div>
 
     </div>
