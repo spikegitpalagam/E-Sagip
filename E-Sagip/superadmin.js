@@ -1,0 +1,670 @@
+/* ============================================================
+           SUPERADMIN
+   ============================================================ */
+
+
+// ---------- Tab navigation ----------
+function switchSubNav(button, tab) {
+
+    document.querySelectorAll(".subnav-btn").forEach(btn => {
+        btn.classList.remove("active");
+    });
+
+    button.classList.add("active");
+
+    document.querySelectorAll(".dashboard-content").forEach(tabContent => {
+        tabContent.classList.add("hidden");
+    });
+
+    const activeTab = document.getElementById("tab-" + tab);
+
+    if (activeTab) {
+        activeTab.classList.remove("hidden");
+    }
+
+}
+
+// ---------- New Op: skill pill multi-select ----------
+document.querySelectorAll('#newop-skills .pill').forEach(p => {
+  p.addEventListener('click', () => p.classList.toggle('selected'));
+});
+
+// ---------- Data ----------
+const skills = [
+  { name: "Basic First Aid / CPR", count: 2 },
+  { name: "Medical Professional", count: 2 },
+  { name: "Relief Goods Packing", count: 1 },
+  { name: "Debris Clearing & Heavy Lifting", count: 2 },
+  { name: "Driver (4-Wheel / Truck / Van)", count: 1 },
+  { name: "Boat / Bangka Operator", count: 1 },
+];
+
+const maxSkillCount = Math.max(...skills.map(s => s.count));
+
+const activeOps = [
+  {
+    title: "Flood Relief Distribution",
+    location: "Purok 3, Brgy. 628",
+    schedule: "June 10, 2026 · 7:00 AM",
+    filled: 14,
+    total: 20
+  },
+  {
+    title: "Debris Clearing Brigade",
+    location: "Purok 5, Brgy. 628",
+    schedule: "June 12, 2026 · 6:00 AM",
+    filled: 9,
+    total: 15
+  },
+  {
+    title: "Medical Mission",
+    location: "Purok 1, Brgy. 628",
+    schedule: "June 14, 2026 · 8:00 AM",
+    filled: 8,
+    total: 12
+  },
+  {
+    title: "Evacuation Center Support",
+    location: "Purok 6, Brgy. 628",
+    schedule: "June 16, 2026 · 5:00 PM",
+    filled: 5,
+    total: 10
+  }
+];
+
+const volunteers = [
+  {
+    initials: "MS",
+    name: "Maria Santos",
+    status: "active",
+    location: "Purok 2, Brgy. 628",
+    phone: "09171234567",
+    skills: ["Basic First Aid / CPR", "Medical Professional"],
+    ops: 5
+  },
+  {
+    initials: "JR",
+    name: "Jose Reyes",
+    status: "active",
+    location: "Purok 4, Brgy. 628",
+    phone: "09281234567",
+    skills: ["Boat / Bangka Operator", "Relief Goods Packing"],
+    ops: 8
+  },
+  {
+    initials: "AC",
+    name: "Ana Cruz",
+    status: "active",
+    location: "Purok 1, Brgy. 628",
+    phone: "09351234567",
+    skills: ["Basic First Aid / CPR", "Community Kitchen / Cooking"],
+    ops: 3
+  },
+  {
+    initials: "PL",
+    name: "Pedro Lim",
+    status: "active",
+    location: "Purok 3, Brgy. 628",
+    phone: "09451234567",
+    skills: ["Debris Clearing & Heavy Lifting", "Driver (4-Wheel / Truck / Van)"],
+    ops: 6
+  },
+  {
+    initials: "CD",
+    name: "Carmen Dizon",
+    status: "active",
+    location: "Purok 5, Brgy. 628",
+    phone: "09561234567",
+    skills: ["Medical Professional", "Debris Clearing & Heavy Lifting"],
+    ops: 4
+  },
+  {
+    initials: "RB",
+    name: "Ramon Bautista",
+    status: "inactive",
+    location: "Purok 6, Brgy. 628",
+    phone: "09671234567",
+    skills: ["Community Kitchen / Cooking"],
+    ops: 2
+  }
+];
+
+const admins = [
+  {
+    name: "Coordinator Reyes",
+    email: "admin@brgy628.gov.ph"
+  },
+  {
+    name: "Coordinator Dela Cruz",
+    email: "admin2@brgy628.gov.ph"
+  }
+];
+
+// ---------- Render: Skills distribution ----------
+const skillsHTML = skills.map(s => `
+<div class="skill-row">
+  <div class="skill-row-top">
+    <span>${s.name}</span>
+    <span>${s.count}</span>
+  </div>
+  <div class="bar-track">
+    <div class="bar-fill" style="width:${(s.count / maxSkillCount) * 100}%"></div>
+  </div>
+</div>
+`).join("");
+
+const skillsContainer = document.getElementById("skills-distribution");
+
+if (skillsContainer) {
+    skillsContainer.innerHTML = skillsHTML;
+}
+
+// ---------- Render: Active Operations ----------
+const opsHTML = activeOps.map(op => {
+  const pct = Math.round((op.filled / op.total) * 100);
+
+  return `
+  <div class="card op-card">
+    <div class="op-top">
+      <div>
+        <div class="op-title">${op.title}</div>
+        <div class="op-meta">${op.location}</div>
+        <div class="op-meta">${op.schedule}</div>
+      </div>
+
+      <div style="display:flex;align-items:center;gap:10px;">
+        <span class="op-count">${op.filled}/${op.total}</span>
+      </div>
+    </div>
+
+    <div class="op-progress">
+      <div class="bar-track">
+        <div class="bar-fill"
+          style="width:${pct}%;background:var(--maroon-600)">
+        </div>
+      </div>
+    </div>
+
+    <button class="complete-btn">
+      Complete Operation
+    </button>
+  </div>
+  `;
+}).join("");
+
+const activeOpsContainer = document.getElementById("active-ops");
+
+if (activeOpsContainer) {
+    activeOpsContainer.innerHTML = opsHTML;
+}
+
+// ---------- Volunteer Filters ----------
+const uniqueSkills = [
+  "All Skills",
+  ...new Set(volunteers.flatMap(v => v.skills))
+];
+
+let activeFilter = "All Skills";
+let searchTerm = "";
+
+function renderFilters() {
+
+    const filterContainer = document.getElementById("skill-filters");
+
+    if (!filterContainer) return;
+
+    filterContainer.innerHTML = uniqueSkills.map(skill => `
+        <button class="filter-pill ${skill === activeFilter ? "active" : ""}"
+            data-skill="${skill}">
+            ${skill}
+        </button>
+    `).join("");
+
+    document.querySelectorAll(".filter-pill").forEach(btn => {
+
+        btn.addEventListener("click", () => {
+
+            activeFilter = btn.dataset.skill;
+
+            renderFilters();
+
+            renderVolunteers();
+
+        });
+
+    });
+
+}
+
+function renderVolunteers() {
+
+    const resultsCount = document.getElementById("results-count");
+    const volunteerList = document.getElementById("vol-list");
+
+    if (!resultsCount || !volunteerList) return;
+
+    const term = searchTerm.toLowerCase();
+
+    const filtered = volunteers.filter(v => {
+
+        const matchesSkill =
+            activeFilter === "All Skills" ||
+            v.skills.includes(activeFilter);
+
+        const matchesSearch =
+            v.name.toLowerCase().includes(term) ||
+            v.skills.some(s => s.toLowerCase().includes(term));
+
+        return matchesSkill && matchesSearch;
+
+    });
+
+    resultsCount.textContent =
+        `${filtered.length} volunteer${filtered.length === 1 ? "" : "s"} found`;
+
+    volunteerList.innerHTML =
+        filtered.map(v => `
+        <div class="card vol-card">
+            <div class="vol-top">
+                <div class="vol-left">
+                    <div class="avatar">${v.initials}</div>
+
+                    <div>
+                        <div class="vol-name-row">
+                            <span class="vol-name">${v.name}</span>
+                            <span class="status-badge ${v.status}">
+                                ${v.status}
+                            </span>
+                        </div>
+
+                        <div class="vol-meta">${v.location}</div>
+                        <div class="vol-meta">${v.phone}</div>
+
+                        <div class="vol-skills">
+                            ${v.skills.map(skill => `<span class="skill-tag">${skill}</span>`).join("")}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="vol-ops">
+                    <div class="num">${v.ops}</div>
+                    <div class="lbl">ops</div>
+                </div>
+            </div>
+        </div>
+        `).join("");
+
+}
+
+const searchInput = document.getElementById("vol-search");
+
+if (searchInput) {
+
+    searchInput.addEventListener("input", e => {
+        searchTerm = e.target.value;
+        renderVolunteers();
+    });
+
+    renderFilters();
+    renderVolunteers();
+
+}
+
+// ---------- Admin List ----------
+const adminList = document.getElementById("admin-list");
+
+if (adminList) {
+
+adminList.innerHTML =
+admins.map(a => `
+<div class="card admin-card">
+  <div class="admin-top">
+    <div>
+      <div class="admin-name">${a.name}</div>
+      <div class="admin-email">${a.email}</div>
+      <span class="role-badge">admin</span>
+    </div>
+  </div>
+</div>
+`).join("");
+
+}
+
+
+/* ===========================
+   ADD POST MODAL
+=========================== */
+
+const addPostBtn = document.getElementById("addPostBtn");
+const postModal = document.getElementById("postModal");
+const cancelPost = document.getElementById("cancelPost");
+const publishPost = document.getElementById("publishPost");
+
+if(addPostBtn){
+
+    addPostBtn.addEventListener("click", () => {
+        postModal.classList.remove("hidden");
+    });
+
+}
+
+if(cancelPost){
+
+    cancelPost.addEventListener("click", () => {
+        postModal.classList.add("hidden");
+    });
+
+}
+
+if(postModal){
+
+    postModal.addEventListener("click", (e) => {
+
+        if(e.target === postModal){
+            postModal.classList.add("hidden");
+        }
+
+    });
+
+}
+
+if(publishPost){
+
+    publishPost.addEventListener("click", () => {
+
+        alert("Community post published.");
+
+        document.getElementById("postTitle").value = "";
+        document.getElementById("postDescription").value = "";
+        document.getElementById("postImage").value = "";
+
+        postModal.classList.add("hidden");
+
+    });
+
+}
+
+/* ==========================================
+   SUPERADMIN COMMUNITY EDIT
+========================================== */
+
+const editBtn = document.getElementById("editCommunityBtn");
+
+if (editBtn) {
+
+    let editing = false;
+
+    editBtn.addEventListener("click", () => {
+
+        editing = !editing;
+
+        // =========================
+        // EDITABLE FIELDS
+        // =========================
+        document.querySelectorAll(".editable").forEach(el => {
+            el.contentEditable = editing;
+        });
+
+        // =========================
+        // QUICK FACTS
+        // =========================
+        const badge = document.getElementById("editingBadge");
+
+        if (badge) {
+            badge.style.display = editing ? "inline-flex" : "none";
+        }
+
+        const addFact = document.getElementById("addFactContainer");
+
+        if (addFact) {
+            addFact.style.display = editing ? "block" : "none";
+        }
+
+        // =========================
+        // BULLETIN
+        // =========================
+
+        const bulletinBadge =
+            document.getElementById("bulletinEditingBadge");
+
+        if (bulletinBadge) {
+            bulletinBadge.style.display =
+                editing ? "inline-flex" : "none";
+        }
+
+        document
+            .querySelectorAll(".addTipContainer")
+            .forEach(container => {
+
+                container.style.display =
+                    editing ? "block" : "none";
+
+            });
+             
+
+        // =========================
+        // CONTACTS
+        // =========================
+
+        const addContactBtn =
+            document.getElementById("addContactBtn");
+
+        if (addContactBtn) {
+
+            addContactBtn.style.display =
+                editing ? "flex" : "none";
+
+        }
+
+        // =========================
+        // MAP
+        // =========================
+
+        const addEvacBtn =
+            document.getElementById("addEvacBtn");
+
+        if (addEvacBtn) {
+
+            addEvacBtn.style.display =
+                editing ? "flex" : "none";
+
+        }
+
+        document
+            .querySelectorAll(".edit-evac-btn")
+            .forEach(btn => {
+
+                btn.style.display =
+                    editing ? "flex" : "none";
+
+            });
+
+        document.body.classList.toggle(
+            "community-editing",
+            editing
+        );
+
+        editBtn.innerHTML = editing
+        ? `
+            <svg viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2">
+
+                <polyline points="20 6 9 17 4 12"/>
+
+            </svg>
+
+            <span>Done</span>
+        `
+        : `
+            <svg viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2">
+
+                <path d="M12 20h9"/>
+                <path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5z"/>
+
+            </svg>
+
+            <span>Edit</span>
+        `;
+
+    });
+
+}
+
+//ADD FACT BUTTON
+const addFactBtn = document.getElementById("addFactBtn");
+
+if(addFactBtn){
+
+    addFactBtn.addEventListener("click",()=>{
+
+const list = document.querySelector(".quick-facts-list");
+const addFactContainer =
+document.getElementById("addFactContainer");
+       if(!list) return;
+
+        const row=document.createElement("div");
+
+        row.className="fact-row";
+
+        row.innerHTML=`
+            <span class="fact-label editable" contenteditable="true">
+                New Label
+            </span>
+
+            <span class="fact-value editable" contenteditable="true">
+                New Value
+            </span>
+        `;
+
+      addFactContainer.before(row);
+
+    });
+
+}
+
+
+
+/* ==========================================================
+   BULLETIN - ADD TIP
+========================================================== */
+
+document.querySelectorAll(".add-tip-btn").forEach(button => {
+
+    button.addEventListener("click", function () {
+
+        const list =
+            this.closest(".bulletin-card")
+                .querySelector(".bulletin-list");
+
+        const total =
+            list.querySelectorAll(".bulletin-item").length + 1;
+
+        let color = "blue";
+
+        if (list.closest(".bulletin-card")
+                .querySelector(".bulletin-header")
+                .classList.contains("violet")) {
+
+            color = "violet";
+
+        } else if (list.closest(".bulletin-card")
+                .querySelector(".bulletin-header")
+                .classList.contains("red")) {
+
+            color = "red";
+
+        } else if (list.closest(".bulletin-card")
+                .querySelector(".bulletin-header")
+                .classList.contains("green")) {
+
+            color = "green";
+
+        }
+
+        const item = document.createElement("div");
+
+        item.className = "bulletin-item";
+
+        item.innerHTML = `
+
+            <span class="num-badge ${color}">
+                ${total}
+            </span>
+
+            <span class="editable"
+                  contenteditable="true">
+
+                New Tip
+
+            </span>
+
+        `;
+
+        list.appendChild(item);
+
+    });
+
+});
+
+/* ==========================================================
+   CONTACTS - ADD CONTACT
+========================================================== */
+
+const addContactBtn =
+document.getElementById("addContactBtn");
+
+if(addContactBtn){
+
+    addContactBtn.addEventListener("click",()=>{
+
+        const directory =
+        document.querySelector(".directory-card");
+
+        const row =
+        document.createElement("div");
+
+        row.className = "directory-row";
+
+        row.innerHTML = `
+
+            <div class="directory-icon maroon">
+
+                <svg viewBox="0 0 24 24"
+                     fill="none"
+                     stroke="currentColor"
+                     stroke-width="2">
+
+                    <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.13.96.36 1.9.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.91.34 1.85.57 2.81.7A2 2 0 0 1 22 16.92z"/>
+
+                </svg>
+
+            </div>
+
+            <div class="directory-info">
+
+                <div class="dir-name">
+                    New Contact
+                </div>
+
+                <div class="dir-sub">
+                    Category
+                </div>
+
+            </div>
+
+            <div class="directory-number maroon">
+                Contact Number
+            </div>
+
+        `;
+
+        directory.appendChild(row);
+
+    });
+
+}
