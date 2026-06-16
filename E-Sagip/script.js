@@ -59,7 +59,7 @@ function handleVolunteerLogin() {
   const password = document.getElementById('v-password')?.value;
 
   if (!email || !password) {
-    alert('Please enter your admin credentials.');
+    alert('Please enter your credentials.');
     return;
   }
 
@@ -74,7 +74,7 @@ function handleVolunteerLogin() {
 
 /**
  * Handle admin login form submission.
- * Redirects to admin.html on success.
+ * Redirects to admin_page.html on success.
  */
 function handleAdminLogin() {
   const email    = document.getElementById('a-email')?.value.trim();
@@ -156,12 +156,13 @@ function goToStep(step) {
     const birthdate       = document.getElementById('birthdate')?.value;
     const contact         = document.getElementById('contact')?.value.trim();
     const email           = document.getElementById('email')?.value.trim();
-    const resident        = document.getElementById('resident')?.value;
+    const residentCheckbox = document.getElementById('resident');      // ✅ get the checkbox element
+    const isResident      = residentCheckbox?.checked ?? false;        // ✅ use .checked (boolean)
     const residentAddress = document.getElementById('resident-address')?.value.trim();
     const outsideAddress  = document.getElementById('outside-address')?.value.trim();
 
-    if (!fname || !lname || !birthdate || !contact || !email || !resident) {
-      alert('Please fill in all required fields (First Name, Last Name, Birthdate, Contact Number, Email, and residency confirmation).');
+    if (!fname || !lname || !birthdate || !contact || !email) {
+      alert('Please fill in all required fields (First Name, Last Name, Birthdate, Contact Number, and Email).');
       return;
     }
 
@@ -186,12 +187,13 @@ function goToStep(step) {
       return;
     }
 
-    if (resident === 'yes' && !residentAddress) {
-      alert('Please enter your home address in Brgy. 628.');
+    // ✅ boolean checks instead of 'yes'/'no' string checks
+    if (isResident && !residentAddress) {
+      alert('Please select your Purok in Brgy. 628.');
       return;
     }
-    if (resident === 'no' && !outsideAddress) {
-      alert('Please enter the barangay you are from.');
+    if (!isResident && !outsideAddress) {
+      alert('Please select your City/Municipality.');
       return;
     }
   }
@@ -270,26 +272,27 @@ function backtoS1() {
 }
 
 /**
- * Show the correct address field based on resident selection.
+ * Show the correct address section based on checkbox state.
+ * Checked   → show address-div1 (Brgy. 628 resident)
+ * Unchecked → show address-div2 (outside address)
  */
 function toggleResidentAddressFields() {
-  const resident = document.getElementById('resident')?.value;
+  const checkbox = document.getElementById('resident');
   const div1     = document.querySelector('.address-div1');
   const div2     = document.querySelector('.address-div2');
   const input1   = document.getElementById('resident-address');
   const input2   = document.getElementById('outside-address');
-  if (!div1 || !div2 || !input1 || !input2) return;
+  if (!checkbox || !div1 || !div2 || !input1 || !input2) return;
 
-  const showDiv1 = resident === 'yes';
-  const showDiv2 = resident === 'no';
+  const isResident = checkbox.checked;
 
-  div1.classList.toggle('active', showDiv1);
-  div2.classList.toggle('active', showDiv2);
-  input1.required = showDiv1;
-  input2.required = showDiv2;
+  div1.classList.toggle('active', isResident);
+  div2.classList.toggle('active', !isResident);
+  input1.required = isResident;
+  input2.required = !isResident;
 
-  if (!showDiv1) input1.value = '';
-  if (!showDiv2) input2.value = '';
+  if (!isResident) input1.value = '';
+  else input2.value = '';
 }
 
 /**
@@ -358,7 +361,7 @@ function completeRegistration() {
 
 document.addEventListener('DOMContentLoaded', () => {
 
-  // ── restrict input to letters only ──────────────────────
+  // ── Restrict input to letters only ─────────────────────────────
   function restrictToLetters(el) {
     if (!el) return;
     const allowed = ['Backspace', 'Delete', 'ArrowLeft', 'ArrowRight', 'Tab', ' '];
@@ -373,7 +376,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // ── restrict input to numbers only ──────────────────────
+  // ── Restrict input to numbers only ─────────────────────────────
   function restrictToNumbers(el) {
     if (!el) return;
     const allowed = ['Backspace', 'Delete', 'ArrowLeft', 'ArrowRight'];
@@ -388,8 +391,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // ── restrict input to numbers only, to 1–1000 ───
-
+  // ── Restrict input to numbers only, clamped to 1–1000 ──────────
   function restrictToSlots(el) {
     if (!el) return;
     const allowed = ['Backspace', 'Delete', 'ArrowLeft', 'ArrowRight', 'Tab', 'Home', 'End'];
@@ -417,10 +419,10 @@ document.addEventListener('DOMContentLoaded', () => {
   restrictToNumbers(document.getElementById('ec-num'));
   restrictToSlots(document.getElementById('slots'));
 
-  // ── Resident address toggle ─────────────────────────────────────
-  const residentSelect = document.getElementById('resident');
-  if (residentSelect) {
-    residentSelect.addEventListener('change', toggleResidentAddressFields);
+  // ── Resident checkbox toggle ────────────────────────────────────
+  const residentCheckbox = document.getElementById('resident');
+  if (residentCheckbox) {
+    residentCheckbox.addEventListener('change', toggleResidentAddressFields);
   }
   toggleResidentAddressFields();
 
@@ -445,12 +447,15 @@ document.addEventListener('DOMContentLoaded', () => {
     birthdateInput.max = `${yyyy}-${mm}-${dd}`;
   }
 
-  // ── Remove past dates In Schedule ──────────────────────────────
- const now = new Date();
-const offset = now.getTimezoneOffset() * 60000;
-const local = new Date(now - offset);
-const formatted = local.toISOString().slice(0, 16);
-document.getElementById('sched').min = formatted;
+  // ── Schedule min date (no past dates) ──────────────────────────
+  const schedInput = document.getElementById('sched');
+  if (schedInput) {
+    const now       = new Date();
+    const offset    = now.getTimezoneOffset() * 60000;
+    const local     = new Date(now - offset);
+    const formatted = local.toISOString().slice(0, 16);
+    schedInput.min  = formatted;
+  }
 
   // ── Others checkbox toggle ──────────────────────────────────────
   const othersCheckbox = document.getElementById('skill-others');
