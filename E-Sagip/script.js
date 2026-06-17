@@ -446,6 +446,35 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
+const noneCheckbox = document.querySelector('#skill-tags input[value="None"]');
+if (noneCheckbox) {
+  noneCheckbox.addEventListener('change', () => {
+    const otherCheckboxes = document.querySelectorAll('#skill-tags input[type="checkbox"]:not([value="None"])');
+    otherCheckboxes.forEach(cb => {
+      cb.checked  = false;
+      cb.disabled = noneCheckbox.checked;
+      const tag = cb.closest('label')?.querySelector('.skill-tag');
+      if (tag) tag.style.color = noneCheckbox.checked ? 'var(--text-muted)' : '';
+    });
+    if (noneCheckbox.checked) {
+      document.getElementById('others-div')?.classList.add('hidden');
+    }
+  });
+
+  document.querySelectorAll('#skill-tags input[type="checkbox"]:not([value="None"])').forEach(cb => {
+    cb.addEventListener('change', () => {
+      if (cb.checked) {
+        noneCheckbox.checked = false;
+       
+        document.querySelectorAll('#skill-tags input[type="checkbox"]:not([value="None"])').forEach(other => {
+          const tag = other.closest('label')?.querySelector('.skill-tag');
+          if (tag) tag.style.color = '';
+        });
+      }
+    });
+  });
+}
+
   // ── Registration form submit ────────────────────────────────────
   const registrationForm = document.getElementById('registration-form');
   if (registrationForm) {
