@@ -6,6 +6,7 @@
   <title>E-Sagip – Admin Dashboard</title>
   <link rel="stylesheet" href="style.css" >
   <link rel="stylesheet" href="mobile.css">
+  <link rel="stylesheet" href="style2.css">
   <link rel="icon" href="Images/628_icon.png" type="image/png" />
 </head>
 <body class="admin-page">
@@ -147,12 +148,21 @@
     
     <div class="section-title">Active Operations</div>
     <div class="operations-list" id="operation-list">
-      <div class="no-opt-container">
-        <h1 class="no-opt-clock">🕜</h1>
-        <h2>No Active Operations</h1>
-         
-      </div>
-  
+      
+       <div class="empty-state">
+        <div class="empty-icon">🚨</div>
+        <h3>No Active Operations</h3>
+        <p>
+            There are currently no active disaster response
+            operations. Create a new operation to begin
+            volunteer coordination.
+        </p>
+
+        <button class="empty-btn"
+                onclick="switchSubNav(document.querySelector('[onclick*=newop]'),'newop')">
+            Create New Operation
+        </button>
+       </div>
     </div>
   </div>
 
