@@ -1144,6 +1144,26 @@ a {
   cursor: pointer;
 }
 
+.v-approve {
+
+  padding: 2px 10px 2px 10px;
+  width: 50%;
+  height: 2rem;
+  border-radius: 20px;
+  border: 1px solid rgb(42, 107, 42);
+  background-color: var(--white);
+  color: rgb(42, 107, 42);
+  font-family: var(--font-main);
+}
+
+.v-approve:hover {
+
+  border: 1px solid rgb(16, 69, 16);
+  color: rgb(16, 69, 16);
+    transition: background-color 0.6s ease, color 0.6s ease;
+  cursor: pointer;
+}
+
 .vol-count {
   font-size: 12.5px;
   color: var(--text-muted);
