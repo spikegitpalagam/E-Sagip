@@ -1,3 +1,28 @@
+:root {
+  --primary: #800020;
+  --primary-dark: #560019;
+  --primary-light: #9b0030;
+  --accent: #c0003c;
+  --bg-dark: #4a0015;
+  --bg-deeper: #2e000d;
+  --white: #ffffff;
+  --off-white: #f9f4f5;
+  --light-gray: #f0e8ea;
+  --mid-gray: #d4b8bc;
+  --gray: #6b6566;
+  --dark-gray: #332f2f;
+  --text-dark: #1a0008;
+  --text-muted: #8a6670;
+  --warning-bg: #fff3cd;
+  --warning-border: #ffc107;
+  --warning-text: #856404;
+  --card-shadow: 0 8px 32px rgba(74, 0, 21, 0.18);
+  --input-border: #e0d0d4;
+  --progress-bg: #e8d5d9;
+
+  --font-main: 'Segoe UI', 'Inter', Arial, sans-serif;
+}
+
 .hidden{
     display:none !important;
 }
@@ -1200,6 +1225,120 @@ font-size:14px;
 margin:0;
 font-weight:600;
 color:#666;
+}
+
+.admin-card {
+  width: 100%;
+  background-color: var(--white);
+  box-shadow: 0 2px 8px rgba(74, 0, 21, .08);
+  margin-bottom: 20px;
+  padding: 16px;
+  border-radius: 10px;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.admin-top {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 15px;
+}
+
+.admin-top .ad-logo {
+  width: 2.2rem;
+  height: 2.2rem;
+  border-radius: 50%;
+  background-color: rgb(243, 158, 172);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  color: #4A1528;
+}
+
+.admin-top .ad-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.admin-top .admin-name {
+  font-weight: bold;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  font-size: 14px;
+  color: var(--color-text-primary);
+}
+
+.admin-top .admin-email {
+  color: var(--text-muted);
+  font-size: 12px;
+}
+
+.admin-top .role-badge {
+  background-color: rgb(243, 158, 172);
+  font-size: 11px;
+  font-weight: 500;
+  color: #4A1528;
+  border-radius: 20px;
+  padding: 2px 8px;
+  display: inline-block;
+  align-self: flex-start;
+  margin-top: 2px;
+}
+
+.ad-divider {
+  border: none;
+  border-top: 0.5px solid rgba(0, 0, 0, 0.1);
+  margin: 0;
+}
+
+.ad-btn {
+  display: flex;
+  flex-direction: row;
+  gap: 8px;
+}
+
+.ad-btn > * {
+  flex: 1;
+}
+
+.a-edit,
+.a-remove {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  height: 2rem;
+  border-radius: 20px;
+  font-family: var(--font-main);
+  font-size: 13px;
+  background-color: var(--white);
+  cursor: pointer;
+  transition: border 0.3s ease, color 0.3s ease;
+  box-sizing: border-box;
+}
+
+.a-edit {
+  border: 1px solid var(--primary);
+  color: var(--primary);
+}
+
+.a-edit:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.a-remove {
+  border: 1px solid var(--accent);
+  color: var(--accent);
+}
+
+.a-remove:hover {
+  border-color: var(--primary);
+  color: var(--primary);
 }
 
 /* ==========================================================
