@@ -357,6 +357,50 @@ function setFilter(button){
 }
 
 
+// ===== Join modal & approval check =====
+function openJoinModal(operationName) {
+  const modal = document.getElementById('joinModal');
+  const nameEl = document.getElementById('joinOperationName');
+  if (nameEl) nameEl.textContent = operationName || 'Operation';
+  if (modal) modal.classList.remove('hidden');
+}
+
+function closeJoinModal() {
+  const modal = document.getElementById('joinModal');
+  if (modal) modal.classList.add('hidden');
+}
+
+function showNotApprovedModal() {
+  const modal = document.getElementById('notApprovedModal');
+  if (modal) modal.classList.remove('hidden');
+}
+
+function closeNotApprovedModal() {
+  const modal = document.getElementById('notApprovedModal');
+  if (modal) modal.classList.add('hidden');
+}
+
+function confirmJoin() {
+  // check localStorage flag set during registration
+  let approved = false;
+  try {
+    approved = localStorage.getItem('userApproved') === 'true';
+  } catch (e) {
+    approved = false;
+  }
+
+  if (!approved) {
+    closeJoinModal();
+    showNotApprovedModal();
+    return;
+  }
+
+  // proceed to join - demo behaviour: close modal and show success
+  closeJoinModal();
+  alert('You have successfully joined the operation. Thank you!');
+}
+
+
 
 
 

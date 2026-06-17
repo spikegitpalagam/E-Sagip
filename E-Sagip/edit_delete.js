@@ -79,6 +79,35 @@ function confirmRemoveModal() {
   closeRemoveModal();
 }
 
+function handleApprove(btn) {
+  const card = btn.closest('.vol-card');
+  if (!card) return;
+
+  // Update badge UI
+  const nameNode = card.querySelector('.vol-name');
+  const badge = nameNode.querySelector('.vol-badge');
+  if (badge) {
+    badge.textContent = 'approved';
+    badge.className = 'vol-badge approved';
+  } else {
+    const span = document.createElement('span');
+    span.className = 'vol-badge approved';
+    span.textContent = 'approved';
+    nameNode.appendChild(span);
+  }
+
+  // For demo purposes, set the global userApproved flag so the registered user can join
+  try {
+    localStorage.setItem('userApproved', 'true');
+  } catch (e) {
+    // ignore
+  }
+
+  // Update approve button appearance
+  btn.textContent = 'Approved';
+  btn.disabled = true;
+}
+
 document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('edit-modal')?.addEventListener('click', function(e) {
     if (e.target === this) closeEditModal();

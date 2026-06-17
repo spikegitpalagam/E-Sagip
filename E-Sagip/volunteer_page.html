@@ -122,6 +122,21 @@
 
 </div>
 
+<!-- Not Approved Modal -->
+<div id="notApprovedModal" class="modal-overlay hidden">
+    <div class="modal-box">
+        <button class="modal-close" onclick="closeNotApprovedModal()" aria-label="Close">&times;</button>
+        <h2 class="modal-title">Account Pending Approval</h2>
+        <p>
+            Your registration is still pending admin approval. You can still access the system,
+            but you cannot join volunteer operations until your account is approved.
+        </p>
+        <div class="modal-footer">
+            <button class="btn-ok" onclick="closeNotApprovedModal()">OK</button>
+        </div>
+    </div>
+</div>
+
 <div id="vtab-mytasks" class="tab-panel hidden">
 
    <div id="taskContainer">
