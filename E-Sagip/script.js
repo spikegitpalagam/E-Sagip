@@ -1,15 +1,12 @@
 /* ===== LOGIN PAGE ===== */
 
-/**
- * Switch between Volunteer and Admin tabs on the login page.
- */
 function switchTab(tab) {
   const formVolunteer = document.getElementById('form-volunteer');
   const formAdmin     = document.getElementById('form-admin');
   const tabVolunteer  = document.getElementById('tab-volunteer');
   const tabAdmin      = document.getElementById('tab-admin');
 
-  if (!formVolunteer) return; // not on login page
+  if (!formVolunteer) return;
 
   if (tab === 'volunteer') {
     formVolunteer.classList.remove('hidden');
@@ -24,11 +21,6 @@ function switchTab(tab) {
   }
 }
 
-/**
- * Toggle password visibility.
- * @param {string} inputId  - ID of the password input
- * @param {HTMLElement} btn - The toggle button element
- */
 function togglePassword(inputId, btn) {
   const input = document.getElementById(inputId);
   if (!input) return;
@@ -51,9 +43,6 @@ function togglePassword(inputId, btn) {
   }
 }
 
-/**
- * Handle volunteer login form submission.
- */
 function handleVolunteerLogin() {
   const email    = document.getElementById('v-email')?.value.trim();
   const password = document.getElementById('v-password')?.value;
@@ -62,7 +51,6 @@ function handleVolunteerLogin() {
     alert('Please enter your credentials.');
     return;
   }
-
   if (!email.endsWith('@gmail.com')) {
     alert('Email must be a @gmail.com address.');
     document.getElementById('v-email').focus();
@@ -72,10 +60,6 @@ function handleVolunteerLogin() {
   window.location.href = 'volunteer_page.html';
 }
 
-/**
- * Handle admin login form submission.
- * Redirects to admin_page.html on success.
- */
 function handleAdminLogin() {
   const email    = document.getElementById('a-email')?.value.trim();
   const password = document.getElementById('a-password')?.value;
@@ -84,7 +68,6 @@ function handleAdminLogin() {
     alert('Please enter your admin credentials.');
     return;
   }
-
   if (!email.endsWith('@gmail.com')) {
     alert('Email must be a @gmail.com address.');
     document.getElementById('a-email').focus();
@@ -97,11 +80,6 @@ function handleAdminLogin() {
 
 /* ===== ADMIN DASHBOARD ===== */
 
-/**
- * Switch between sub-nav tabs on the admin dashboard.
- * @param {HTMLElement} btn  - Clicked button
- * @param {string}      tab  - Tab identifier
- */
 function switchSubNav(btn, tab) {
   document.querySelectorAll('.subnav-btn').forEach(b => b.classList.remove('active'));
   btn.classList.add('active');
@@ -109,16 +87,10 @@ function switchSubNav(btn, tab) {
   const panels = ['dashboard', 'newop', 'volunteers', 'feed'];
   panels.forEach(id => {
     const el = document.getElementById('tab-' + id);
-    if (el) {
-      el.classList.toggle('hidden', id !== tab);
-    }
+    if (el) el.classList.toggle('hidden', id !== tab);
   });
 }
 
-/**
- * Toggle the expanded details section of an operation card.
- * @param {HTMLElement} chevronEl - The chevron span that was clicked
- */
 function toggleOp(chevronEl) {
   const card    = chevronEl.closest('.op-card');
   const details = card.querySelector('.op-details');
@@ -127,14 +99,9 @@ function toggleOp(chevronEl) {
   if (!details) return;
 
   const isOpen = details.classList.toggle('open');
-  if (svg) {
-    svg.style.transform = isOpen ? 'rotate(180deg)' : 'rotate(0deg)';
-  }
+  if (svg) svg.style.transform = isOpen ? 'rotate(180deg)' : 'rotate(0deg)';
 }
 
-/**
- * Logout – redirect back to the login page.
- */
 function handleLogout() {
   if (confirm('Sign out of the admin portal?')) {
     window.location.href = 'index.html';
@@ -146,26 +113,22 @@ function handleLogout() {
 
 let currentStep = 1;
 
-/**
- * Navigate to a registration step.
- */
 function goToStep(step) {
   if (step === 2) {
-    const fname           = document.getElementById('fname')?.value.trim();
-    const lname           = document.getElementById('lname')?.value.trim();
-    const birthdate       = document.getElementById('birthdate')?.value;
-    const contact         = document.getElementById('contact')?.value.trim();
-    const email           = document.getElementById('email')?.value.trim();
-    const residentCheckbox = document.getElementById('resident');      // ✅ get the checkbox element
-    const isResident      = residentCheckbox?.checked ?? false;        // ✅ use .checked (boolean)
-    const residentAddress = document.getElementById('resident-address')?.value.trim();
-    const outsideAddress  = document.getElementById('outside-address')?.value.trim();
+    const fname            = document.getElementById('fname')?.value.trim();
+    const lname            = document.getElementById('lname')?.value.trim();
+    const birthdate        = document.getElementById('birthdate')?.value;
+    const contact          = document.getElementById('contact')?.value.trim();
+    const email            = document.getElementById('email')?.value.trim();
+    const residentCheckbox = document.getElementById('resident');
+    const isResident       = residentCheckbox?.checked ?? false;
+    const residentAddress  = document.getElementById('resident-address')?.value.trim();
+    const outsideAddress   = document.getElementById('outside-address')?.value.trim();
 
     if (!fname || !lname || !birthdate || !contact || !email) {
       alert('Please fill in all required fields (First Name, Last Name, Birthdate, Contact Number, and Email).');
       return;
     }
-
     if (!email.endsWith('@gmail.com')) {
       alert('Email must be a @gmail.com address.');
       document.getElementById('email').focus();
@@ -174,7 +137,7 @@ function goToStep(step) {
 
     const birth = new Date(birthdate);
     const today = new Date();
-    const age = today.getFullYear() - birth.getFullYear() -
+    const age   = today.getFullYear() - birth.getFullYear() -
       (today.getMonth() < birth.getMonth() ||
       (today.getMonth() === birth.getMonth() && today.getDate() < birth.getDate()) ? 1 : 0);
 
@@ -187,7 +150,6 @@ function goToStep(step) {
       return;
     }
 
-    // ✅ boolean checks instead of 'yes'/'no' string checks
     if (isResident && !residentAddress) {
       alert('Please select your Purok in Brgy. 628.');
       return;
@@ -216,9 +178,6 @@ function goToStep(step) {
   window.scrollTo(0, 0);
 }
 
-/**
- * Update step circles, labels, connectors, and topbar dots.
- */
 function updateStepUI(step) {
   for (let i = 1; i <= 3; i++) {
     const circle = document.getElementById('sc-' + i);
@@ -249,9 +208,6 @@ function updateStepUI(step) {
   }
 }
 
-/**
- * Go back one step or to login if on step 1.
- */
 function goBack() {
   if (currentStep <= 1) {
     window.location.href = 'index.html';
@@ -260,9 +216,6 @@ function goBack() {
   }
 }
 
-/**
- * Go back to previous step from Step 2+.
- */
 function backtoS1() {
   if (currentStep <= 1) {
     window.location.href = 'index.html';
@@ -271,11 +224,6 @@ function backtoS1() {
   }
 }
 
-/**
- * Show the correct address section based on checkbox state.
- * Checked   → show address-div1 (Brgy. 628 resident)
- * Unchecked → show address-div2 (outside address)
- */
 function toggleResidentAddressFields() {
   const checkbox = document.getElementById('resident');
   const div1     = document.querySelector('.address-div1');
@@ -295,9 +243,6 @@ function toggleResidentAddressFields() {
   else input2.value = '';
 }
 
-/**
- * Toggle a skill category accordion.
- */
 function toggleCategory(headerEl) {
   const body    = headerEl.nextElementSibling;
   const chevron = headerEl.querySelector('.skill-cat-chevron');
@@ -305,9 +250,6 @@ function toggleCategory(headerEl) {
   chevron.classList.toggle('open', isOpen);
 }
 
-/**
- * Update the registration summary on Step 3.
- */
 function updateSummary() {
   const fname   = document.getElementById('fname')?.value.trim() || '';
   const lname   = document.getElementById('lname')?.value.trim() || '';
@@ -328,9 +270,6 @@ function updateSummary() {
   if (sumSkills)  sumSkills.textContent  = skills.length + ' skill' + (skills.length !== 1 ? 's' : '') + ' selected';
 }
 
-/**
- * Final registration submission.
- */
 function completeRegistration() {
   const password = document.getElementById('reg-password')?.value;
   const confirm  = document.getElementById('reg-confirm')?.value;
@@ -354,6 +293,54 @@ function completeRegistration() {
   const success = document.getElementById('reg-success');
   if (success) success.classList.add('active');
   window.scrollTo(0, 0);
+}
+
+
+/* ===== BIRTHDATE AGE DISPLAY ===== */
+
+/**
+ * Calculate age from a date string (yyyy-mm-dd).
+ * Returns the integer age, or -1 if invalid.
+ */
+function calcAge(dateStr) {
+  if (!dateStr) return -1;
+  const dob   = new Date(dateStr);
+  const today = new Date();
+  let age = today.getFullYear() - dob.getFullYear();
+  const m = today.getMonth() - dob.getMonth();
+  if (m < 0 || (m === 0 && today.getDate() < dob.getDate())) age--;
+  return age;
+}
+
+/**
+ * Update the age feedback spans below the birthdate input.
+ * Expects two span elements in your HTML:
+ *   <span id="age-eligible" class="age-eligible hidden">Age: <span id="age-ok"></span> years old ✓ Eligible</span>
+ *   <span id="age-minor"    class="age-minor    hidden">Age: <span id="age-err"></span> years old — 18+ required</span>
+ */
+function updateAgeFeedback(dateStr) {
+  const eligibleEl = document.getElementById('age-eligible');
+  const minorEl    = document.getElementById('age-minor');
+  const ageOkEl    = document.getElementById('age-ok');
+  const ageErrEl   = document.getElementById('age-err');
+
+  if (!eligibleEl || !minorEl) return;
+
+  eligibleEl.classList.add('hidden');
+  minorEl.classList.add('hidden');
+
+  if (!dateStr) return;
+
+  const age = calcAge(dateStr);
+  if (age < 0 || age > 120) return;
+
+  if (age >= 18) {
+    if (ageOkEl) ageOkEl.textContent = age;
+    eligibleEl.classList.remove('hidden');
+  } else {
+    if (ageErrEl) ageErrEl.textContent = age;
+    minorEl.classList.remove('hidden');
+  }
 }
 
 
@@ -401,7 +388,7 @@ document.addEventListener('DOMContentLoaded', () => {
     el.addEventListener('input', () => {
       const val = parseInt(el.value);
       if (isNaN(val) || val < 1) el.value = '';
-      else if (val > 1000) el.value = 1000;
+      else if (val > 1000)       el.value = 1000;
     });
     el.addEventListener('paste', e => {
       e.preventDefault();
@@ -426,18 +413,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
   toggleResidentAddressFields();
 
-  // ── Registration form submit ────────────────────────────────────
-  const registrationForm = document.getElementById('registration-form');
-  if (registrationForm) {
-    registrationForm.addEventListener('submit', event => {
-      event.preventDefault();
-      if (currentStep === 3)      completeRegistration();
-      else if (currentStep === 1) goToStep(2);
-      else if (currentStep === 2) goToStep(3);
-    });
-  }
-
-  // ── Birthdate max (today) ───────────────────────────────────────
+  // ── Birthdate: set max to today + wire age feedback ────────────
   const birthdateInput = document.getElementById('birthdate');
   if (birthdateInput) {
     const today = new Date();
@@ -445,6 +421,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const mm    = String(today.getMonth() + 1).padStart(2, '0');
     const dd    = String(today.getDate()).padStart(2, '0');
     birthdateInput.max = `${yyyy}-${mm}-${dd}`;
+
+    birthdateInput.addEventListener('change', () => {
+      updateAgeFeedback(birthdateInput.value);
+    });
   }
 
   // ── Schedule min date (no past dates) ──────────────────────────
@@ -463,6 +443,17 @@ document.addEventListener('DOMContentLoaded', () => {
   if (othersCheckbox && othersDiv) {
     othersCheckbox.addEventListener('change', () => {
       othersDiv.classList.toggle('hidden', !othersCheckbox.checked);
+    });
+  }
+
+  // ── Registration form submit ────────────────────────────────────
+  const registrationForm = document.getElementById('registration-form');
+  if (registrationForm) {
+    registrationForm.addEventListener('submit', event => {
+      event.preventDefault();
+      if (currentStep === 3)      completeRegistration();
+      else if (currentStep === 1) goToStep(2);
+      else if (currentStep === 2) goToStep(3);
     });
   }
 
