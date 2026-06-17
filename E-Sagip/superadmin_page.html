@@ -450,11 +450,7 @@
   <!-- Admins Tab -->
 <div id="tab-admins" class="dashboard-content hidden">
 
-    <div class="section-title">
-
-        Admin Accounts
-
-    </div>
+    <div class="section-title">Admin Accounts</div>
 
     <div class="vol-search-wrap">
 
@@ -472,63 +468,35 @@
 
         </svg>
 
-        <input
-            type="text"
-            placeholder="Search admin..."
-        >
+        <input type="text" placeholder="Search admin...">
 
     </div>
 
-  <div class="admins-header">
+    <div class="admins-header">
 
-    <p class="vol-count" id="admin-count">
+        <p class="vol-count" id="admin-count">0 administrator accounts</p>
 
-        0 administrator accounts
+        <button class="btn-deploy admin-add-btn" onclick="openAddAdminModal()">+ Add Administrator</button>
 
-    </p>
+    </div>
 
-    <button class="btn-deploy admin-add-btn"
-            onclick="openAddAdminModal()">
+    <div id="adminContainer">
 
-        + Add Administrator
+        <div class="empty-state">
 
-    </button>
-
-</div>
-
-<div id="adminContainer">
-
-    <div class="empty-state">
-
-        <div class="empty-icon">
-
-            👨‍💼
+            <div class="empty-icon">👨‍💼</div>
+            <h3>No Administrator Accounts</h3>
+            <p>
+                There are currently no administrator accounts.
+                Administrator accounts created by the
+                Superadmin will appear here.
+            </p>
 
         </div>
 
-        <h3>
-
-            No Administrator Accounts
-
-        </h3>
-
-        <p>
-
-            There are currently no administrator accounts.
-
-            Administrator accounts created by the
-            Superadmin will appear here.
-
-        </p>
-
     </div>
 
 </div>
-
-</div>
-
-</div>
-
   <!-- Feed Tab -->
   <div id="tab-feed" class="dashboard-content hidden">
 
