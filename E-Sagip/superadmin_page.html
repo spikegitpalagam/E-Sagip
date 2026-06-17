@@ -311,7 +311,7 @@
         </p>
 
         <button class="empty-btn"
-                onclick="switchAdminTab(document.querySelector('[onclick*=newop]'),'newop')">
+                onclick="switchSubNav(document.querySelector('[onclick*=newop]'),'newop')">
             Create New Operation
         </button>
 
@@ -383,6 +383,7 @@
           <label><input type="checkbox" value="Driver (4-Wheel / Truck / Van)"><span class="skill-tag">Driver (4-Wheel / Truck / Van)</span></label>
           <label><input type="checkbox" value="Basic Electrical / Wiring Safety"><span class="skill-tag">Basic Electrical / Wiring Safety</span></label>
           <label><input type="checkbox" value="Boat / Bangka Operator"><span class="skill-tag">Boat / Bangka Operator</span></label>
+          <label><input type="checkbox" value="None"><span class="skill-tag">None</span></label>
           <label>
             <input type="checkbox" value="Others" name="skill" id="skill-others" class="others" />
             <span class="skill-tag">Others: Please Specify</span>
@@ -725,5 +726,7 @@
   </div>
 
   <script src="superadmin.js"></script>
+  <script src="new_operation.js"></script>
+  <script src="script.js"></script>
 </body>
 </html>
