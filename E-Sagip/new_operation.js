@@ -81,7 +81,7 @@ function handleDeployOp() {
   `;
 
   // ── Hide empty state ─────────────────────────────────────────────
-  const noOpt = document.querySelector('.no-opt-container');
+  const noOpt = document.querySelector('.empty-state');
   if (noOpt) noOpt.style.display = 'none';
 
   document.getElementById('operation-list').appendChild(card);
