@@ -78,6 +78,68 @@ function confirmRemoveModal() {
   closeRemoveModal();
 }
 
+
+/* ===== ADMIN MODALS ===== */
+
+let _activeAdminCard = null;
+
+function openAdminEditModal(btn) {
+  _activeAdminCard = btn.closest('.admin-card');
+
+  const name  = _activeAdminCard.querySelector('.admin-name').textContent.trim();
+  const email = _activeAdminCard.querySelector('.admin-email').textContent.trim();
+
+  document.getElementById('admin-edit-name').value  = name;
+  document.getElementById('admin-edit-email').value = email;
+  document.getElementById('admin-edit-password').value = '';
+
+  document.getElementById('admin-edit-modal').classList.remove('hidden');
+  document.getElementById('admin-edit-name').focus();
+}
+
+function closeAdminEditModal() {
+  document.getElementById('admin-edit-modal').classList.add('hidden');
+  _activeAdminCard = null;
+}
+
+function saveAdminEditModal() {
+  const name     = document.getElementById('admin-edit-name').value.trim();
+  const email    = document.getElementById('admin-edit-email').value.trim();
+  const password = document.getElementById('admin-edit-password').value.trim();
+
+  if (!name || !email) {
+    alert('Please fill in all required fields.');
+    return;
+  }
+
+  if (_activeAdminCard) {
+    _activeAdminCard.querySelector('.admin-name').textContent  = name;
+    _activeAdminCard.querySelector('.admin-email').textContent = email;
+  }
+
+  closeAdminEditModal();
+}
+
+function openAdminDeleteModal(btn) {
+  _activeAdminCard = btn.closest('.admin-card');
+
+  const name = _activeAdminCard.querySelector('.admin-name').textContent.trim();
+  document.getElementById('admin-delete-name').textContent = name;
+
+  document.getElementById('admin-delete-modal').classList.remove('hidden');
+}
+
+function closeAdminDeleteModal() {
+  document.getElementById('admin-delete-modal').classList.add('hidden');
+  _activeAdminCard = null;
+}
+
+function confirmAdminDeleteModal() {
+  if (_activeAdminCard) _activeAdminCard.remove();
+  closeAdminDeleteModal();
+}
+
+
 document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('edit-modal')?.addEventListener('click', function(e) {
     if (e.target === this) closeEditModal();
@@ -85,7 +147,19 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('remove-modal')?.addEventListener('click', function(e) {
     if (e.target === this) closeRemoveModal();
   });
+  document.getElementById('admin-edit-modal')?.addEventListener('click', function(e) {
+    if (e.target === this) closeAdminEditModal();
+  });
+  document.getElementById('admin-delete-modal')?.addEventListener('click', function(e) {
+    if (e.target === this) closeAdminDeleteModal();
+  });
+
   document.addEventListener('keydown', e => {
-    if (e.key === 'Escape') { closeEditModal(); closeRemoveModal(); }
+    if (e.key === 'Escape') {
+      closeEditModal();
+      closeRemoveModal();
+      closeAdminEditModal();
+      closeAdminDeleteModal();
+    }
   });
 });
