@@ -491,7 +491,7 @@
                 Administrator accounts created by the
                 Superadmin will appear here.
             </p>
-
+            
             
 
           </div>
@@ -499,6 +499,8 @@
 
 
 </div>
+
+
   <!-- Feed Tab -->
   <div id="tab-feed" class="dashboard-content hidden">
 
@@ -695,7 +697,44 @@
     </div>
   </div>
 
+  <!-- Admin Edit Modal -->
+<div id="admin-edit-modal" class="hidden admin-modal-overlay">
+  <div class="admin-modal-box">
+    <div class="admin-modal-header">
+      <span>Edit Admin Account</span>
+      <button onclick="closeAdminEditModal()">✕</button>
+    </div>
+    <label>Full Name</label>
+    <input id="admin-edit-name" type="text" placeholder="Full Name" />
+    <label>Email</label>
+    <input id="admin-edit-email" type="email" placeholder="Email" />
+    <label>Password</label>
+    <input id="admin-edit-password" type="password" placeholder="••••••••••" />
+    <div class="admin-modal-actions">
+      <button class="btn-cancel" onclick="closeAdminEditModal()">Cancel</button>
+      <button class="btn-save" onclick="saveAdminEditModal()">Save Changes</button>
+    </div>
+  </div>
+</div>
+
+<!-- Admin Delete Modal -->
+<div id="admin-delete-modal" class="hidden admin-modal-overlay">
+  <div class="admin-modal-box">
+    <div class="admin-modal-header">
+      <span>Delete Admin Account?</span>
+    </div>
+    <div class="admin-delete-body">
+      <span>This will permanently remove <strong id="admin-delete-name"></strong>. They will no longer be able to log in.</span>
+    </div>
+    <div class="admin-modal-actions">
+      <button class="btn-cancel" onclick="closeAdminDeleteModal()">Cancel</button>
+      <button class="btn-delete" onclick="confirmAdminDeleteModal()">Delete</button>
+    </div>
+  </div>
+</div>
+
   <script src="superadmin.js"></script>
+  <script src="edit_delete.js"></script>
   <script src="new_operation.js"></script>
   <script src="script.js"></script>
 </body>
