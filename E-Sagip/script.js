@@ -84,7 +84,7 @@ function switchSubNav(btn, tab) {
   document.querySelectorAll('.subnav-btn').forEach(b => b.classList.remove('active'));
   btn.classList.add('active');
 
-  const panels = ['dashboard', 'newop', 'volunteers', 'feed'];
+  const panels = ['dashboard', 'newop', 'volunteers','admins', 'feed'];
   panels.forEach(id => {
     const el = document.getElementById('tab-' + id);
     if (el) el.classList.toggle('hidden', id !== tab);
@@ -293,14 +293,6 @@ function completeRegistration() {
   const success = document.getElementById('reg-success');
   if (success) success.classList.add('active');
   window.scrollTo(0, 0);
-  // Mark user as registered but awaiting admin approval
-  try {
-    localStorage.setItem('userRegistered', 'true');
-    // By default registration requires admin approval
-    localStorage.setItem('userApproved', 'false');
-  } catch (e) {
-    // ignore storage errors (private mode)
-  }
 }
 
 
