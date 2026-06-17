@@ -311,25 +311,27 @@ if (searchInput) {
 }
 
 // ---------- Admin List ----------
-const adminList = document.getElementById("admin-list");
 
-if (adminList) {
+const adminContainer = document.getElementById("adminContainer");
+const adminCount = document.getElementById("admin-count");
 
-adminList.innerHTML =
-admins.map(a => `
-<div class="card admin-card">
-  <div class="admin-top">
-    <div>
-      <div class="admin-name">${a.name}</div>
-      <div class="admin-email">${a.email}</div>
-      <span class="role-badge">admin</span>
-    </div>
-  </div>
-</div>
-`).join("");
-
+if (adminContainer) {
+    adminContainer.innerHTML = admins.map(a => `
+        <div class="card admin-card">
+            <div class="admin-top">
+                <div>
+                    <div class="admin-name">${a.name}</div>
+                    <div class="admin-email">${a.email}</div>
+                    <span class="role-badge">admin</span>
+                </div>
+            </div>
+        </div>
+    `).join("");
 }
 
+if (adminCount) {
+    adminCount.textContent = `${admins.length} administrator account${admins.length === 1 ? "" : "s"}`;
+}
 
 /* ===========================
    ADD POST MODAL
