@@ -68,13 +68,22 @@ function handleAdminLogin() {
     alert('Please enter your admin credentials.');
     return;
   }
+  
   if (!email.endsWith('@gmail.com')) {
     alert('Email must be a @gmail.com address.');
     document.getElementById('a-email').focus();
     return;
   }
 
-  window.location.href = 'admin_page.html';
+  
+  // Kung ang tinype na email ay para sa super admin:
+  if (email === 'superadmin@gmail.com') {
+    window.location.href = 'superadmin_page.html';
+  } 
+  // Kung hindi superadmin ang email, ididiretso sa regular admin page:
+  else {
+    window.location.href = 'admin_page.html';
+  }
 }
 
 
