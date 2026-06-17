@@ -108,6 +108,12 @@ function handleLogout() {
   }
 }
 
+function handleSaLogout() {
+  if (confirm('Sign out of the Super Admin portal?')) {
+    window.location.href = 'index.html';
+  }
+}
+
 
 /* ===== REGISTRATION PAGE ===== */
 
