@@ -607,69 +607,77 @@
 
 </div>
 
-<div id="feedContainer">
+<div class="recent-op-list" id="recent-op-list">
 
-    <div class="empty-state">
-
-        <div class="empty-icon">
-            📰
-        </div>
-
-        <h3>No Community Updates</h3>
-
+  <div class="empty-state">
+        <div class="empty-icon">🚨</div>
+        <h3>No Feed Post Yet</h3>
         <p>
-
-            Successful operations published
-            by the administrator will
-            appear here.
-
+            There are currently no feed post
         </p>
+       </div>
 
-    </div>
 
 </div>
 
 <!-- ADD / EDIT POST MODAL -->
 
 <div id="postModal" class="modal hidden">
-
     <div class="modal-content">
-
-        <h2>Create Community Post</h2>
-
-        <div class="form-group">
-
-            <label>Title</label>
-
-            <input
-                type="text"
-                id="postTitle"
-                placeholder="Enter title">
-
+        <div class="modal-header">
+        <h2>Add Feed Post</h2>
+        <button class="close-btn">×</button>
         </div>
+        <div class="modal-q">
+        <div class="form-group" id="form-group">
+            <label for="postTitle">Operation Title<span class="req">*</span></label>
+            <input  type="text" id="postTitle" placeholder="e.g. Flood Relief Distribution">
+         </div>
 
-        <div class="form-group">
+          <div class="form-group" id="form-group">
+            <label for="post-date">Date<span class="req">*</span></label>
+            <input  type="date" id="post-date" placeholder="e.g June 10, 2026">
+         </div>
 
-            <label>Description</label>
+          <div class="form-group" id="form-group">
+            <label for="post-loc">Location<span class="req">*</span></label>
+            <input  type="text" id="post-loc" placeholder="Purok/Street, Brgy. 628">
+         </div>
 
-            <textarea
-                id="postDescription"
-                rows="5"
-                placeholder="Write something..."></textarea>
+         <div class="form-group" id="form-group">
+            <label for="post-img">Image<span class="req">*</span></label>
+            <input  type="file" id="post-img">
+         </div>
 
-        </div>
+         <div class="form-group" id="form-group">
+            <label for="post-award">Highlight / Award<span class="req">*</span></label>
+            <input  type="text" id="post-award" placeholder="e.g. Most Impactful Operation">
+         </div>
 
-        <div class="form-group">
+        <div class="form-group" id="form-group">
+            <label for="post-cap">Caption<span class="req">*</span></label>
+            <textarea id="post-cap" placeholder="Describe the operation..."></textarea>
+         </div>
 
-            <label>Upload Image</label>
+       <div class="vol-fam-container">
 
-            <input
-                type="file"
-                id="postImage"
-                accept="image/*">
+        <div class="form-group" id="form-group">
+            <label for="post-vol">Volunteers<span class="req">*</span></label>
+            <input  type="number" id="post-vol" class="post-vol" placeholder="e.g 20">
+         </div>
 
-        </div>
+         <div class="form-group" id="form-group">
+            <label for="post-fam">Families Helped<span class="req">*</span></label>
+            <input  type="number" id="post-fam" class="post-fam" placeholder="e.g 40">
+         </div>
 
+       </div>
+
+       <div class="form-group" id="form-group">
+            <label for="post-tags">Tags</label>
+            <input  type="text" id="post-tags" placeholder="Add tag">
+         </div>
+         </div>
         <div class="modal-buttons">
 
             <button
@@ -733,9 +741,76 @@
   </div>
 </div>
 
+<!-- Edit Post Modal -->
+<div id="editPostModal" class="modal hidden">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h2>Edit Post</h2>
+      <button class="close-btn" id="closeEditModal">&times;</button>
+    </div>
+    <div class="modal-q">
+      <div class="form-group">
+        <label>Operation Title <span class="req">*</span></label>
+        <input type="text" id="edit-title">
+      </div>
+      <div class="form-group">
+        <label>Date</label>
+        <input type="text" id="edit-date">
+      </div>
+      <div class="form-group">
+        <label>Location</label>
+        <input type="text" id="edit-loc">
+      </div>
+      <div class="form-group">
+        <label>Image URL</label>
+        <input type="text" id="edit-img">
+      </div>
+      <div class="form-group">
+        <label>Highlight / Award</label>
+        <input type="text" id="edit-award">
+      </div>
+      <div class="form-group">
+        <label>Caption <span class="req">*</span></label>
+        <textarea id="edit-cap"></textarea>
+      </div>
+      <div class="vol-fam-container">
+        <div class="form-group">
+          <label>Volunteers</label>
+          <input type="number" id="edit-vol">
+        </div>
+        <div class="form-group">
+          <label>Families Helped</label>
+          <input type="number" id="edit-fam">
+        </div>
+      </div>
+    </div>
+    <div class="modal-buttons">
+      <button class="secondary-btn" id="cancelEditPost">Cancel</button>
+      <button class="primary-btn" id="saveEditPost">Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- Delete Post Modal -->
+<div id="deletePostModal" class="modal hidden">
+  <div class="modal-content" style="max-height: fit-content;">
+    <div class="modal-header">
+      <h2>Delete Post?</h2>
+    </div>
+    <p style="margin: 0 0 24px; color: #444;">
+      This will permanently remove <strong id="delete-post-title"></strong> from the feed.
+    </p>
+    <div class="modal-buttons">
+      <button class="secondary-btn" id="cancelDeletePost">Cancel</button>
+      <button class="primary-btn" id="confirmDeletePost" style="background:#c0392b;">Delete</button>
+    </div>
+  </div>
+</div>
+
   <script src="superadmin.js"></script>
   <script src="edit_delete.js"></script>
   <script src="new_operation.js"></script>
+  <script src="feed_post.js"></script>
   <script src="script.js"></script>
 </body>
 </html>
