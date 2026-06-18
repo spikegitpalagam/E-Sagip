@@ -1,3 +1,5 @@
+const API_BASE_URL = 'https://e-sagip-production.up.railway.app/api';
+
 /* ===== LOGIN PAGE ===== */
 let allVolunteers = [];
 
@@ -24,13 +26,14 @@ function renderVolunteers(volunteers) {
             <div class="vol-empty-state">
                 <div class="empty-icon">👥</div>
                 <h3>No Volunteers found</h3>
-                <p>Try a different search.</p>
+                <p>Try a different search or filter.</p>
             </div>`;
         return;
     }
 
     volList.innerHTML = volunteers.map(v => {
         const initials = (v.first_name[0] || '') + (v.last_name[0] || '');
+        const skillTags = (v.skills || []).map(s => `<span class="vstag">${s}</span>`).join('');
         return `
             <div class="vol-card" data-id="${v.id}">
                 <div class="vol-ops">
@@ -38,6 +41,7 @@ function renderVolunteers(volunteers) {
                     <div class="vol-info">
                         <div class="vol-name">${v.first_name} ${v.last_name} <span class="vol-badge ${v.status}">${v.status}</span></div>
                         <div class="vol-meta">${v.address} · ${v.contact_number}</div>
+                        <div class="vol-skills-row">${skillTags}</div>
                     </div>
                 </div>
                 <div class="vol-ops-btn">
@@ -49,21 +53,24 @@ function renderVolunteers(volunteers) {
     }).join('');
 }
 
+let activeSkillFilter = 'all';
+
 function filterVolunteers() {
     const searchInput = document.getElementById('vol-search');
-    if (!searchInput) return;
+    const query = searchInput ? searchInput.value.trim().toLowerCase() : '';
 
-    const query = searchInput.value.trim().toLowerCase();
+    let filtered = allVolunteers;
 
-    if (!query) {
-        renderVolunteers(allVolunteers);
-        return;
+    if (activeSkillFilter !== 'all') {
+        filtered = filtered.filter(v => (v.skills || []).includes(activeSkillFilter));
     }
 
-    const filtered = allVolunteers.filter(v => {
-        const fullName = `${v.first_name} ${v.last_name}`.toLowerCase();
-        return fullName.includes(query);
-    });
+    if (query) {
+        filtered = filtered.filter(v => {
+            const fullName = `${v.first_name} ${v.last_name}`.toLowerCase();
+            return fullName.includes(query);
+        });
+    }
 
     renderVolunteers(filtered);
 }
@@ -132,7 +139,7 @@ function togglePassword(inputId, btn) {
   }
 }
 
-function handleVolunteerLogin() {
+async function handleVolunteerLogin() {
   const email    = document.getElementById('v-email')?.value.trim();
   const password = document.getElementById('v-password')?.value;
 
@@ -146,7 +153,26 @@ function handleVolunteerLogin() {
     return;
   }
 
-  window.location.href = 'volunteer_page.html';
+  try {
+    const response = await fetch('https://e-sagip-production.up.railway.app/api/auth/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password, role: 'volunteer' })
+    });
+
+    const data = await response.json();
+
+    if (response.ok) {
+      localStorage.setItem('currentUser', JSON.stringify(data.user));
+      window.location.href = 'volunteer_page.html';
+    } else {
+      alert(data.error || 'Invalid email or password.');
+    }
+
+  } catch (err) {
+    alert('Could not connect to the server. Please try again.');
+    console.error(err);
+  }
 }
 
 async function handleAdminLogin() {
@@ -183,6 +209,7 @@ async function handleAdminLogin() {
     console.error(err);
   }
 }
+
 
 /* ===== ADMIN DASHBOARD ===== */
 
@@ -382,7 +409,7 @@ function updateSummary() {
   if (sumSkills)  sumSkills.textContent  = skills.length + ' skill' + (skills.length !== 1 ? 's' : '') + ' selected';
 }
 
-function completeRegistration() {
+async function completeRegistration() {
   const password = document.getElementById('reg-password')?.value;
   const confirm  = document.getElementById('reg-confirm')?.value;
   const question = document.getElementById('sec-question')?.value;
@@ -401,10 +428,61 @@ function completeRegistration() {
     return;
   }
 
-  document.querySelectorAll('.reg-step-panel').forEach(p => p.classList.remove('active'));
-  const success = document.getElementById('reg-success');
-  if (success) success.classList.add('active');
-  window.scrollTo(0, 0);
+  const isResident = document.getElementById('resident')?.checked ?? false;
+  let address = '';
+  if (isResident) {
+    const purok   = document.getElementById('resident-address')?.value || '';
+    const houseNo = document.getElementById('house-no')?.value.trim() || '';
+    address = houseNo ? `${houseNo}, ${purok}` : purok;
+  } else {
+    const city = document.getElementById('outside-address')?.value || '';
+    const brgy = document.getElementById('outside-address-brgy')?.value.trim() || '';
+    address = brgy ? `${brgy}, ${city}` : city;
+  }
+
+  const skills = [...document.querySelectorAll('input[name="skill"]:checked')]
+    .map(cb => cb.value);
+
+  const payload = {
+    firstName:     document.getElementById('fname')?.value.trim(),
+    lastName:      document.getElementById('lname')?.value.trim(),
+    birthdate:     document.getElementById('birthdate')?.value,
+    gender:        document.getElementById('gender')?.value || null,
+    isResident:    isResident,
+    address:       address,
+    contactNumber: document.getElementById('contact')?.value.trim(),
+    email:         document.getElementById('email')?.value.trim(),
+    ecName:        document.getElementById('ec-name')?.value.trim() || null,
+    ecNumber:      document.getElementById('ec-num')?.value.trim() || null,
+    secQuestion:   question,
+    secAnswer:     answer,
+    password:      password,
+    skills:        skills,
+    otherSkill:    document.getElementById('other-skill')?.value.trim() || null
+  };
+
+  try {
+    const response = await fetch('https://e-sagip-production.up.railway.app/api/auth/register', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+
+    const data = await response.json();
+
+    if (response.ok) {
+      document.querySelectorAll('.reg-step-panel').forEach(p => p.classList.remove('active'));
+      const success = document.getElementById('reg-success');
+      if (success) success.classList.add('active');
+      window.scrollTo(0, 0);
+    } else {
+      alert(data.error || 'Registration failed. Please try again.');
+    }
+
+  } catch (err) {
+    alert('Could not connect to the server. Please try again.');
+    console.error(err);
+  }
 }
 
 
@@ -707,4 +785,39 @@ document.addEventListener('DOMContentLoaded', () => {
       });
     });
 
+});
+
+async function loadDashboardSummaryMetrics() {
+    try {
+        const response = await fetch(`${API_BASE_URL}/operations/dashboard-stats`);
+        if (!response.ok) throw new Error("Failed to clear backend metrics handshake.");
+        
+        const stats = await response.json();
+
+        // 1. Update the Volunteer Card Elements
+        const totalVolElement = document.querySelector('.stat-value-v');
+        const activeVolSubElement = document.querySelector('.stat-card:nth-child(1) .stat-sub');
+        
+        if (totalVolElement) totalVolElement.textContent = stats.totalVolunteers;
+        if (activeVolSubElement) activeVolSubElement.textContent = `${stats.activeVolunteers} active`;
+
+        // 2. Update the Active Operations Card Elements
+        const activeOpsElement = document.querySelector('.stat-value-op');
+        const enrolledSubElement = document.querySelector('.stat-card:nth-child(2) .stat-sub');
+
+        if (activeOpsElement) activeOpsElement.textContent = stats.activeOperations;
+        if (enrolledSubElement) enrolledSubElement.textContent = `${stats.enrolledVolunteers} enrolled`;
+
+        // 3. Update the decorative footer layout text variable count if it exists
+        const footerVolCounter = document.getElementById('vol-num');
+        if (footerVolCounter) footerVolCounter.textContent = stats.totalVolunteers;
+
+    } catch (error) {
+        console.error("Dashboard metric visualization tracking failed:", error);
+    }
+}
+
+// Call the function automatically as soon as the admin portal window page loads up
+document.addEventListener('DOMContentLoaded', () => {
+    loadDashboardSummaryMetrics();
 });
