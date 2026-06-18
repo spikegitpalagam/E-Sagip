@@ -53,27 +53,7 @@ function renderVolunteers(volunteers) {
     }).join('');
 }
 
-let activeSkillFilter = 'all';
 
-function filterVolunteers() {
-    const searchInput = document.getElementById('vol-search');
-    const query = searchInput ? searchInput.value.trim().toLowerCase() : '';
-
-    let filtered = allVolunteers;
-
-    if (activeSkillFilter !== 'all') {
-        filtered = filtered.filter(v => (v.skills || []).includes(activeSkillFilter));
-    }
-
-    if (query) {
-        filtered = filtered.filter(v => {
-            const fullName = `${v.first_name} ${v.last_name}`.toLowerCase();
-            return fullName.includes(query);
-        });
-    }
-
-    renderVolunteers(filtered);
-}
 
 let activeSkillFilter = 'all';
 
