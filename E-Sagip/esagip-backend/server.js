@@ -22,3 +22,7 @@ app.listen(PORT, () => {
 });
 
 app.get('/', (req, res) => res.send('OK'));
+
+app.get('/', (req, res) => {
+    res.send('E-Sagip backend is running');
+});
