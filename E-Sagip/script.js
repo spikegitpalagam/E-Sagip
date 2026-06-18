@@ -68,22 +68,13 @@ function handleAdminLogin() {
     alert('Please enter your admin credentials.');
     return;
   }
-  
   if (!email.endsWith('@gmail.com')) {
     alert('Email must be a @gmail.com address.');
     document.getElementById('a-email').focus();
     return;
   }
 
-  
-  // Kung ang tinype na email ay para sa super admin:
-  if (email === 'superadmin@gmail.com') {
-    window.location.href = 'superadmin_page.html';
-  } 
-  // Kung hindi superadmin ang email, ididiretso sa regular admin page:
-  else {
-    window.location.href = 'admin_page.html';
-  }
+  window.location.href = 'admin_page.html';
 }
 
 
@@ -313,10 +304,6 @@ function completeRegistration() {
 
 /* ===== BIRTHDATE AGE DISPLAY ===== */
 
-/**
- * Calculate age from a date string (yyyy-mm-dd).
- * Returns the integer age, or -1 if invalid.
- */
 function calcAge(dateStr) {
   if (!dateStr) return -1;
   const dob   = new Date(dateStr);
@@ -327,12 +314,6 @@ function calcAge(dateStr) {
   return age;
 }
 
-/**
- * Update the age feedback spans below the birthdate input.
- * Expects two span elements in your HTML:
- *   <span id="age-eligible" class="age-eligible hidden">Age: <span id="age-ok"></span> years old ✓ Eligible</span>
- *   <span id="age-minor"    class="age-minor    hidden">Age: <span id="age-err"></span> years old — 18+ required</span>
- */
 function updateAgeFeedback(dateStr) {
   const eligibleEl = document.getElementById('age-eligible');
   const minorEl    = document.getElementById('age-minor');
@@ -356,6 +337,74 @@ function updateAgeFeedback(dateStr) {
     if (ageErrEl) ageErrEl.textContent = age;
     minorEl.classList.remove('hidden');
   }
+}
+
+
+/* ===== FEED POST MODAL ===== */
+
+function openPostModal() {
+  document.getElementById('postModal')?.classList.remove('hidden');
+}
+
+function closePostModal() {
+  document.getElementById('postModal')?.classList.add('hidden');
+  clearPostForm();
+}
+
+function clearPostForm() {
+  ['postTitle', 'post-date', 'post-loc', 'post-img', 'post-award', 'post-cap', 'post-vol', 'post-fam'].forEach(id => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.value = '';
+    el.classList.remove('input-error');
+  });
+  document.querySelectorAll('.field-error').forEach(e => e.remove());
+}
+
+function validatePostForm() {
+  const requiredFields = [
+    { id: 'postTitle',  label: 'Operation Title' },
+    { id: 'post-date',  label: 'Date' },
+    { id: 'post-loc',   label: 'Location' },
+    { id: 'post-img',   label: 'Image' },
+    { id: 'post-award', label: 'Highlight / Award' },
+    { id: 'post-cap',   label: 'Caption' },
+    { id: 'post-vol',   label: 'Volunteers' },
+    { id: 'post-fam',   label: 'Families Helped' },
+  ];
+
+  // Clear previous errors
+  document.querySelectorAll('.field-error').forEach(e => e.remove());
+  document.querySelectorAll('.input-error').forEach(e => e.classList.remove('input-error'));
+
+  let isValid    = true;
+  const missing  = [];
+
+  requiredFields.forEach(function (field) {
+    const input = document.getElementById(field.id);
+    if (!input) return;
+
+    const isEmpty = field.id === 'post-img'
+      ? input.files.length === 0
+      : input.value.trim() === '';
+
+    if (isEmpty) {
+      isValid = false;
+      missing.push(field.label);
+      input.classList.add('input-error');
+
+      const error = document.createElement('span');
+      error.className = 'field-error';
+      error.textContent = `${field.label} is required.`;
+      input.parentNode.appendChild(error);
+    }
+  });
+
+  if (!isValid) {
+    alert(`Please fill in the following required fields:\n\n• ${missing.join('\n• ')}`);
+  }
+
+  return isValid;
 }
 
 
@@ -419,7 +468,9 @@ document.addEventListener('DOMContentLoaded', () => {
   restrictToLetters(document.getElementById('ec-name'));
   restrictToNumbers(document.getElementById('contact'));
   restrictToNumbers(document.getElementById('ec-num'));
+  restrictToNumbers(document.getElementById('post-fam'));
   restrictToSlots(document.getElementById('slots'));
+  restrictToSlots(document.getElementById('post-vol'));
 
   // ── Resident checkbox toggle ────────────────────────────────────
   const residentCheckbox = document.getElementById('resident');
@@ -461,34 +512,33 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-const noneCheckbox = document.querySelector('#skill-tags input[value="None"]');
-if (noneCheckbox) {
-  noneCheckbox.addEventListener('change', () => {
-    const otherCheckboxes = document.querySelectorAll('#skill-tags input[type="checkbox"]:not([value="None"])');
-    otherCheckboxes.forEach(cb => {
-      cb.checked  = false;
-      cb.disabled = noneCheckbox.checked;
-      const tag = cb.closest('label')?.querySelector('.skill-tag');
-      if (tag) tag.style.color = noneCheckbox.checked ? 'var(--text-muted)' : '';
-    });
-    if (noneCheckbox.checked) {
-      document.getElementById('others-div')?.classList.add('hidden');
-    }
-  });
-
-  document.querySelectorAll('#skill-tags input[type="checkbox"]:not([value="None"])').forEach(cb => {
-    cb.addEventListener('change', () => {
-      if (cb.checked) {
-        noneCheckbox.checked = false;
-       
-        document.querySelectorAll('#skill-tags input[type="checkbox"]:not([value="None"])').forEach(other => {
-          const tag = other.closest('label')?.querySelector('.skill-tag');
-          if (tag) tag.style.color = '';
-        });
+  const noneCheckbox = document.querySelector('#skill-tags input[value="None"]');
+  if (noneCheckbox) {
+    noneCheckbox.addEventListener('change', () => {
+      const otherCheckboxes = document.querySelectorAll('#skill-tags input[type="checkbox"]:not([value="None"])');
+      otherCheckboxes.forEach(cb => {
+        cb.checked  = false;
+        cb.disabled = noneCheckbox.checked;
+        const tag = cb.closest('label')?.querySelector('.skill-tag');
+        if (tag) tag.style.color = noneCheckbox.checked ? 'var(--text-muted)' : '';
+      });
+      if (noneCheckbox.checked) {
+        document.getElementById('others-div')?.classList.add('hidden');
       }
     });
-  });
-}
+
+    document.querySelectorAll('#skill-tags input[type="checkbox"]:not([value="None"])').forEach(cb => {
+      cb.addEventListener('change', () => {
+        if (cb.checked) {
+          noneCheckbox.checked = false;
+          document.querySelectorAll('#skill-tags input[type="checkbox"]:not([value="None"])').forEach(other => {
+            const tag = other.closest('label')?.querySelector('.skill-tag');
+            if (tag) tag.style.color = '';
+          });
+        }
+      });
+    });
+  }
 
   // ── Registration form submit ────────────────────────────────────
   const registrationForm = document.getElementById('registration-form');
@@ -500,5 +550,43 @@ if (noneCheckbox) {
       else if (currentStep === 2) goToStep(3);
     });
   }
+
+  // ── Feed Post Modal ─────────────────────────────────────────────
+
+  const addPostBtn = document.getElementById('addPostBtn');  
+if (addPostBtn) {
+  addPostBtn.addEventListener('click', openPostModal);
+}
+
+  const publishBtn = document.getElementById('publishPost');
+  if (publishBtn) {
+    publishBtn.addEventListener('click', () => {
+      if (validatePostForm()) {
+        publishPost(); 
+        closePostModal();
+      }
+    });
+  }
+
+  const cancelBtn = document.getElementById('cancelPost');
+  if (cancelBtn) {
+    cancelBtn.addEventListener('click', closePostModal);
+  }
+
+  const closeBtn = document.querySelector('#postModal .close-btn');
+  if (closeBtn) {
+    closeBtn.addEventListener('click', closePostModal);
+  }
+
+  ['postTitle', 'post-date', 'post-loc', 'post-img', 'post-award', 'post-cap', 'post-vol', 'post-fam']
+    .forEach(id => {
+      const el = document.getElementById(id);
+      if (!el) return;
+      el.addEventListener(el.type === 'file' ? 'change' : 'input', () => {
+        el.classList.remove('input-error');
+        const err = el.parentNode.querySelector('.field-error');
+        if (err) err.remove();
+      });
+    });
 
 });
