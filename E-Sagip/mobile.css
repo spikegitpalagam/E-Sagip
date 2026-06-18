@@ -91,4 +91,14 @@
       border-radius: 3px;
     }
 
+    .vol-ops {
+
+      gap: 35px;
+    }
+
+    .post-edit-span, .a-post-edit {
+
+      display: none;
+    }
+
 }
