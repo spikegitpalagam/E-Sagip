@@ -88,5 +88,23 @@ router.post('/login', async (req, res) => {
         res.status(500).json({ error: "Server error during login." });
     }
 });
-
+router.get('/volunteers', async (req, res) => {
+    try {
+        const [volunteers] = await db.query('SELECT id, first_name, last_name, address, contact_number, email, status FROM volunteers');
+        res.json(volunteers);
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: "Could not fetch volunteers." });
+    }
+    
+});
+router.put('/volunteers/:id/approve', async (req, res) => {
+    try {
+        await db.query('UPDATE volunteers SET status = ? WHERE id = ?', ['active', req.params.id]);
+        res.json({ success: true });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: "Could not approve volunteer." });
+    }
+});
 module.exports = router;
