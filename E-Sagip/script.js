@@ -1,5 +1,5 @@
 /* ===== LOGIN PAGE ===== */
-let allVolunteers = []; 
+let allVolunteers = [];
 
 async function loadVolunteers() {
     const volList = document.getElementById('vol-list');
@@ -48,6 +48,47 @@ function renderVolunteers(volunteers) {
         `;
     }).join('');
 }
+
+function filterVolunteers() {
+    const searchInput = document.getElementById('vol-search');
+    if (!searchInput) return;
+
+    const query = searchInput.value.trim().toLowerCase();
+
+    if (!query) {
+        renderVolunteers(allVolunteers);
+        return;
+    }
+
+    const filtered = allVolunteers.filter(v => {
+        const fullName = `${v.first_name} ${v.last_name}`.toLowerCase();
+        return fullName.includes(query);
+    });
+
+    renderVolunteers(filtered);
+}
+
+async function approveVolunteer(id) {
+    try {
+        await fetch(`https://e-sagip-production.up.railway.app/api/auth/volunteers/${id}/approve`, { method: 'PUT' });
+        loadVolunteers();
+    } catch (err) {
+        console.error('Failed to approve volunteer:', err);
+        alert('Could not approve volunteer. Please try again.');
+    }
+}
+
+async function removeVolunteer(id) {
+    if (!confirm('Permanently remove this volunteer?')) return;
+    try {
+        await fetch(`https://e-sagip-production.up.railway.app/api/auth/volunteers/${id}`, { method: 'DELETE' });
+        loadVolunteers();
+    } catch (err) {
+        console.error('Failed to remove volunteer:', err);
+        alert('Could not remove volunteer. Please try again.');
+    }
+}
+
 function switchTab(tab) {
   const formVolunteer = document.getElementById('form-volunteer');
   const formAdmin     = document.getElementById('form-admin');
@@ -124,7 +165,7 @@ function handleAdminLogin() {
 
    if (email === 'superadmin@gmail.com') {
     window.location.href = 'superadmin_page.html';
-  } 
+  }
   // Kung hindi superadmin ang email, ididiretso sa regular admin page:
   else {
     window.location.href = 'admin_page.html';
@@ -144,74 +185,7 @@ function switchSubNav(btn, tab) {
     if (el) el.classList.toggle('hidden', id !== tab);
   });
 }
-async function loadVolunteers() {
-    const volList = document.getElementById('vol-list');
-    if (!volList) return;
 
-    try {
-        const response = await fetch('https://e-sagip-production.up.railway.app/api/auth/volunteers');
-        allVolunteers = await response.json(); // store globally
-        renderVolunteers(allVolunteers);
-    } catch (err) {
-        console.error('Failed to load volunteers:', err);
-        volList.innerHTML = `<div class="vol-empty-state"><h3>Could not load volunteers</h3></div>`;
-    }
-}
-
-function renderVolunteers(volunteers) {
-    const volList = document.getElementById('vol-list');
-    if (!volList) return;
-
-    if (volunteers.length === 0) {
-        volList.innerHTML = `
-            <div class="vol-empty-state">
-                <div class="empty-icon">👥</div>
-                <h3>No Volunteers found</h3>
-                <p>Try a different search.</p>
-            </div>`;
-        return;
-    }
-
-    volList.innerHTML = volunteers.map(v => {
-        const initials = (v.first_name[0] || '') + (v.last_name[0] || '');
-        return `
-            <div class="vol-card" data-id="${v.id}">
-                <div class="vol-ops">
-                    <div class="vol-avatar">${initials.toUpperCase()}</div>
-                    <div class="vol-info">
-                        <div class="vol-name">${v.first_name} ${v.last_name} <span class="vol-badge ${v.status}">${v.status}</span></div>
-                        <div class="vol-meta">${v.address} · ${v.contact_number}</div>
-                    </div>
-                </div>
-                <div class="vol-ops-btn">
-                    <button class="v-approve" onclick="approveVolunteer(${v.id})">✓ Approve</button>
-                    <button class="v-remove" onclick="removeVolunteer(${v.id})">🗑 Remove</button>
-                </div>
-            </div>
-        `;
-    }).join('');
-}
-
-async function approveVolunteer(id) {
-    try {
-        await fetch(`https://e-sagip-production.up.railway.app/api/auth/volunteers/${id}/approve`, { method: 'PUT' });
-        loadVolunteers();
-    } catch (err) {
-        console.error('Failed to approve volunteer:', err);
-        alert('Could not approve volunteer. Please try again.');
-    }
-}
-
-async function removeVolunteer(id) {
-    if (!confirm('Permanently remove this volunteer?')) return;
-    try {
-        await fetch(`https://e-sagip-production.up.railway.app/api/auth/volunteers/${id}`, { method: 'DELETE' });
-        loadVolunteers();
-    } catch (err) {
-        console.error('Failed to remove volunteer:', err);
-        alert('Could not remove volunteer. Please try again.');
-    }
-}
 function toggleOp(chevronEl) {
   const card    = chevronEl.closest('.op-card');
   const details = card.querySelector('.op-details');
@@ -532,7 +506,8 @@ function validatePostForm() {
 /* ===== DOM READY ===== */
 
 document.addEventListener('DOMContentLoaded', () => {
-loadVolunteers();
+  loadVolunteers();
+
   // ── Restrict input to letters only ─────────────────────────────
   function restrictToLetters(el) {
     if (!el) return;
@@ -625,14 +600,14 @@ loadVolunteers();
   }
 
   // ── Post date: no future dates ──────────────────────────────────
-const postDateInput = document.getElementById('post-date');
-if (postDateInput) {
-  const today = new Date();
-  const yyyy  = today.getFullYear();
-  const mm    = String(today.getMonth() + 1).padStart(2, '0');
-  const dd    = String(today.getDate()).padStart(2, '0');
-  postDateInput.max = `${yyyy}-${mm}-${dd}`;
-}
+  const postDateInput = document.getElementById('post-date');
+  if (postDateInput) {
+    const today = new Date();
+    const yyyy  = today.getFullYear();
+    const mm    = String(today.getMonth() + 1).padStart(2, '0');
+    const dd    = String(today.getDate()).padStart(2, '0');
+    postDateInput.max = `${yyyy}-${mm}-${dd}`;
+  }
 
 
   // ── Others checkbox toggle ──────────────────────────────────────
@@ -685,16 +660,16 @@ if (postDateInput) {
 
   // ── Feed Post Modal ─────────────────────────────────────────────
 
-  const addPostBtn = document.getElementById('addPostBtn');  
-if (addPostBtn) {
-  addPostBtn.addEventListener('click', openPostModal);
-}
+  const addPostBtn = document.getElementById('addPostBtn');
+  if (addPostBtn) {
+    addPostBtn.addEventListener('click', openPostModal);
+  }
 
   const publishBtn = document.getElementById('publishPost');
   if (publishBtn) {
     publishBtn.addEventListener('click', () => {
       if (validatePostForm()) {
-        publishPost(); 
+        publishPost();
         closePostModal();
       }
     });
