@@ -1,0 +1,10 @@
+@media print {
+  .vol-search-wrap {
+    display: none !important;
+  }
+
+   .ad-search-wrap {
+    display: none !important;
+  }
+
+}
