@@ -315,7 +315,7 @@ function updateSummary() {
   if (sumSkills)  sumSkills.textContent  = skills.length + ' skill' + (skills.length !== 1 ? 's' : '') + ' selected';
 }
 
-function completeRegistration() {
+async function completeRegistration() {
   const password = document.getElementById('reg-password')?.value;
   const confirm  = document.getElementById('reg-confirm')?.value;
   const question = document.getElementById('sec-question')?.value;
@@ -334,10 +334,67 @@ function completeRegistration() {
     return;
   }
 
-  document.querySelectorAll('.reg-step-panel').forEach(p => p.classList.remove('active'));
-  const success = document.getElementById('reg-success');
-  if (success) success.classList.add('active');
-  window.scrollTo(0, 0);
+  // Gather all form data
+  const isResident = document.getElementById('resident')?.checked ?? false;
+
+  let address = '';
+  if (isResident) {
+    const purok   = document.getElementById('resident-address')?.value || '';
+    const houseNo = document.getElementById('house-no')?.value.trim() || '';
+    address = houseNo ? `${houseNo}, ${purok}` : purok;
+  } else {
+    const city = document.getElementById('outside-address')?.value || '';
+    const brgy = document.getElementById('outside-address-brgy')?.value.trim() || '';
+    address = brgy ? `${brgy}, ${city}` : city;
+  }
+
+  const skills = [...document.querySelectorAll('input[name="skill"]:checked')]
+    .map(cb => cb.value);
+
+  const otherSkillInput = document.getElementById('other-skill');
+  const otherSkill = otherSkillInput?.value.trim() || '';
+
+  const payload = {
+    firstName:     document.getElementById('fname')?.value.trim(),
+    lastName:      document.getElementById('lname')?.value.trim(),
+    birthdate:     document.getElementById('birthdate')?.value,
+    gender:        document.getElementById('gender')?.value || null,
+    isResident:    isResident,
+    address:       address,
+    contactNumber: document.getElementById('contact')?.value.trim(),
+    email:         document.getElementById('email')?.value.trim(),
+    ecName:        document.getElementById('ec-name')?.value.trim() || null,
+    ecNumber:      document.getElementById('ec-num')?.value.trim() || null,
+    secQuestion:   question,
+    secAnswer:     answer,
+    password:      password,
+    skills:        skills,
+    otherSkill:    otherSkill || null
+  };
+
+  try {
+    const response = await fetch('https://e-sagip-production.up.railway.app/api/auth/register', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+
+    const data = await response.json();
+
+    if (response.ok) {
+      // Show success panel
+      document.querySelectorAll('.reg-step-panel').forEach(p => p.classList.remove('active'));
+      const success = document.getElementById('reg-success');
+      if (success) success.classList.add('active');
+      window.scrollTo(0, 0);
+    } else {
+      alert(data.error || 'Registration failed. Please try again.');
+    }
+
+  } catch (err) {
+    alert('Could not connect to the server. Please try again.');
+    console.error(err);
+  }
 }
 
 
