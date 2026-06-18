@@ -101,4 +101,8 @@
       display: none;
     }
 
+    .modal-content {
+
+      margin: 40px 10px 40px 10px;
+    }
 }
