@@ -88,16 +88,20 @@ router.post('/login', async (req, res) => {
         res.status(500).json({ error: "Server error during login." });
     }
 });
+// 3. FETCH ALL VOLUNTEERS (for Admin Dashboard)
 router.get('/volunteers', async (req, res) => {
     try {
-        const [volunteers] = await db.query('SELECT id, first_name, last_name, address, contact_number, email, status FROM volunteers');
+        const [volunteers] = await db.query(
+            'SELECT id, first_name, last_name, address, contact_number, email, status FROM volunteers'
+        );
         res.json(volunteers);
     } catch (err) {
         console.error(err);
         res.status(500).json({ error: "Could not fetch volunteers." });
     }
-    
 });
+
+// 4. APPROVE A VOLUNTEER
 router.put('/volunteers/:id/approve', async (req, res) => {
     try {
         await db.query('UPDATE volunteers SET status = ? WHERE id = ?', ['active', req.params.id]);
@@ -107,4 +111,14 @@ router.put('/volunteers/:id/approve', async (req, res) => {
         res.status(500).json({ error: "Could not approve volunteer." });
     }
 });
-module.exports = router;
+
+// 5. REMOVE A VOLUNTEER
+router.delete('/volunteers/:id', async (req, res) => {
+    try {
+        await db.query('DELETE FROM volunteers WHERE id = ?', [req.params.id]);
+        res.json({ success: true });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: "Could not remove volunteer." });
+    }
+});
