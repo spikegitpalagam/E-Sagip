@@ -158,49 +158,6 @@ card.innerHTML = `
 
   // ── Hide empty state ─────────────────────────────────────────────
 
-  const noOpt = document.querySelector('.empty-state');
-
-  if (noOpt) noOpt.style.display = 'none';
-
-  document.getElementById('operation-list').appendChild(card);
-
-  // ── Increment operations stat ────────────────────────────────────
-
-  const statEl = document.querySelector('.stat-value-op');
-
-  if (statEl) statEl.textContent = Number(statEl.textContent) + 1;
-
-  // ── Navigate to dashboard tab ────────────────────────────────────
-
-  document.querySelectorAll('.dashboard-content').forEach(tab => tab.classList.add('hidden'));
-
-  document.getElementById('tab-dashboard').classList.remove('hidden');
-
-  // ── Reset form ───────────────────────────────────────────────────
-
-  document.querySelector('.form-group input[placeholder="e.g. Flood Relief Distribution"]').value = '';
-
-  document.querySelector('.form-group input[placeholder="Purok/Street, Brgy. 628, Sta. Mesa"]').value = '';
-
-  document.getElementById('sched').value = '';
-
-  document.getElementById('slots').value = '';
-
-  document.querySelectorAll('#skill-tags input[type="checkbox"]').forEach(cb => {
-
-    cb.checked  = false;
-
-    cb.disabled = false;
-
-  });
-
-  document.getElementById('others-div').classList.add('hidden');
-
-  document.getElementById('other-skill').value = '';
-
-  document.querySelector('textarea[placeholder]').value = '';
-
-}
 async function loadActiveOperations() {
   try {
     const res = await fetch(`${API_BASE_URL}/operations/active`);
