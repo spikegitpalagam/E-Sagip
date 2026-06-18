@@ -697,3 +697,46 @@ if (addPostBtn) {
     });
 
 });
+async function loadVolunteers() {
+    try {
+        const response = await fetch('https://e-sagip-production.up.railway.app/api/auth/volunteers');
+        const volunteers = await response.json();
+
+        const volList = document.getElementById('vol-list');
+        if (!volList) return;
+
+        if (volunteers.length === 0) {
+            volList.innerHTML = `<div class="vol-empty-state"><h3>No Volunteers yet</h3></div>`;
+            return;
+        }
+
+        volList.innerHTML = volunteers.map(v => `
+            <div class="vol-card" data-id="${v.id}">
+                <div class="vol-ops">
+                    <div class="vol-avatar">${v.first_name[0]}${v.last_name[0]}</div>
+                    <div class="vol-info">
+                        <div class="vol-name">${v.first_name} ${v.last_name} <span class="vol-badge ${v.status}">${v.status}</span></div>
+                        <div class="vol-meta">${v.address} · ${v.contact_number}</div>
+                    </div>
+                </div>
+                <div class="vol-ops-btn">
+                    <button class="v-approve" onclick="approveVolunteer(${v.id})">Approve</button>
+                    <button class="v-remove" onclick="openRemoveModal(this)">Remove</button>
+                </div>
+            </div>
+        `).join('');
+    } catch (err) {
+        console.error('Failed to load volunteers:', err);
+    }
+}
+
+async function approveVolunteer(id) {
+    try {
+        await fetch(`https://e-sagip-production.up.railway.app/api/auth/volunteers/${id}/approve`, { method: 'PUT' });
+        loadVolunteers(); // refresh the list
+    } catch (err) {
+        console.error('Failed to approve:', err);
+    }
+}
+
+document.addEventListener('DOMContentLoaded', loadVolunteers);
