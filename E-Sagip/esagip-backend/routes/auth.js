@@ -65,7 +65,7 @@ router.post('/login', async (req, res) => {
             const valid = await bcrypt.compare(password, admin[0].password_hash);
             if (!valid) return res.status(401).json({ error: "Incorrect password." });
 
-            return res.json({ success: true, user: { id: admin[0].id, name: admin[0].name, role: 'admin' } });
+            return res.json({ success: true, user: { id: admin[0].id, name: admin[0].name, role: admin[0].role } });
         } else {
             // Check 'volunteers' table
             const [volunteer] = await db.query('SELECT * FROM volunteers WHERE email = ?', [email]);
