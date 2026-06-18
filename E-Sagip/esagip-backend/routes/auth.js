@@ -7,22 +7,18 @@ const bcrypt = require('bcryptjs');
 router.post('/register', async (req, res) => {
     const { 
         firstName, lastName, birthdate, gender, isResident, 
-        address, contactNumber, email, secQuestion, secAnswer, 
-        password, skills, otherSkill 
+        address, contactNumber, email, ecName, ecNumber,
+        secQuestion, secAnswer, password, skills, otherSkill 
     } = req.body;
 
     try {
-        // Check if email already exists in the database
         const [existing] = await db.query('SELECT id FROM volunteers WHERE email = ?', [email]);
         if (existing.length > 0) {
             return res.status(400).json({ error: "Email is already registered with an account." });
         }
 
-        // Encrypt the password before saving!
         const hashedPw = await bcrypt.hash(password, 10);
 
-        // Insert volunteer into the 'volunteers' table
-        // In routes/auth.js, update the INSERT to include ec fields
         const [volResult] = await db.query(
           `INSERT INTO volunteers 
             (first_name, last_name, birthdate, gender, is_resident, address, 
@@ -34,17 +30,14 @@ router.post('/register', async (req, res) => {
         );
         const volunteerId = volResult.insertId;
 
-        // Link the selected skills to this volunteer
         if (skills && skills.length > 0) {
             const [dbSkills] = await db.query('SELECT id FROM skills WHERE name IN (?)', [skills]);
-            
             if (dbSkills.length > 0) {
                 const skillMappings = dbSkills.map(s => [volunteerId, s.id]);
                 await db.query('INSERT INTO volunteer_skills (volunteer_id, skill_id) VALUES ?', [skillMappings]);
             }
         }
 
-        // If they typed something under "Others: Please Specify"
         if (otherSkill) {
             await db.query('INSERT INTO volunteer_other_skills (volunteer_id, description) VALUES (?, ?)', [volunteerId, otherSkill]);
         }
@@ -62,7 +55,6 @@ router.post('/login', async (req, res) => {
 
     try {
         if (role === 'admin') {
-            // Check 'admins' table
             const [admin] = await db.query('SELECT * FROM admins WHERE email = ?', [email]);
             if (admin.length === 0) return res.status(401).json({ error: "Invalid admin credentials." });
 
@@ -71,7 +63,6 @@ router.post('/login', async (req, res) => {
 
             return res.json({ success: true, user: { id: admin[0].id, name: admin[0].name, role: admin[0].role } });
         } else {
-            // Check 'volunteers' table
             const [volunteer] = await db.query('SELECT * FROM volunteers WHERE email = ?', [email]);
             if (volunteer.length === 0) return res.status(401).json({ error: "Invalid credentials." });
 
@@ -88,6 +79,7 @@ router.post('/login', async (req, res) => {
         res.status(500).json({ error: "Server error during login." });
     }
 });
+
 // 3. FETCH ALL VOLUNTEERS (for Admin Dashboard)
 router.get('/volunteers', async (req, res) => {
     try {
@@ -122,3 +114,5 @@ router.delete('/volunteers/:id', async (req, res) => {
         res.status(500).json({ error: "Could not remove volunteer." });
     }
 });
+
+module.exports = router;
