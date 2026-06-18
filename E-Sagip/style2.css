@@ -1187,10 +1187,20 @@
     display:flex;
     align-items:center;
     gap:8px;
+    padding: 5px;
+    background-color: white;
+    border: 1px solid var(--gray);
+    border-radius: 10px;
 
     color:#8b6b6b;
     font-size:13px;
     font-weight:600;
+}
+
+.export-right:hover {
+
+  border: 1px solid var(--primary);
+  cursor: pointer;
 }
 
 .export-right svg{
@@ -1202,6 +1212,38 @@
 /* ==========================
   ADMIN TAB FOR SUPERADMIN
 ========================== */
+
+.superadmin-page .ad-search-wrap{
+    display:flex;
+    align-items:center;
+    gap:12px;
+    background:#fff;
+    border:1px solid #e4d1d5;
+    border-radius:16px;
+    padding:0 16px;
+    height:52px;
+    margin:20px 0 18px;
+}
+
+.superadmin-page .ad-search-wrap svg{
+    width:18px;
+    height:18px;
+    color:#9a9a9a;
+    flex-shrink:0;
+}
+
+.superadmin-page .ad-search-wrap input{
+    flex:1;
+    border:none;
+    outline:none;
+    background:transparent;
+    font-size:15px;
+    color:#555;
+}
+
+.superadmin-page .ad-search-wrap input::placeholder{
+    color:#999;
+}
 
 
 
@@ -1585,6 +1627,12 @@ color:#666;
 }
 
 .superadmin-page .vol-count{
+    margin:8px 0 22px;
+    font-size:14px;
+    color:#8c7a7f;
+}
+
+.superadmin-page .ad-count{
     margin:8px 0 22px;
     font-size:14px;
     color:#8c7a7f;
