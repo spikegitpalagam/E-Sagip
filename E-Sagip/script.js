@@ -165,7 +165,7 @@ async function handleVolunteerLogin() {
     const data = await response.json();
 
     if (response.ok) {
-     localStorage.setItem('currentUser', JSON.stringify(data.user));
+      localStorage.setItem('currentUser', JSON.stringify(data.user));
       window.location.href = 'volunteer_page.html';
     } else {
       alert(data.error || 'Invalid email or password.');
@@ -176,7 +176,6 @@ async function handleVolunteerLogin() {
     console.error(err);
   }
 }
-
 async function handleAdminLogin() {
   const email    = document.getElementById('a-email')?.value.trim();
   const password = document.getElementById('a-password')?.value;
