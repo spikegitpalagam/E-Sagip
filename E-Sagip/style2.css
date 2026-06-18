@@ -1201,6 +1201,7 @@
 
   border: 1px solid var(--primary);
   cursor: pointer;
+  color: var(--primary);
 }
 
 .export-right svg{
