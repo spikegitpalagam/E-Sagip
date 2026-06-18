@@ -1,10 +1,59 @@
+
+.vol-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px;
+  border-bottom: 1px solid #eee;
+}
+
+/* PRINT STYLES */
 @media print {
-  .vol-search-wrap {
+
+
+  .vol-ops-btn,
+  .vol-search-wrap,
+  .vol-filter-row,
+  .vol-count,
+  .export-right
+  .ad-search-wrap {
     display: none !important;
   }
 
-   .ad-search-wrap {
-    display: none !important;
+  /* Make cards look like table rows */
+  .vol-list {
+    width: 100%;
+    border-collapse: collapse;
+    display: table;
   }
+
+  .vol-card {
+    display: table-row;
+    border: none;
+  }
+
+  .vol-ops {
+    display: table-cell;
+    padding: 8px;
+    border: 1px solid #ccc;
+    vertical-align: middle;
+  }
+
+  
+  .vol-name::after {
+    content: '';
+    display: block;
+  }
+
+  .vol-avatar {
+    display: none; 
+  }
+
+  
+  .vol-meta {
+    display: table;
+    width: 100%;
+  }
+
 
 }
