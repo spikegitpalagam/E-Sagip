@@ -53,7 +53,6 @@ function renderVolunteers(volunteers) {
     }).join('');
 }
 
-
 let activeSkillFilter = 'all';
 
 function filterVolunteers() {
@@ -75,7 +74,6 @@ function filterVolunteers() {
 
     renderVolunteers(filtered);
 }
-
 
 async function approveVolunteer(id) {
     try {
@@ -165,7 +163,15 @@ async function handleVolunteerLogin() {
     const data = await response.json();
 
     if (response.ok) {
-      localStorage.setItem('currentUser', JSON.stringify(data.user));
+              return res.json({ 
+            success: true, 
+            user: { 
+                id: volunteer[0].id, 
+                name: `${volunteer[0].first_name} ${volunteer[0].last_name}`, 
+                role: 'volunteer',
+                status: volunteer[0].status   // ← add this
+            } 
+        });
       window.location.href = 'volunteer_page.html';
     } else {
       alert(data.error || 'Invalid email or password.');
@@ -176,6 +182,7 @@ async function handleVolunteerLogin() {
     console.error(err);
   }
 }
+
 async function handleAdminLogin() {
   const email    = document.getElementById('a-email')?.value.trim();
   const password = document.getElementById('a-password')?.value;
@@ -818,7 +825,44 @@ async function loadDashboardSummaryMetrics() {
     }
 }
 
-// Call the function automatically as soon as the admin portal window page loads up
-document.addEventListener('DOMContentLoaded', () => {
-    loadDashboardSummaryMetrics();
-});
+async function loadLiveSkillsDistributionGraph() {
+    try {
+        const response = await fetch('https://e-sagip-production.up.railway.app/api/auth/volunteers');
+        if (!response.ok) throw new Error("Failed to fetch volunteers.");
+
+        const volunteersList = await response.json();
+
+        const dataMap = {};
+
+        volunteersList.forEach(v => {
+            if (v.status === 'active') {
+                const skillArray = Array.isArray(v.skills) ? v.skills : [];
+                skillArray.forEach(skillName => {
+                    const cleanName = skillName.trim();
+                    dataMap[cleanName] = (dataMap[cleanName] || 0) + 1;
+                });
+            }
+        });
+
+        const highestCount = Math.max(...Object.values(dataMap), 1);
+
+       
+        document.querySelectorAll('.skills-card .skill-row').forEach(row => {
+            const labelEl  = row.querySelector('.skill-label');
+            const barEl    = row.querySelector('.skill-bar');
+            const countEl  = row.querySelector('.skill-count');
+
+            if (!labelEl || !barEl || !countEl) return;
+
+            const skillName = labelEl.textContent.trim();
+            const count     = dataMap[skillName] || 0;
+            const width     = (count / highestCount) * 100;
+
+            countEl.textContent  = count;
+            barEl.style.width    = `${width}%`;
+        });
+
+    } catch (error) {
+        console.error("Failed calculating skills distribution:", error);
+    }
+}
