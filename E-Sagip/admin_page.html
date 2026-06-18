@@ -253,19 +253,87 @@
     </div>
 
     <!-- Skill filter chips -->
-    <div class="vol-filter-row" id="vol-filter-row">
-      <button class="vfilter-btn active" data-skill="all" onclick="setVolFilter(this,'all')">All Skills</button>
-      <button class="vfilter-btn" data-skill="Basic First Aid / CPR" onclick="setVolFilter(this,'Basic First Aid / CPR')">Basic First Aid / CPR</button>
-      <button class="vfilter-btn" data-skill="Medical Professional" onclick="setVolFilter(this,'Medical Professional')">Medical Professional</button>
-      <button class="vfilter-btn" data-skill="Psychological First Aid" onclick="setVolFilter(this,'Psychological First Aid')">Psychological First Aid</button>
-      <button class="vfilter-btn" data-skill="Relief Goods Packing" onclick="setVolFilter(this,'Relief Goods Packing')">Relief Goods Packing</button>
-      <button class="vfilter-btn" data-skill="Debris Clearing & Heavy Lifting" onclick="setVolFilter(this,'Debris Clearing & Heavy Lifting')">Debris Clearing & Heavy Lifting</button>
-      <button class="vfilter-btn" data-skill="Driver (4-Wheel / Truck / Van)" onclick="setVolFilter(this,'Driver (4-Wheel / Truck / Van)')">Driver</button>
-      <button class="vfilter-btn" data-skill="Boat / Bangka Operator" onclick="setVolFilter(this,'Boat / Bangka Operator')">Boat / Bangka Operator</button>
+    <!-- Skill Tabs -->
+<div class="vol-filter-row" id="vol-filter-row">
+  <button class="vfilter-btn active" data-key="all"      onclick="setVolTab(this)">All Skills</button>
+  <button class="vfilter-btn"        data-key="firstaid" onclick="setVolTab(this)">Basic First Aid / CPR</button>
+  <button class="vfilter-btn"        data-key="medical"  onclick="setVolTab(this)">Medical Professional</button>
+  <button class="vfilter-btn"        data-key="psych"    onclick="setVolTab(this)">Psychological First Aid</button>
+  <button class="vfilter-btn"        data-key="relief"   onclick="setVolTab(this)">Relief Goods Packing</button>
+  <button class="vfilter-btn"        data-key="debris"   onclick="setVolTab(this)">Debris Clearing &amp; Heavy Lifting</button>
+  <button class="vfilter-btn"        data-key="driver"   onclick="setVolTab(this)">Driver</button>
+  <button class="vfilter-btn"        data-key="boat"     onclick="setVolTab(this)">Boat / Bangka Operator</button>
+</div>
+
+<!-- Tab Panels -->
+<div id="vol-panels">
+
+  <div class="vol-panel active" id="vpanel-all">
+    <!-- vol cards will go here later -->
+    <div class="vol-empty-state">
+      <div class="empty-icon">👥</div>
+      <h3>No Volunteers yet</h3>
+      <p>No registered volunteers</p>
     </div>
+  </div>
 
-    <p class="vol-count" id="vol-count">1 volunteers found</p>
+  <div class="vol-panel" id="vpanel-firstaid">
+    <div class="vol-empty-state">
+      <div class="empty-icon">🩹</div>
+      <h3>No First Aid / CPR Volunteers yet</h3>
+      <p>Recruit volunteers with CPR and first aid training.</p>
+    </div>
+  </div>
 
+  <div class="vol-panel" id="vpanel-medical">
+    <div class="vol-empty-state">
+      <div class="empty-icon">🏥</div>
+      <h3>No Medical Professional yet</h3>
+      <p>Recruit Volunteers with medical background.</p>
+    </div>
+  </div>
+
+  <div class="vol-panel" id="vpanel-psych">
+    <div class="vol-empty-state">
+      <div class="empty-icon">🧠</div>
+      <h3>No Psych First Aid volunteers yet</h3>
+      <p>Recruit volunteer with mental health training.</p>
+    </div>
+  </div>
+
+  <div class="vol-panel" id="vpanel-relief">
+    <div class="vol-empty-state">
+      <div class="empty-icon">📦</div>
+      <h3>No relief goods packers yet</h3>
+      <p>No registered volunteers for packing operations.</p>
+    </div>
+  </div>
+
+  <div class="vol-panel" id="vpanel-debris">
+    <div class="vol-empty-state">
+      <div class="empty-icon">🪨</div>
+      <h3>No debris clearing volunteers yet</h3>
+      <p>No registered volunteers for debris clearing</p>
+    </div>
+  </div>
+
+  <div class="vol-panel" id="vpanel-driver">
+    <div class="vol-empty-state">
+      <div class="empty-icon">🚗</div>
+      <h3>No registered volunteers driver yet</h3>
+      <p>Recruit driver for logistics and evacuation.</p>
+    </div>
+  </div>
+
+  <div class="vol-panel" id="vpanel-boat">
+    <div class="vol-empty-state">
+      <div class="empty-icon">⛵</div>
+      <h3>No boat operator volunteers yet</h3>
+      <p>Recruit volunteers with experience in boat operations.</p>
+    </div>
+  </div>
+
+</div>
     <!--SAMPLE DESIGN-->
     
     <div class="vol-list" id="vol-list">
@@ -274,7 +342,7 @@
     <div class="vol-ops">
       <div class="vol-avatar">MS</div>
       <div class="vol-info">
-        <div class="vol-name">Maria Santos <span class="vol-badge active">active</span></div>
+        <div class="vol-name">Sample lang 'to' <span class="vol-badge active">active</span></div>
         <div class="vol-meta">Purok 2, Brgy. 628 · 09171234567</div>
         <div class="vol-skills-row">
           <span class="vstag">Basic First Aid / CPR</span>
@@ -575,6 +643,7 @@
   </div>
 
   <script src="script.js"></script>
+  <script src="vol_filter.js"></script>
   <script src="edit_delete.js"></script>
   <script src="new_operation.js"></script>
 </body>
