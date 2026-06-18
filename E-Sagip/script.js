@@ -74,7 +74,13 @@ function handleAdminLogin() {
     return;
   }
 
-  window.location.href = 'admin_page.html';
+   if (email === 'superadmin@gmail.com') {
+    window.location.href = 'superadmin_page.html';
+  } 
+  // Kung hindi superadmin ang email, ididiretso sa regular admin page:
+  else {
+    window.location.href = 'admin_page.html';
+  }
 }
 
 
