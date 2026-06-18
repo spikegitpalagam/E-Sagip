@@ -22,12 +22,16 @@ router.post('/register', async (req, res) => {
         const hashedPw = await bcrypt.hash(password, 10);
 
         // Insert volunteer into the 'volunteers' table
+        // In routes/auth.js, update the INSERT to include ec fields
         const [volResult] = await db.query(
-            `INSERT INTO volunteers (first_name, last_name, birthdate, gender, is_resident, address, contact_number, email, security_question, security_answer, password_hash, status)
-             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'active')`,
-            [firstName, lastName, birthdate, gender, isResident ? 1 : 0, address, contactNumber, email, secQuestion, secAnswer, hashedPw]
+          `INSERT INTO volunteers 
+            (first_name, last_name, birthdate, gender, is_resident, address, 
+             contact_number, email, ec_name, ec_number, security_question, 
+             security_answer, password_hash, status)
+           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'pending')`,
+          [firstName, lastName, birthdate, gender, isResident ? 1 : 0, address,
+           contactNumber, email, ecName, ecNumber, secQuestion, secAnswer, hashedPw]
         );
-
         const volunteerId = volResult.insertId;
 
         // Link the selected skills to this volunteer
