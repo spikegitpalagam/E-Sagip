@@ -70,8 +70,53 @@ async function handleVolunteerLogin() {
       localStorage.setItem('currentUser', JSON.stringify(data.user));
       window.location.href = 'volunteer_page.html';
     } else {
+      alert(data.error || 'Invalid email or password.');
+    }
 
+  } catch (err) {
+    alert('Could not connect to the server. Please try again.');
+    console.error(err);
+  }
+}
+async function handleAdminLogin() {
+  const email    = document.getElementById('a-email')?.value.trim();
+  const password = document.getElementById('a-password')?.value;
 
+  if (!email || !password) {
+    alert('Please enter your admin credentials.');
+    return;
+  }
+  if (!email.endsWith('@gmail.com')) {
+    alert('Email must be a @gmail.com address.');
+    document.getElementById('a-email').focus();
+    return;
+  }
+
+  try {
+    const response = await fetch('https://e-sagip-production.up.railway.app/api/auth/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password, role: 'admin' })
+    });
+
+    const data = await response.json();
+
+    if (response.ok) {
+      localStorage.setItem('currentUser', JSON.stringify(data.user));
+      if (data.user.role === 'superadmin') {
+        window.location.href = 'superadmin_page.html';
+      } else {
+        window.location.href = 'admin_page.html';
+      }
+    } else {
+      alert(data.error || 'Invalid admin credentials.');
+    }
+
+  } catch (err) {
+    alert('Could not connect to the server. Please try again.');
+    console.error(err);
+  }
+}
 /* ===== ADMIN DASHBOARD ===== */
 
 function switchSubNav(btn, tab) {
