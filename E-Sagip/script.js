@@ -479,7 +479,7 @@ function validatePostForm() {
 /* ===== DOM READY ===== */
 
 document.addEventListener('DOMContentLoaded', () => {
-
+loadVolunteers();
   // ── Restrict input to letters only ─────────────────────────────
   function restrictToLetters(el) {
     if (!el) return;
