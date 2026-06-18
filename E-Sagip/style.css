@@ -1007,6 +1007,45 @@ a {
   color: var(--white);
 }
 
+/* Tab panels */
+.vol-panel {
+  display: none;
+}
+.vol-panel.active {
+  display: block;
+}
+
+/* Empty state inside panels */
+.vol-empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 3rem 1rem;
+  border: 1px dashed #d1d5db;
+  border-radius: 12px;
+  background: #f9fafb;
+  text-align: center;
+  margin-top: 1rem;
+}
+.vol-empty-state .empty-icon {
+  font-size: 2rem;
+}
+.vol-empty-state h3 {
+  font-size: 14px;
+  font-weight: 600;
+  color: #374151;
+  margin: 0;
+}
+.vol-empty-state p {
+  font-size: 13px;
+  color: #9ca3af;
+  max-width: 240px;
+  line-height: 1.5;
+  margin: 0;
+}
+
 .vol-card {
   background: var(--white);
   border-radius: 10px;
