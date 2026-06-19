@@ -1,3 +1,4 @@
+console.log('NEW_OPERATION_JS_LOADED_V2')
 async function handleDeployOp() {
   const titleInput    = document.querySelector('.form-group input[placeholder="e.g. Flood Relief Distribution"]');
   const locationInput = document.querySelector('.form-group input[placeholder="Purok/Street, Brgy. 628, Sta. Mesa"]');
