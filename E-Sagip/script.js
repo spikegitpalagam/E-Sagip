@@ -226,29 +226,37 @@ function switchSubNav(btn, tab) {
     });
 }
 
-function toggleOp(chevronEl) {
+async function toggleOp(chevronEl) {
     const card    = chevronEl.closest('.op-card');
     const details = card.querySelector('.op-details');
     const svg     = chevronEl.querySelector('svg');
-
     if (!details) return;
 
     const isOpen = details.classList.toggle('open');
     if (svg) svg.style.transform = isOpen ? 'rotate(180deg)' : 'rotate(0deg)';
-}
+    if (!isOpen) return;
 
-function handleLogout() {
-    if (confirm('Sign out of the admin portal?')) {
-        window.location.href = 'index.html';
+    const opId    = card.dataset.opId;
+    const tagWrap = details.querySelector('.volunteer-tags');
+    if (!opId || !tagWrap) return;
+
+    tagWrap.innerHTML = `<span class="vtag" style="opacity:0.5;">Loading…</span>`;
+
+    try {
+        const res  = await fetch(`${API_BASE_URL}/operations/${opId}/volunteers`);
+        const vols = await res.json();
+
+        tagWrap.innerHTML = (!Array.isArray(vols) || vols.length === 0)
+            ? `<span class="vtag" style="opacity:0.5;font-style:italic;">No volunteers yet</span>`
+            : vols.map(v => `
+                <span class="vtag" title="${v.contact_number} · Joined ${new Date(v.enrolled_at).toLocaleDateString()}">
+                    ${v.first_name} ${v.last_name}
+                </span>`).join('');
+    } catch (err) {
+        console.error('Failed to load enrolled volunteers:', err);
+        tagWrap.innerHTML = `<span class="vtag" style="opacity:0.5;">Could not load volunteers</span>`;
     }
 }
-
-function handleSaLogout() {
-    if (confirm('Sign out of the Super Admin portal?')) {
-        window.location.href = 'index.html';
-    }
-}
-
 
 /* ===== REGISTRATION PAGE ===== */
 
