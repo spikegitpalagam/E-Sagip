@@ -218,6 +218,49 @@ async function confirmJoin() {
   }
 }
 
+async function loadMyTasks() {
+  const container = document.getElementById('taskContainer');
+  if (!container) return;
+
+  let user = null;
+  try { user = JSON.parse(localStorage.getItem('currentUser')); } catch (e) {}
+  if (!user) return;
+
+  try {
+    const res = await fetch(`${API_BASE_URL}/operations/my-tasks/${user.id}`);
+    const tasks = await res.json();
+
+    if (!tasks.length) {
+      container.innerHTML = `
+        <div class="empty-state">
+          <h3>No Assigned Tasks</h3>
+          <p>You haven't joined any volunteer operations yet. Once assigned, your tasks will appear here.</p>
+          <button class="empty-btn" onclick="switchVolunteerTab(document.querySelector('[onclick*=feed]'),'feed')">Browse Feed</button>
+        </div>`;
+      return;
+    }
+
+    container.innerHTML = tasks.map(t => {
+      const dateObj = new Date(t.scheduled_at);
+      const formattedDate = dateObj.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+      const formattedTime = dateObj.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
+      return `
+        <div class="op-card">
+          <div class="op-header">
+            <span class="op-name">${t.title}</span>
+          </div>
+          <div class="op-meta">
+            <span>${t.location}</span>
+            <span>${formattedDate} · ${formattedTime}</span>
+          </div>
+        </div>`;
+    }).join('');
+
+  } catch (err) {
+    console.error('Failed to load tasks:', err);
+    container.innerHTML = `<div class="empty-state"><h3>Could not load tasks</h3></div>`;
+  }
+}
 // ── Init on page load ────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', () => {
   loadOperations();
