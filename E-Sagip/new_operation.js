@@ -1,5 +1,3 @@
-console.log('NEW_OPERATION_JS_LOADED_V2');
-
 async function handleDeployOp() {
   const titleInput    = document.querySelector('.form-group input[placeholder="e.g. Flood Relief Distribution"]');
   const locationInput = document.querySelector('.form-group input[placeholder="Purok/Street, Brgy. 628, Sta. Mesa"]');
@@ -7,10 +5,10 @@ async function handleDeployOp() {
   const slotsInput    = document.getElementById('slots');
   const descInput     = document.querySelector('#tab-newop textarea[placeholder]');
 
-  const title       = titleInput?.value.trim();
-  const location    = locationInput?.value.trim();
-  const sched       = schedInput?.value;
-  const slots       = slotsInput?.value;
+  const title    = titleInput?.value.trim();
+  const location = locationInput?.value.trim();
+  const sched    = schedInput?.value;
+  const slots    = slotsInput?.value;
   const description = descInput?.value.trim() || '';
 
   if (!title || !location || !sched || !slots) {
@@ -18,6 +16,7 @@ async function handleDeployOp() {
     return;
   }
 
+  // Required skills
   const checkedSkills = [...document.querySelectorAll('#skill-tags input[type="checkbox"]:checked')];
   if (checkedSkills.length === 0) {
     alert('Please select at least one required skill.');
@@ -25,6 +24,7 @@ async function handleDeployOp() {
   }
   const skills = checkedSkills.map(cb => cb.value).filter(v => v !== 'Others');
 
+  // "Others" textarea
   const othersChecked = document.getElementById('skill-others')?.checked;
   const otherSkillVal = document.getElementById('other-skill')?.value.trim();
   if (othersChecked && !otherSkillVal) {
@@ -32,10 +32,12 @@ async function handleDeployOp() {
     return;
   }
 
+  // Convert "2026-06-18T14:30" -> "2026-06-18 14:30:00" for MySQL DATETIME
   const scheduledAt = sched.replace('T', ' ') + ':00';
 
+  // Logged-in admin id, if you store it after login
   const adminId = (() => {
-    try { return JSON.parse(localStorage.getItem('currentUser'))?.id || null; }
+    try { return JSON.parse(localStorage.getItem('user'))?.id || null; }
     catch { return null; }
   })();
 
@@ -47,9 +49,12 @@ async function handleDeployOp() {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        title, location, scheduledAt,
+        title,
+        location,
+        scheduledAt,
         slots: Number(slots),
-        description, skills,
+        description,
+        skills,
         otherSkill: othersChecked ? otherSkillVal : null,
         createdBy: adminId,
       }),
@@ -60,60 +65,62 @@ async function handleDeployOp() {
       throw new Error(data.error || `Server returned ${res.status}`);
     }
 
+    // ── Render card in dashboard ──
     const dateObj = new Date(sched);
     const formattedDate = dateObj.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
     const formattedTime = dateObj.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
     const schedDisplay = `${formattedDate} · ${formattedTime}`;
 
-    const card = document.createElement('div');
-    card.className = 'op-card';
-    card.dataset.opId = data.operationId;
-    card.innerHTML = `
-      <div class="op-header">
-        <span class="op-name">${title}</span>
-        <span class="op-count">
-          0/${slots}
-          <span class="chevron" onclick="toggleOp(this)">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <polyline points="6 9 12 15 18 9"/>
-            </svg>
-          </span>
-        </span>
-      </div>
-      <div class="meta-container">
-        <div class="op-meta">
-          <span>
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M21 10c0 7-9 13-9 13S3 17 3 10a9 9 0 1 1 18 0z"/>
-              <circle cx="12" cy="10" r="3"/>
-            </svg>
-            ${location}
-          </span>
-          <span>
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <circle cx="12" cy="12" r="10"/>
-              <polyline points="12 6 12 12 16 14"/>
-            </svg>
-            ${schedDisplay}
-          </span>
-        </div>
-      </div>
-      <div class="op-progress-bar"><div class="op-progress-fill" style="width:0%"></div></div>
-      <div class="comp-container">
-        <button class="complete" onclick="completeOp(${data.operationId})">
-          <svg viewBox="0 0 24 24" fill="none" stroke="#1a7a40" stroke-width="2" width="28" height="28">
-            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
-            <polyline points="22 4 12 14.01 9 11.01"/>
-          </svg>Complete
-        </button>
-      </div>
-      <div class="op-details">
-        <p>Enrolled volunteers:</p>
-        <div class="volunteer-tags">
-          <span class="vtag" style="opacity:0.5;font-style:italic;">No volunteers yet</span>
-        </div>
-      </div>
-    `;
+   const card = document.createElement('div');
+card.className = 'op-card';
+card.dataset.opId = data.operationId; // ← add this line
+
+card.innerHTML = `
+  <div class="op-header">
+    <span class="op-name">${title}</span>
+    <span class="op-count">
+      0/${slots}
+      <span class="chevron" onclick="toggleOp(this)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polyline points="6 9 12 15 18 9"/>
+        </svg>
+      </span>
+    </span>
+  </div>
+  <div class="meta-container">
+    <div class="op-meta">
+      <span>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M21 10c0 7-9 13-9 13S3 17 3 10a9 9 0 1 1 18 0z"/>
+          <circle cx="12" cy="10" r="3"/>
+        </svg>
+        ${location}
+      </span>
+      <span>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="10"/>
+          <polyline points="12 6 12 12 16 14"/>
+        </svg>
+        ${schedDisplay}
+      </span>
+    </div>
+  </div>
+  <div class="op-progress-bar"><div class="op-progress-fill" style="width:0%"></div></div>
+  <div class="comp-container">
+    <button class="complete" onclick="completeOp(${data.operationId})">
+      <svg viewBox="0 0 24 24" fill="none" stroke="#1a7a40" stroke-width="2" width="28" height="28">
+        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+        <polyline points="22 4 12 14.01 9 11.01"/>
+      </svg>Complete
+    </button>
+  </div>
+  <div class="op-details">
+    <p>Enrolled volunteers:</p>
+    <div class="volunteer-tags">
+      <span class="vtag" style="opacity:0.5;font-style:italic;">No volunteers yet</span>
+    </div>
+  </div>
+`;
 
     const noOpt = document.querySelector('.empty-state');
     if (noOpt) noOpt.style.display = 'none';
@@ -122,9 +129,11 @@ async function handleDeployOp() {
     const statEl = document.querySelector('.stat-value-op');
     if (statEl) statEl.textContent = Number(statEl.textContent) + 1;
 
+    // Switch to dashboard tab
     document.querySelectorAll('.dashboard-content').forEach(tab => tab.classList.add('hidden'));
     document.getElementById('tab-dashboard').classList.remove('hidden');
 
+    // Reset form
     titleInput.value = '';
     locationInput.value = '';
     schedInput.value = '';
@@ -146,36 +155,8 @@ async function handleDeployOp() {
   }
 }
 
-async function completeOp(opId) {
-  if (!confirm('Mark this operation as complete?')) return;
-  try {
-    const res = await fetch(`${API_BASE_URL}/operations/${opId}/complete`, {
-      method: 'PATCH'
-    });
-    const data = await res.json().catch(() => ({}));
 
-    if (!res.ok || !data.success) {
-      throw new Error(data.error || `Server returned ${res.status}`);
-    }
-
-    const card = document.querySelector(`.op-card[data-op-id="${opId}"]`);
-    if (card) card.remove();
-
-    const statEl = document.querySelector('.stat-value-op');
-    if (statEl) statEl.textContent = Math.max(0, Number(statEl.textContent) - 1);
-
-    const list = document.getElementById('operation-list');
-    if (list && list.querySelectorAll('.op-card').length === 0) {
-      const noOpt = list.querySelector('.empty-state');
-      if (noOpt) noOpt.style.display = '';
-    }
-
-    alert('✅ Operation marked as complete.');
-  } catch (err) {
-    console.error('Complete operation error:', err);
-    alert('Failed to mark operation as complete: ' + err.message);
-  }
-}
+  // ── Hide empty state ─────────────────────────────────────────────
 
 async function loadActiveOperations() {
   try {
@@ -232,7 +213,7 @@ async function loadActiveOperations() {
         </div>
         <div class="op-progress-bar"><div class="op-progress-fill" style="width:${pct}%"></div></div>
         <div class="comp-container">
-          <button class="complete" onclick="completeOp(${op.id})">
+          <button class="complete" onclick="complete()">
             <svg viewBox="0 0 24 24" fill="none" stroke="#1a7a40" stroke-width="2" width="28" height="28">
               <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
               <polyline points="22 4 12 14.01 9 11.01"/>
@@ -249,6 +230,7 @@ async function loadActiveOperations() {
       list.appendChild(card);
     });
 
+    // Sync the stat counter
     const statEl = document.querySelector('.stat-value-op');
     if (statEl) statEl.textContent = ops.length;
 
@@ -257,4 +239,5 @@ async function loadActiveOperations() {
   }
 }
 
+// Run on page load
 document.addEventListener('DOMContentLoaded', loadActiveOperations);
