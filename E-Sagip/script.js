@@ -597,7 +597,7 @@ function validatePostForm() {
 
 document.addEventListener('DOMContentLoaded', () => {
     loadVolunteers();
-    //loadDashboardSummaryMetrics(); // ← added
+    loadDashboardSummaryMetrics(); // ← added
 
     function restrictToLetters(el) {
         if (!el) return;
