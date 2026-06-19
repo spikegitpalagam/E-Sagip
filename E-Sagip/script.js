@@ -596,7 +596,7 @@ function validatePostForm() {
 
 document.addEventListener('DOMContentLoaded', () => {
   loadVolunteers();
-
+    loadDashboardSummaryMetrics()
   // ── Restrict input to letters only ─────────────────────────────
   function restrictToLetters(el) {
     if (!el) return;
