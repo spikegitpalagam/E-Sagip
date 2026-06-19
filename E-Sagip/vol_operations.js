@@ -245,13 +245,19 @@ async function loadMyTasks() {
       const formattedDate = dateObj.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
       const formattedTime = dateObj.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
       return `
-        <div class="op-card">
+        <div class="op-card" style=" border-right: 5px solid #800020;">
           <div class="op-header">
             <span class="op-name">${t.title}</span>
           </div>
           <div class="op-meta">
-            <span>${t.location}</span>
-            <span>${formattedDate} · ${formattedTime}</span>
+            <span> <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13">
+                <path d="M21 10c0 7-9 13-9 13S3 17 3 10a9 9 0 1 1 18 0z"/>
+                <circle cx="12" cy="10" r="3"/>
+              </svg>${t.location}</span>
+            <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13">
+                <circle cx="12" cy="12" r="10"/>
+                <polyline points="12 6 12 12 16 14"/>
+              </svg>${formattedDate} · ${formattedTime}</span>
           </div>
         </div>`;
     }).join('');
