@@ -669,21 +669,26 @@ a {
 
 .btn-join {
 
-  padding: 5px;
-  background-color: #1a7a40;
-  border: none;
+  padding: 3px;
+  background-color: #7aea83;
+  border: 1px solid #1a7a40;
   color: white;
 
 }
 
 .btn-join:hover {
 
-  background-color: #22a050;
-  border: none;
+  background-color: #3eb66a;
   color: white;
   cursor: pointer;
 }
 
+.btn-full {
+
+  background-color: var(--text-muted);
+  color: var(--text-muted);
+  border: var(--text-muted);
+}
 .comp-container svg {
 
   height: 1rem;
