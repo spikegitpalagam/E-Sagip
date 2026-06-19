@@ -860,20 +860,3 @@ async function loadLiveSkillsDistributionGraph() {
     }
 }
 
-//PRIVACY
-const form = document.getElementById("registration-form");
-
-form.addEventListener("submit", function(e){
-
-    const consent = document.getElementById("privacyConsent");
-
-    if(!consent.checked){
-
-        e.preventDefault();
-
-        alert("Please read and accept the Privacy Notice before submitting your registration.");
-
-        return;
-    }
-
-});
