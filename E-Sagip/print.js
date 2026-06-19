@@ -7,14 +7,14 @@ function printVol() {
   const cards = document.querySelectorAll('.vol-card');
 
   let tableHTML = `
-    <h2>E-Sagip Volunteer Database</h2>
+    <h2 style="color: #800020; margin-bottom: 16px; text-align: center;">E-Sagip Volunteer Database</h2>
     <table style="width:100%; border-collapse:collapse; font-family:Arial; font-size:13px;">
       <thead>
         <tr style="background:#f0f0f0;">
-          <th style="border:1px solid #ccc; padding:8px;">Name</th>
-          <th style="border:1px solid #ccc; padding:8px;">Status</th>
-          <th style="border:1px solid #ccc; padding:8px;">Address</th>
-          <th style="border:1px solid #ccc; padding:8px;">Contact Number</th>
+          <th style="border:1px solid #560019; padding:8px;">Name</th>
+          <th style="border:1px solid #560019; padding:8px;">Status</th>
+          <th style="border:1px solid #560019; padding:8px;">Address</th>
+          <th style="border:1px solid #560019; padding:8px;">Contact Number</th>
         </tr>
       </thead>
       <tbody>
@@ -30,39 +30,42 @@ function printVol() {
 
     tableHTML += `
       <tr>
-        <td style="border:1px solid #ccc; padding:8px;">${name}</td>
-        <td style="border:1px solid #ccc; padding:8px; text-align:center;">${status}</td>
-        <td style="border:1px solid #ccc; padding:8px;">${address || ''}</td>
-        <td style="border:1px solid #ccc; padding:8px;">${contact || ''}</td>
+        <td style="border:1px solid #560019; padding:8px; font-weight: bold;">${name}</td>
+        <td style="border:1px solid #560019; padding:8px;">${status}</td>
+        <td style="border:1px solid #560019; padding:8px;">${address || ''}</td>
+        <td style="border:1px solid #560019; padding:8px;">${contact || ''}</td>
       </tr>
     `;
   });
 
   tableHTML += `</tbody></table>`;
 
-  const original = document.body.innerHTML;
-  document.body.innerHTML = tableHTML;
-  window.print();
-
-  setTimeout(() => {
-    document.body.innerHTML = original;
-    location.reload();
-  }, 1000);
+   const printWindow = window.open('', '_blank');
+  printWindow.document.write(`
+    <html>
+      <head><title>E-Sagip Volenteer Database</title></head>
+      <body>${tableHTML}</body>
+    </html>
+  `);
+  printWindow.document.close();
+  printWindow.focus();
+  printWindow.print();
+  printWindow.close();
 }
 
 function printLog() {
   const cards = document.querySelectorAll('.recent-op-card');
 
   let tableHTML = `
-    <h2 style="font-family:Arial; margin-bottom:16px;">E-Sagip Operation Database</h2>
+    <h2 style="color: #800020; margin-bottom: 16px; text-align: center;">E-Sagip Operation Database</h2>
     <table style="width:100%; border-collapse:collapse; font-family:Arial; font-size:13px;">
       <thead>
         <tr style="background:#f0f0f0;">
-          <th style="border:1px solid #ccc; padding:8px;">Title</th>
-          <th style="border:1px solid #ccc; padding:8px;">Date</th>
-          <th style="border:1px solid #ccc; padding:8px;">Location</th>
-          <th style="border:1px solid #ccc; padding:8px;">Volunteers</th>
-          <th style="border:1px solid #ccc; padding:8px;">Families Helped</th>
+          <th style="border:1px solid #560019; padding:8px;">Title</th>
+          <th style="border:1px solid #560019; padding:8px;">Date</th>
+          <th style="border:1px solid #560019; padding:8px;">Location</th>
+          <th style="border:1px solid #560019; padding:8px;">Volunteers</th>
+          <th style="border:1px solid #560019; padding:8px;">Families Helped</th>
         </tr>
       </thead>
       <tbody>
@@ -77,23 +80,71 @@ function printLog() {
 
     tableHTML += `
       <tr>
-        <td style="border:1px solid #ccc; padding:8px;">${title}</td>
-        <td style="border:1px solid #ccc; padding:8px;">${date}</td>
-        <td style="border:1px solid #ccc; padding:8px;">${location}</td>
-        <td style="border:1px solid #ccc; padding:8px; text-align:center;">${volunteers}</td>
-        <td style="border:1px solid #ccc; padding:8px; text-align:center;">${families}</td>
+        <td style="border:1px solid #560019; padding:8px;">${title}</td>
+        <td style="border:1px solid #560019; padding:8px;">${date}</td>
+        <td style="border:1px solid #560019; padding:8px;">${location}</td>
+        <td style="border:1px solid #560019; padding:8px; text-align:center;">${volunteers}</td>
+        <td style="border:1px solid #560019; padding:8px; text-align:center;">${families}</td>
       </tr>
     `;
   });
 
   tableHTML += `</tbody></table>`;
 
-  const original = document.body.innerHTML;
-  document.body.innerHTML = tableHTML;
-  window.print();
+   const printWindow = window.open('', '_blank');
+  printWindow.document.write(`
+    <html>
+      <head><title>E-Sagip Operation Database</title></head>
+      <body>${tableHTML}</body>
+    </html>
+  `);
+  printWindow.document.close();
+  printWindow.focus();
+  printWindow.print();
+  printWindow.close();
+}
 
-  setTimeout(() => {
-    document.body.innerHTML = original;
-    location.reload();
-  }, 1000);
+function printAdmin() {
+  const cards = document.querySelectorAll('.admin-card');
+
+  let tableHTML = `
+    <h2 style="color: #800020; margin-bottom: 16px; text-align: center;">Admin List</h2>
+    <table style="width:100%; border-collapse:collapse; font-family:Arial; font-size:13px;">
+      <thead>
+        <tr style="background:#f0f0f0;">
+          <th style="border:1px solid #560019; padding:8px;">Name</th>
+          <th style="border:1px solid #560019; padding:8px;">Email</th>
+          <th style="border:1px solid #560019; padding:8px;">Role</th>
+        </tr>
+      </thead>
+      <tbody>
+  `;
+
+  cards.forEach(card => {
+    const name  = card.querySelector('.admin-name')?.textContent.trim() || '';
+    const email = card.querySelector('.admin-email')?.textContent.trim() || '';
+    const role  = card.querySelector('.role-badge')?.textContent.trim() || '';
+
+    tableHTML += `
+      <tr>
+        <td style="border:1px solid #560019; padding:8px;">${name}</td>
+        <td style="border:1px solid #560019; padding:8px;">${email}</td>
+        <td style="border:1px solid #560019; padding:8px; text-align:center;">${role}</td>
+      </tr>
+    `;
+  });
+
+  tableHTML += `</tbody></table>`;
+
+   const printWindow = window.open('', '_blank');
+  printWindow.document.write(`
+    <html>
+      <head><title>E-Sagip Admin Database</title></head>
+      <body>${tableHTML}</body>
+    </html>
+  `);
+  printWindow.document.close();
+  printWindow.focus();
+  printWindow.print();
+  printWindow.close();
 }
