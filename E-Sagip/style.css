@@ -623,7 +623,7 @@ a {
 .op-name {
   font-size: 20px;
   font-weight: 600;
-  color: var(--text-dark);
+  color: var(--dark-gray);
 }
 
 .op-count {
