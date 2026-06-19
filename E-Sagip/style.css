@@ -665,7 +665,21 @@ a {
   align-items: center;
   text-align: center;
   margin-top: 10px;
+}
+
+.btn-join {
+
   padding: 10px;
+  background-color: #1a7a40;
+  color: white;
+
+}
+
+.btn-join:hover {
+
+  background-color: #22a050;
+  color: white;
+  cursor: pointer;
 }
 
 .comp-container svg {
