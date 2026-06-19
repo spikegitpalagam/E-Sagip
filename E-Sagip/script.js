@@ -1,18 +1,6 @@
 const API_BASE_URL = 'https://e-sagip-production.up.railway.app/api';
 
-document.addEventListener('DOMContentLoaded', () => {
-  setTimeout(() => {
-    const el = document.querySelector('.stat-value-v');
-    if (!el) return;
-    const observer = new MutationObserver(mutations => {
-      mutations.forEach(m => {
-        console.log('stat-value-v changed to:', m.target.textContent);
-        console.trace();
-      });
-    });
-    observer.observe(el, { childList: true, subtree: true, characterData: true });
-  }, 500);
-});
+
 /* ===== LOGIN PAGE ===== */
 let allVolunteers = [];
 
@@ -24,6 +12,7 @@ async function loadVolunteers() {
         const response = await fetch('https://e-sagip-production.up.railway.app/api/auth/volunteers');
         allVolunteers = await response.json();
         renderVolunteers(allVolunteers);
+        await loadDashboardSummaryMetrics(); // ← moved here, runs AFTER render
     } catch (err) {
         console.error('Failed to load volunteers:', err);
         volList.innerHTML = `<div class="vol-empty-state"><h3>Could not load volunteers</h3></div>`;
@@ -608,7 +597,7 @@ function validatePostForm() {
 
 document.addEventListener('DOMContentLoaded', () => {
     loadVolunteers();
-    loadDashboardSummaryMetrics(); // ← added
+    //loadDashboardSummaryMetrics(); // ← added
 
     function restrictToLetters(el) {
         if (!el) return;
