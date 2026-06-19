@@ -94,7 +94,7 @@ function renderOperations(ops) {
         <div class="op-progress-bar">
           <div class="op-progress-fill" style="width:${pct}%"></div>
         </div>
-        <div class="comp-container">
+        <div class="comp-container"><span style="flex: 1;"></span>
           <button
             class="btn-join ${isFull ? 'btn-full' : ''}"
             onclick="handleJoinClick(${op.id}, '${op.title.replace(/'/g, "\\'")}')"
