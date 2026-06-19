@@ -218,6 +218,7 @@ function switchVolunteerTab(btn, tabId) {
     const target = document.getElementById('vtab-' + tabId);
     if (target) target.classList.remove('hidden');
 
+   if (tabId === 'mytasks') loadMyTasks();
     window.scrollTo(0, 0);
 }
 
