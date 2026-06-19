@@ -673,16 +673,19 @@ a {
 
 .btn-join {
 
-  padding: 3px;
+  padding: 8px;
   background-color: #7aea83;
   border: 1px solid #1a7a40;
-  color: white;
+  font-weight: bold;
+  border-radius: 10px;
+  color: rgb(19, 81, 15);
 
 }
 
 .btn-join:hover {
 
   background-color: #3eb66a;
+  transition: background-color 0.3s ease;
   color: white;
   cursor: pointer;
 }
