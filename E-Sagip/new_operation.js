@@ -4,7 +4,7 @@ async function handleDeployOp() {
   const schedInput    = document.getElementById('sched');
   const slotsInput    = document.getElementById('slots');
   const descInput     = document.querySelector('#tab-newop textarea[placeholder]');
-//
+
   const title    = titleInput?.value.trim();
   const location = locationInput?.value.trim();
   const sched    = schedInput?.value;
