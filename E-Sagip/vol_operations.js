@@ -1,6 +1,6 @@
 // js/vol_operations.js
 
-const API_BASE_URL = 'https://e-sagip-production.up.railway.app/api';
+
 
 let allOperations = [];
 let pendingJoinOpId = null;
