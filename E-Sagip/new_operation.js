@@ -247,7 +247,7 @@ async function loadActiveOperations() {
         </div>
         <div class="op-progress-bar"><div class="op-progress-fill" style="width:${pct}%"></div></div>
         <div class="comp-container">
-          <button class="complete" onclick="completeOp(${op.id})">
+         <button class="complete" onclick="completeOp(${op.id})">
             <svg viewBox="0 0 24 24" fill="none" stroke="#1a7a40" stroke-width="2" width="28" height="28">
               <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
               <polyline points="22 4 12 14.01 9 11.01"/>
@@ -272,6 +272,31 @@ async function loadActiveOperations() {
     console.error('Failed to load active operations:', err);
   }
 }
+async function completeOp(opId) {
+    if (!confirm('Mark this operation as complete?')) return;
+    try {
+        const res = await fetch(`${API_BASE_URL}/operations/${opId}/complete`, {
+            method: 'PATCH'
+        });
+        const data = await res.json();
+        if (data.success) {
+            const card = document.querySelector(`.op-card[data-op-id="${opId}"]`);
+            if (card) card.remove();
 
+            const statEl = document.querySelector('.stat-value-op');
+            if (statEl) statEl.textContent = Number(statEl.textContent) - 1;
+
+            // Show empty state if no ops left
+            const list = document.getElementById('operation-list');
+            if (list && list.querySelectorAll('.op-card').length === 0) {
+                const emptyState = list.querySelector('.empty-state');
+                if (emptyState) emptyState.style.display = '';
+            }
+        }
+    } catch (err) {
+        console.error('Could not complete operation:', err);
+        alert('Failed to mark operation as complete.');
+    }
+}
 // Run on page load
 document.addEventListener('DOMContentLoaded', loadActiveOperations);
