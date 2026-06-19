@@ -247,16 +247,16 @@ async function loadMyTasks() {
       return `
         <div class="op-card" style=" border-right: 5px solid #800020;">
           <div class="op-header">
-            <span class="op-name">${t.title}</span>
+            <span class="op-name" style="font-weigth: 800; color: #800020;">${t.title}</span>
           </div>
           <div class="op-meta">
-            <span> <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13">
+            <span style="font-size: 15px;"> <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="20">
                 <path d="M21 10c0 7-9 13-9 13S3 17 3 10a9 9 0 1 1 18 0z"/>
-                <circle cx="12" cy="10" r="3"/>
+                <circle cx="12" cy="10" r="3"/><p style="font-size: 15px;">Location:</p>
               </svg>${t.location}</span>
-            <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13">
+            <span style="font-size: 15px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13">
                 <circle cx="12" cy="12" r="10"/>
-                <polyline points="12 6 12 12 16 14"/>
+                <polyline points="12 6 12 12 16 14"/><p style="font-size: 15px;">Schedule: </p>
               </svg>${formattedDate} · ${formattedTime}</span>
           </div>
         </div>`;
