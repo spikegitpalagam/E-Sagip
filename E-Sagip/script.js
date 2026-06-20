@@ -497,6 +497,59 @@ async function completeRegistration() {
     }
 }
 
+// ── Password Strength Meter ──────────────────────────────────────────
+(function () {
+  const input  = document.getElementById('reg-password');
+  const segs   = [1, 2, 3, 4].map(n => document.getElementById('seg' + n));
+  const label  = document.getElementById('pw-strength-label');
+  const hint   = document.getElementById('pw-hint');
+
+  const reqs = {
+    len:   { el: document.getElementById('req-len'),   test: v => v.length >= 8,            text: 'At least 8 characters' },
+    upper: { el: document.getElementById('req-upper'), test: v => /[A-Z]/.test(v),          text: 'Uppercase letter' },
+    num:   { el: document.getElementById('req-num'),   test: v => /[0-9]/.test(v),          text: 'Number' },
+    sym:   { el: document.getElementById('req-sym'),   test: v => /[^A-Za-z0-9]/.test(v),  text: 'Special character' }
+  };
+
+  const levels = [
+    { color: '#E24B4A', label: 'Weak',        hint: 'Try adding numbers or symbols' },
+    { color: '#EF9F27', label: 'Fair',        hint: 'Getting there — add more variety' },
+    { color: '#639922', label: 'Strong',      hint: 'A special character would help' },
+    { color: '#1D9E75', label: 'Very Strong', hint: '' }
+  ];
+
+  if (!input) return;
+
+  input.addEventListener('input', () => {
+    const v = input.value;
+
+    let score = 0;
+    for (const r of Object.values(reqs)) {
+      const met = r.test(v);
+      if (met) score++;
+      r.el.textContent = (met ? '✓ ' : '✗ ') + r.text;
+      r.el.style.color = met ? '#1D9E75' : 'gray';
+    }
+
+    if (!v) {
+      segs.forEach(s => s.style.background = '#ddd');
+      label.textContent = '';
+      hint.textContent  = '';
+      return;
+    }
+
+    const idx = Math.min(score - 1, 3);
+    const lvl = levels[Math.max(idx, 0)];
+
+    segs.forEach((s, i) => {
+      s.style.background = i <= idx ? lvl.color : '#ddd';
+    });
+
+    label.textContent = lvl.label;
+    label.style.color = lvl.color;
+    hint.textContent  = lvl.hint;
+  });
+})();
 
 /* ===== BIRTHDATE AGE DISPLAY ===== */
 
