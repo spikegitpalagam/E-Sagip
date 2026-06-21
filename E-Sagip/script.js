@@ -255,7 +255,9 @@ async function handleAdminLogin() {
             localStorage.setItem('currentUser', JSON.stringify(data.user));
 
             // Log the login action
-            await logAuditAction('LOGIN', data.user.name, `Role: ${data.user.role}`);
+            if (typeof logAuditAction === 'function') {
+    await logAuditAction('LOGIN', data.user.name, `Role: ${data.user.role}`);
+}
 
             if (data.user.role === 'superadmin') {
                 window.location.href = 'superadmin_page.html';
@@ -279,7 +281,9 @@ async function handleSaLogout() {
     try {
         const currentUser = getCurrentUser();
         if (currentUser) {
-            await logAuditAction('LOGOUT', currentUser.name, `Role: ${currentUser.role}`);
+            if (typeof logAuditAction === 'function') {
+    await logAuditAction('LOGOUT', currentUser.name, `Role: ${currentUser.role}`);
+    }
         }
         localStorage.removeItem('currentUser');
         localStorage.removeItem('user');
