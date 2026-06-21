@@ -2,17 +2,21 @@ const API_BASE_URL = 'https://e-sagip-production.up.railway.app/api';
 
 /* ===== LOGIN PAGE ===== */
 let allVolunteers = [];
-//
-//
+
+// ── Helper: get current logged-in user from localStorage ─────────────
+function getCurrentUser() {
+    try { return JSON.parse(localStorage.getItem('currentUser')); } catch { return null; }
+}
+
 async function loadVolunteers() {
     const volList = document.getElementById('vol-list');
     if (!volList) return;
 
     try {
-        const response = await fetch('https://e-sagip-production.up.railway.app/api/auth/volunteers');
+        const response = await fetch(`${API_BASE_URL}/auth/volunteers`);
         allVolunteers = await response.json();
         renderVolunteers(allVolunteers);
-        await loadDashboardSummaryMetrics(); // ← moved here, runs AFTER render
+        await loadDashboardSummaryMetrics();
     } catch (err) {
         console.error('Failed to load volunteers:', err);
         volList.innerHTML = `<div class="vol-empty-state"><h3>Could not load volunteers</h3></div>`;
@@ -81,13 +85,28 @@ function filterVolunteers() {
     renderVolunteers(filtered);
 }
 
+// ── FIXED: now passes adminId + adminName so audit log shows who did it
 async function approveVolunteer(id) {
+    const currentUser = getCurrentUser();
+
     try {
-        await fetch(`${API_BASE_URL}/auth/volunteers/${id}/approve`, { method: 'PUT' });
+        await fetch(`${API_BASE_URL}/auth/volunteers/${id}/approve`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                adminId:   currentUser?.id   || null,
+                adminName: currentUser?.name || 'Admin'
+            })
+        });
+
+        // Log to audit
+        await logAuditAction('APPROVE_VOLUNTEER',
+            `Volunteer #${id}`,
+            null
+        );
+
         if (document.body.classList.contains('superadmin-page')) {
-            if (typeof loadVolunteersForSuperadmin === 'function') {
-                await loadVolunteersForSuperadmin();
-            }
+            if (typeof loadVolunteersForSuperadmin === 'function') await loadVolunteersForSuperadmin();
         } else {
             await loadVolunteers();
         }
@@ -97,14 +116,34 @@ async function approveVolunteer(id) {
     }
 }
 
+// ── FIXED: now passes adminId + adminName as query params
 async function removeVolunteer(id) {
     if (!confirm('Permanently remove this volunteer?')) return;
+
+    const currentUser = getCurrentUser();
+
+    // Find the volunteer name from the rendered list for a clearer audit entry
+    const card = document.querySelector(`.vol-card[data-id="${id}"]`);
+    const volNameEl = card?.querySelector('.vol-name');
+    const volName = volNameEl
+        ? volNameEl.textContent.replace(/pending|active|inactive/gi, '').trim()
+        : `Volunteer #${id}`;
+
     try {
-        await fetch(`${API_BASE_URL}/auth/volunteers/${id}`, { method: 'DELETE' });
+        const params = new URLSearchParams({
+            adminId:   currentUser?.id   || '',
+            adminName: currentUser?.name || 'Admin'
+        });
+
+        await fetch(`${API_BASE_URL}/auth/volunteers/${id}?${params}`, {
+            method: 'DELETE'
+        });
+
+        // Log to audit
+        await logAuditAction('REMOVE_VOLUNTEER', volName, 'Removed by admin');
+
         if (document.body.classList.contains('superadmin-page')) {
-            if (typeof loadVolunteersForSuperadmin === 'function') {
-                await loadVolunteersForSuperadmin();
-            }
+            if (typeof loadVolunteersForSuperadmin === 'function') await loadVolunteersForSuperadmin();
         } else {
             await loadVolunteers();
         }
@@ -173,7 +212,7 @@ async function handleVolunteerLogin() {
     }
 
     try {
-        const response = await fetch('https://e-sagip-production.up.railway.app/api/auth/login', {
+        const response = await fetch(`${API_BASE_URL}/auth/login`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ email, password, role: 'volunteer' })
@@ -204,7 +243,7 @@ async function handleAdminLogin() {
     }
 
     try {
-        const response = await fetch('https://e-sagip-production.up.railway.app/api/auth/login', {
+        const response = await fetch(`${API_BASE_URL}/auth/login`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ email, password, role: 'admin' })
@@ -214,6 +253,10 @@ async function handleAdminLogin() {
 
         if (response.ok) {
             localStorage.setItem('currentUser', JSON.stringify(data.user));
+
+            // Log the login action
+            await logAuditAction('LOGIN', data.user.name, `Role: ${data.user.role}`);
+
             if (data.user.role === 'superadmin') {
                 window.location.href = 'superadmin_page.html';
             } else {
@@ -230,31 +273,41 @@ async function handleAdminLogin() {
 }
 
 async function handleSaLogout() {
-  const confirmed = confirm('Are you sure you want to logout?');
-  if (!confirmed) return;
+    const confirmed = confirm('Are you sure you want to logout?');
+    if (!confirmed) return;
 
-  try {
-    localStorage.removeItem('user');
-    sessionStorage.clear();
-    window.location.href = 'index.html'; // change to your login page
-  } catch (err) {
-    console.error('Logout failed:', err);
-    alert('Something went wrong during logout. Please try again.');
-  }
+    try {
+        const currentUser = getCurrentUser();
+        if (currentUser) {
+            await logAuditAction('LOGOUT', currentUser.name, `Role: ${currentUser.role}`);
+        }
+        localStorage.removeItem('currentUser');
+        localStorage.removeItem('user');
+        sessionStorage.clear();
+        window.location.href = 'index.html';
+    } catch (err) {
+        console.error('Logout failed:', err);
+        alert('Something went wrong during logout. Please try again.');
+    }
 }
 
 async function handleLogout() {
-  const confirmed = confirm('Are you sure you want to logout?');
-  if (!confirmed) return;
+    const confirmed = confirm('Are you sure you want to logout?');
+    if (!confirmed) return;
 
-  try {
-    localStorage.removeItem('user');
-    sessionStorage.clear();
-    window.location.href = 'index.html'; // change to your login page
-  } catch (err) {
-    console.error('Logout failed:', err);
-    alert('Something went wrong during logout. Please try again.');
-  }
+    try {
+        const currentUser = getCurrentUser();
+        if (currentUser) {
+            await logAuditAction('LOGOUT', currentUser.name, `Role: ${currentUser.role}`);
+        }
+        localStorage.removeItem('currentUser');
+        localStorage.removeItem('user');
+        sessionStorage.clear();
+        window.location.href = 'index.html';
+    } catch (err) {
+        console.error('Logout failed:', err);
+        alert('Something went wrong during logout. Please try again.');
+    }
 }
 
 
@@ -264,11 +317,16 @@ function switchSubNav(btn, tab) {
     document.querySelectorAll('.subnav-btn').forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
 
-    const panels = ['dashboard', 'newop', 'volunteers', 'admins', 'feed', 'auditlog'];
+    const panels = ['dashboard', 'newop', 'volunteers', 'admins', 'feed', 'auditlog', 'trash'];
     panels.forEach(id => {
         const el = document.getElementById('tab-' + id);
         if (el) el.classList.toggle('hidden', id !== tab);
     });
+
+    // Refresh audit log when switching to it
+    if (tab === 'auditlog' && typeof loadAuditLogs === 'function') {
+        loadAuditLogs();
+    }
 }
 
 async function toggleOp(chevronEl) {
@@ -308,7 +366,6 @@ async function toggleOp(chevronEl) {
 let currentStep = 1;
 let formIsDirty = false;
 
-// Custom Validation Helper Functions
 function showFieldError(inputEl, message) {
     if (!inputEl) return;
     inputEl.classList.add('input-error');
@@ -326,9 +383,7 @@ function clearFieldError(inputEl) {
     if (!inputEl) return;
     inputEl.classList.remove('input-error');
     const helper = inputEl.parentNode.querySelector('.helper-text');
-    if (helper) {
-        helper.remove();
-    }
+    if (helper) helper.remove();
 }
 
 function validateName(val) {
@@ -421,9 +476,7 @@ function populateCities(regionKey) {
     if (!citySelect) return;
 
     citySelect.innerHTML = '<option value="" disabled selected>Select City</option>';
-    if (brgySelect) {
-        brgySelect.innerHTML = '<option value="" disabled selected>Select Barangay</option>';
-    }
+    if (brgySelect) brgySelect.innerHTML = '<option value="" disabled selected>Select Barangay</option>';
 
     const regionData = REGION_CITY_DATA[regionKey];
     if (!regionData) return;
@@ -454,148 +507,72 @@ function populateBarangays(regionKey, cityVal) {
 }
 
 function validatePostalCode(postal) {
-    const val = postal.trim();
-    return /^\d{4}$/.test(val);
+    return /^\d{4}$/.test(postal.trim());
 }
 
 function validateStep1() {
     let isValid = true;
 
-    // First Name
     const fnameInput = document.getElementById('fname');
     const fnameVal = fnameInput?.value.trim() || '';
-    if (!fnameVal) {
-        showFieldError(fnameInput, 'First name is required.');
-        isValid = false;
-    } else if (!validateName(fnameVal)) {
-        showFieldError(fnameInput, 'First name must contain only letters, hyphens, apostrophes and be 2-60 characters.');
-        isValid = false;
-    } else {
-        clearFieldError(fnameInput);
-    }
+    if (!fnameVal) { showFieldError(fnameInput, 'First name is required.'); isValid = false; }
+    else if (!validateName(fnameVal)) { showFieldError(fnameInput, 'First name must contain only letters, hyphens, apostrophes and be 2-60 characters.'); isValid = false; }
+    else clearFieldError(fnameInput);
 
-    // Last Name
     const lnameInput = document.getElementById('lname');
     const lnameVal = lnameInput?.value.trim() || '';
-    if (!lnameVal) {
-        showFieldError(lnameInput, 'Last name is required.');
-        isValid = false;
-    } else if (!validateName(lnameVal)) {
-        showFieldError(lnameInput, 'Last name must contain only letters, hyphens, apostrophes and be 2-60 characters.');
-        isValid = false;
-    } else {
-        clearFieldError(lnameInput);
-    }
+    if (!lnameVal) { showFieldError(lnameInput, 'Last name is required.'); isValid = false; }
+    else if (!validateName(lnameVal)) { showFieldError(lnameInput, 'Last name must contain only letters, hyphens, apostrophes and be 2-60 characters.'); isValid = false; }
+    else clearFieldError(lnameInput);
 
-    // Birthdate
     const birthdateInput = document.getElementById('birthdate');
     const birthdateVal = birthdateInput?.value || '';
-    if (!birthdateVal) {
-        showFieldError(birthdateInput, 'Birthdate is required.');
-        isValid = false;
-    } else {
+    if (!birthdateVal) { showFieldError(birthdateInput, 'Birthdate is required.'); isValid = false; }
+    else {
         const birth = new Date(birthdateVal);
         const today = new Date();
         const age = today.getFullYear() - birth.getFullYear() -
-            (today.getMonth() < birth.getMonth() ||
-            (today.getMonth() === birth.getMonth() && today.getDate() < birth.getDate()) ? 1 : 0);
-
-        if (age < 18) {
-            showFieldError(birthdateInput, 'You must be at least 18 years old to register.');
-            isValid = false;
-        } else if (age > 120) {
-            showFieldError(birthdateInput, 'Age cannot be greater than 120 years.');
-            isValid = false;
-        } else {
-            clearFieldError(birthdateInput);
-        }
+            (today.getMonth() < birth.getMonth() || (today.getMonth() === birth.getMonth() && today.getDate() < birth.getDate()) ? 1 : 0);
+        if (age < 18) { showFieldError(birthdateInput, 'You must be at least 18 years old to register.'); isValid = false; }
+        else if (age > 120) { showFieldError(birthdateInput, 'Age cannot be greater than 120 years.'); isValid = false; }
+        else clearFieldError(birthdateInput);
     }
 
-    // Contact Number
     const contactInput = document.getElementById('contact');
     const contactVal = contactInput?.value.trim() || '';
-    if (!contactVal) {
-        showFieldError(contactInput, 'Contact number is required.');
-        isValid = false;
-    } else if (!/^\d{11}$/.test(contactVal)) {
-        showFieldError(contactInput, 'Contact number must be exactly 11 digits.');
-        isValid = false;
-    } else {
-        clearFieldError(contactInput);
-    }
+    if (!contactVal) { showFieldError(contactInput, 'Contact number is required.'); isValid = false; }
+    else if (!/^\d{11}$/.test(contactVal)) { showFieldError(contactInput, 'Contact number must be exactly 11 digits.'); isValid = false; }
+    else clearFieldError(contactInput);
 
-    // Email Address
     const emailInput = document.getElementById('email');
     const emailVal = emailInput?.value.trim() || '';
-    if (!emailVal) {
-        showFieldError(emailInput, 'Email address is required.');
-        isValid = false;
-    } else if (!emailVal.endsWith('@gmail.com')) {
-        showFieldError(emailInput, 'Email must be a @gmail.com address.');
-        isValid = false;
-    } else {
-        clearFieldError(emailInput);
-    }
+    if (!emailVal) { showFieldError(emailInput, 'Email address is required.'); isValid = false; }
+    else if (!emailVal.endsWith('@gmail.com')) { showFieldError(emailInput, 'Email must be a @gmail.com address.'); isValid = false; }
+    else clearFieldError(emailInput);
 
-    // Resident Purok & Address fields
     const checkbox = document.getElementById('resident');
     const isResident = checkbox?.checked ?? false;
-
     if (isResident) {
         const purokSelect = document.getElementById('resident-address');
-        if (!purokSelect?.value) {
-            showFieldError(purokSelect, 'Please select your Purok.');
-            isValid = false;
-        } else {
-            clearFieldError(purokSelect);
-        }
+        if (!purokSelect?.value) { showFieldError(purokSelect, 'Please select your Purok.'); isValid = false; }
+        else clearFieldError(purokSelect);
     }
 
     const regionSelect = document.getElementById('address-region');
-    const citySelect = document.getElementById('address-city');
-    const brgySelect = document.getElementById('address-barangay');
-    const streetInput = document.getElementById('address-street');
-    const postalInput = document.getElementById('address-postal');
+    const citySelect   = document.getElementById('address-city');
+    const brgySelect   = document.getElementById('address-barangay');
+    const streetInput  = document.getElementById('address-street');
+    const postalInput  = document.getElementById('address-postal');
 
-    if (!regionSelect?.value) {
-        showFieldError(regionSelect, 'Region is required.');
-        isValid = false;
-    } else {
-        clearFieldError(regionSelect);
-    }
+    if (!regionSelect?.value) { showFieldError(regionSelect, 'Region is required.'); isValid = false; } else clearFieldError(regionSelect);
+    if (!citySelect?.value)   { showFieldError(citySelect, 'City/Municipality is required.'); isValid = false; } else clearFieldError(citySelect);
+    if (!brgySelect?.value)   { showFieldError(brgySelect, 'Barangay is required.'); isValid = false; } else clearFieldError(brgySelect);
+    if (!streetInput?.value.trim()) { showFieldError(streetInput, 'Street Address is required.'); isValid = false; } else clearFieldError(streetInput);
 
-    if (!citySelect?.value) {
-        showFieldError(citySelect, 'City/Municipality is required.');
-        isValid = false;
-    } else {
-        clearFieldError(citySelect);
-    }
-
-    if (!brgySelect?.value) {
-        showFieldError(brgySelect, 'Barangay is required.');
-        isValid = false;
-    } else {
-        clearFieldError(brgySelect);
-    }
-
-    if (!streetInput?.value.trim()) {
-        showFieldError(streetInput, 'Street Address is required.');
-        isValid = false;
-    } else {
-        clearFieldError(streetInput);
-    }
-
-    // Postal Code Validation
     const postalVal = postalInput?.value.trim() || '';
-    if (!postalVal) {
-        showFieldError(postalInput, 'Postal Code is required.');
-        isValid = false;
-    } else if (!validatePostalCode(postalVal)) {
-        showFieldError(postalInput, 'Format: 4 digits (e.g. 1016)');
-        isValid = false;
-    } else {
-        clearFieldError(postalInput);
-    }
+    if (!postalVal) { showFieldError(postalInput, 'Postal Code is required.'); isValid = false; }
+    else if (!validatePostalCode(postalVal)) { showFieldError(postalInput, 'Format: 4 digits (e.g. 1016)'); isValid = false; }
+    else clearFieldError(postalInput);
 
     return isValid;
 }
@@ -616,10 +593,8 @@ function validateStep2() {
         }
         return false;
     } else {
-        if (buttonsDiv) {
-            const helper = buttonsDiv.parentNode.querySelector('.skills-error-helper');
-            if (helper) helper.remove();
-        }
+        const helper = buttonsDiv?.parentNode.querySelector('.skills-error-helper');
+        if (helper) helper.remove();
         return true;
     }
 }
@@ -627,58 +602,27 @@ function validateStep2() {
 function validateStep3() {
     let isValid = true;
 
-    // Security Question
     const questionSelect = document.getElementById('sec-question');
-    if (!questionSelect?.value) {
-        showFieldError(questionSelect, 'Please select a security question.');
-        isValid = false;
-    } else {
-        clearFieldError(questionSelect);
-    }
+    if (!questionSelect?.value) { showFieldError(questionSelect, 'Please select a security question.'); isValid = false; } else clearFieldError(questionSelect);
 
-    // Security Answer
     const answerInput = document.getElementById('sec-answer');
-    if (!answerInput?.value.trim()) {
-        showFieldError(answerInput, 'Security answer is required.');
-        isValid = false;
-    } else {
-        clearFieldError(answerInput);
-    }
+    if (!answerInput?.value.trim()) { showFieldError(answerInput, 'Security answer is required.'); isValid = false; } else clearFieldError(answerInput);
 
-    // Password
     const passwordInput = document.getElementById('reg-password');
     const passwordVal = passwordInput?.value || '';
-    if (!passwordVal) {
-        showFieldError(passwordInput, 'Password is required.');
-        isValid = false;
-    } else if (passwordVal.length < 8) {
-        showFieldError(passwordInput, 'Password must be at least 8 characters.');
-        isValid = false;
-    } else {
-        clearFieldError(passwordInput);
-    }
+    if (!passwordVal) { showFieldError(passwordInput, 'Password is required.'); isValid = false; }
+    else if (passwordVal.length < 8) { showFieldError(passwordInput, 'Password must be at least 8 characters.'); isValid = false; }
+    else clearFieldError(passwordInput);
 
-    // Confirm Password
     const confirmInput = document.getElementById('reg-confirm');
     const confirmVal = confirmInput?.value || '';
-    if (!confirmVal) {
-        showFieldError(confirmInput, 'Please confirm your password.');
-        isValid = false;
-    } else if (confirmVal !== passwordVal) {
-        showFieldError(confirmInput, 'Passwords do not match.');
-        isValid = false;
-    } else {
-        clearFieldError(confirmInput);
-    }
+    if (!confirmVal) { showFieldError(confirmInput, 'Please confirm your password.'); isValid = false; }
+    else if (confirmVal !== passwordVal) { showFieldError(confirmInput, 'Passwords do not match.'); isValid = false; }
+    else clearFieldError(confirmInput);
 
-    // Privacy Consent Checkbox
     const consentInput = document.getElementById('privacy-consent');
-    if (consentInput && !consentInput.checked) {
-        showFieldError(consentInput, 'You must agree to the terms and privacy consent.');
-        isValid = false;
-    } else if (consentInput) {
-        clearFieldError(consentInput);
-    }
+    if (consentInput && !consentInput.checked) { showFieldError(consentInput, 'You must agree to the terms and privacy consent.'); isValid = false; }
+    else if (consentInput) clearFieldError(consentInput);
 
     return isValid;
 }
@@ -688,8 +632,7 @@ function checkCharLimits(panelId) {
     const panel = document.getElementById(panelId);
     if (!panel) return true;
 
-    const fields = panel.querySelectorAll('input[maxlength], textarea[maxlength]');
-    fields.forEach(field => {
+    panel.querySelectorAll('input[maxlength], textarea[maxlength]').forEach(field => {
         const max = parseInt(field.getAttribute('maxlength'));
         if (!isNaN(max) && field.value.length > max) {
             showFieldError(field, `Character limit exceeded (maximum ${max} characters).`);
@@ -714,11 +657,7 @@ function setupCharCounter(inputEl) {
     const updateCounter = () => {
         const len = inputEl.value.length;
         counter.textContent = `${len}/${maxLength} chars`;
-        if (len > maxLength) {
-            counter.style.color = '#E24B4A';
-        } else {
-            counter.style.color = '';
-        }
+        counter.style.color = len > maxLength ? '#E24B4A' : '';
     };
 
     inputEl.addEventListener('input', updateCounter);
@@ -727,7 +666,7 @@ function setupCharCounter(inputEl) {
 
 function setupLiveValidation() {
     const inputs = [
-        'fname', 'lname', 'birthdate', 'contact', 'email', 
+        'fname', 'lname', 'birthdate', 'contact', 'email',
         'resident-address', 'address-region', 'address-city', 'address-barangay',
         'address-street', 'address-postal',
         'sec-question', 'sec-answer', 'reg-password', 'reg-confirm', 'privacy-consent'
@@ -740,57 +679,35 @@ function setupLiveValidation() {
         const eventType = (el.tagName === 'SELECT' || el.type === 'checkbox' || el.type === 'date') ? 'change' : 'input';
         el.addEventListener(eventType, () => {
             if (id === 'fname' || id === 'lname') {
-                const val = el.value.trim();
-                if (val && validateName(val)) {
-                    clearFieldError(el);
-                }
+                if (el.value.trim() && validateName(el.value.trim())) clearFieldError(el);
             } else if (id === 'birthdate') {
-                const val = el.value;
-                if (val) {
-                    const birth = new Date(val);
-                    const today = new Date();
-                    const age = today.getFullYear() - birth.getFullYear() -
-                        (today.getMonth() < birth.getMonth() ||
-                        (today.getMonth() === birth.getMonth() && today.getDate() < birth.getDate()) ? 1 : 0);
-                    if (age >= 18 && age <= 120) {
-                        clearFieldError(el);
-                    }
-                }
+                const birth = new Date(el.value);
+                const today = new Date();
+                const age = today.getFullYear() - birth.getFullYear() -
+                    (today.getMonth() < birth.getMonth() || (today.getMonth() === birth.getMonth() && today.getDate() < birth.getDate()) ? 1 : 0);
+                if (age >= 18 && age <= 120) clearFieldError(el);
             } else if (id === 'contact') {
-                if (/^\d{11}$/.test(el.value.trim())) {
-                    clearFieldError(el);
-                }
+                if (/^\d{11}$/.test(el.value.trim())) clearFieldError(el);
             } else if (id === 'email') {
-                if (el.value.trim().endsWith('@gmail.com')) {
-                    clearFieldError(el);
-                }
+                if (el.value.trim().endsWith('@gmail.com')) clearFieldError(el);
             } else if (id === 'address-postal') {
-                if (el.value.trim() && validatePostalCode(el.value)) {
-                    clearFieldError(el);
-                }
+                if (validatePostalCode(el.value)) clearFieldError(el);
             } else if (id === 'reg-password') {
-                if (el.value.length >= 8) {
-                    clearFieldError(el);
-                }
+                if (el.value.length >= 8) clearFieldError(el);
             } else if (id === 'reg-confirm') {
                 const pw = document.getElementById('reg-password')?.value;
-                if (el.value && el.value === pw) {
-                    clearFieldError(el);
-                }
+                if (el.value && el.value === pw) clearFieldError(el);
             } else if (id === 'privacy-consent') {
-                if (el.checked) {
-                    clearFieldError(el);
-                }
+                if (el.checked) clearFieldError(el);
             } else {
-                if (el.value.trim()) {
-                    clearFieldError(el);
-                }
+                if (el.value.trim()) clearFieldError(el);
             }
         });
     });
 
     const regionSelect = document.getElementById('address-region');
-    const citySelect = document.getElementById('address-city');
+    const citySelect   = document.getElementById('address-city');
+    const brgySelect   = document.getElementById('address-barangay');
 
     if (regionSelect) {
         regionSelect.addEventListener('change', () => {
@@ -798,38 +715,27 @@ function setupLiveValidation() {
             clearFieldError(regionSelect);
         });
     }
-
     if (citySelect) {
         citySelect.addEventListener('change', () => {
-            const regionVal = regionSelect?.value || '';
-            populateBarangays(regionVal, citySelect.value);
+            populateBarangays(regionSelect?.value || '', citySelect.value);
             clearFieldError(citySelect);
         });
     }
-
-    const brgySelect = document.getElementById('address-barangay');
     if (brgySelect) {
-        brgySelect.addEventListener('change', () => {
-            clearFieldError(brgySelect);
-        });
+        brgySelect.addEventListener('change', () => clearFieldError(brgySelect));
     }
 
-    const allInputs = document.querySelectorAll('input[maxlength], textarea[maxlength]');
-    allInputs.forEach(input => {
+    document.querySelectorAll('input[maxlength], textarea[maxlength]').forEach(input => {
         setupCharCounter(input);
     });
 }
 
 function goToStep(step) {
     if (step === 2 && currentStep === 1) {
-        if (!validateStep1() || !checkCharLimits('panel-1')) {
-            return;
-        }
+        if (!validateStep1() || !checkCharLimits('panel-1')) return;
     }
     if (step === 3 && currentStep === 2) {
-        if (!validateStep2() || !checkCharLimits('panel-2')) {
-            return;
-        }
+        if (!validateStep2() || !checkCharLimits('panel-2')) return;
         updateSummary();
     }
 
@@ -850,56 +756,40 @@ function updateStepUI(step) {
         if (!circle) continue;
 
         circle.classList.remove('active', 'done');
-        label.classList.remove('active');
-        if (dot) dot.classList.remove('active');
+        label?.classList.remove('active');
+        dot?.classList.remove('active');
 
-        if (i < step) {
-            circle.classList.add('done');
-            circle.innerHTML = '✓';
-        } else if (i === step) {
-            circle.classList.add('active');
-            circle.textContent = i;
-            label.classList.add('active');
-            if (dot) dot.classList.add('active');
-        } else {
-            circle.textContent = i;
-        }
+        if (i < step) { circle.classList.add('done'); circle.innerHTML = '✓'; }
+        else if (i === step) { circle.classList.add('active'); circle.textContent = i; label?.classList.add('active'); dot?.classList.add('active'); }
+        else { circle.textContent = i; }
     }
 
     for (let c = 1; c <= 2; c++) {
-        const conn = document.getElementById('conn-' + c);
-        if (conn) conn.classList.toggle('done', step > c);
+        document.getElementById('conn-' + c)?.classList.toggle('done', step > c);
     }
 }
 
 function goBack() {
-    if (currentStep <= 1) {
-        window.location.href = 'index.html';
-    } else {
-        goToStep(currentStep - 1);
-    }
+    if (currentStep <= 1) window.location.href = 'index.html';
+    else goToStep(currentStep - 1);
 }
 
 function backtoS1() {
-    if (currentStep <= 1) {
-        window.location.href = 'index.html';
-    } else {
-        goToStep(currentStep - 1);
-    }
+    if (currentStep <= 1) window.location.href = 'index.html';
+    else goToStep(currentStep - 1);
 }
 
 function toggleResidentAddressFields() {
-    const checkbox = document.getElementById('resident');
-    const purokDiv = document.querySelector('.address-purok-div');
+    const checkbox    = document.getElementById('resident');
+    const purokDiv    = document.querySelector('.address-purok-div');
     const purokSelect = document.getElementById('resident-address');
-    
     const regionSelect = document.getElementById('address-region');
-    const citySelect = document.getElementById('address-city');
-    const brgySelect = document.getElementById('address-barangay');
-    const streetInput = document.getElementById('address-street');
-    const postalInput = document.getElementById('address-postal');
+    const citySelect   = document.getElementById('address-city');
+    const brgySelect   = document.getElementById('address-barangay');
+    const streetInput  = document.getElementById('address-street');
+    const postalInput  = document.getElementById('address-postal');
 
-    if (!checkbox || !regionSelect || !citySelect || !brgySelect || !streetInput || !postalInput) return;
+    if (!checkbox || !regionSelect) return;
 
     const isResident = checkbox.checked;
 
@@ -907,43 +797,22 @@ function toggleResidentAddressFields() {
         if (purokDiv) purokDiv.style.display = 'block';
         if (purokSelect) purokSelect.required = true;
 
-        regionSelect.value = 'NCR';
-        regionSelect.disabled = true;
+        regionSelect.value = 'NCR'; regionSelect.disabled = true;
         populateCities('NCR');
-        
-        citySelect.value = 'Manila';
-        citySelect.disabled = true;
+        citySelect.value = 'Manila'; citySelect.disabled = true;
         populateBarangays('NCR', 'Manila');
-        
-        brgySelect.value = 'Barangay 628';
-        brgySelect.disabled = true;
-        
-        postalInput.value = '1016';
-        postalInput.disabled = true;
+        brgySelect.value = 'Barangay 628'; brgySelect.disabled = true;
+        postalInput.value = '1016'; postalInput.disabled = true;
 
-        clearFieldError(regionSelect);
-        clearFieldError(citySelect);
-        clearFieldError(brgySelect);
-        clearFieldError(postalInput);
+        [regionSelect, citySelect, brgySelect, postalInput].forEach(el => clearFieldError(el));
     } else {
         if (purokDiv) {
             purokDiv.style.display = 'none';
-            if (purokSelect) {
-                purokSelect.required = false;
-                purokSelect.value = '';
-                clearFieldError(purokSelect);
-            }
+            if (purokSelect) { purokSelect.required = false; purokSelect.value = ''; clearFieldError(purokSelect); }
         }
-
-        regionSelect.disabled = false;
-        regionSelect.value = '';
-        
-        citySelect.innerHTML = '<option value="" disabled selected>Select City</option>';
-        citySelect.disabled = false;
-        
-        brgySelect.innerHTML = '<option value="" disabled selected>Select Barangay</option>';
-        brgySelect.disabled = false;
-        
+        regionSelect.disabled = false; regionSelect.value = '';
+        citySelect.innerHTML = '<option value="" disabled selected>Select City</option>'; citySelect.disabled = false;
+        brgySelect.innerHTML = '<option value="" disabled selected>Select Barangay</option>'; brgySelect.disabled = false;
         postalInput.disabled = false;
         if (postalInput.value === '1016') postalInput.value = '';
     }
@@ -961,9 +830,8 @@ function updateSummary() {
     const lname   = document.getElementById('lname')?.value.trim() || '';
     const email   = document.getElementById('email')?.value.trim() || '—';
     const contact = document.getElementById('contact')?.value.trim() || '—';
-
     const fullName = (fname + ' ' + lname).trim() || '—';
-    const skills   = [...document.querySelectorAll('input[name="skill"]:checked')].map(c => c.value);
+    const skills  = [...document.querySelectorAll('input[name="skill"]:checked')].map(c => c.value);
 
     const sumName    = document.getElementById('sum-name');
     const sumEmail   = document.getElementById('sum-email');
@@ -977,27 +845,24 @@ function updateSummary() {
 }
 
 async function completeRegistration() {
-    if (!validateStep3() || !checkCharLimits('panel-3')) {
-        return;
-    }
+    if (!validateStep3() || !checkCharLimits('panel-3')) return;
 
     const password = document.getElementById('reg-password')?.value;
     const question = document.getElementById('sec-question')?.value;
     const answer   = document.getElementById('sec-answer')?.value.trim();
-
     const isResident = document.getElementById('resident')?.checked ?? false;
-    let address = '';
-    
-    const street = document.getElementById('address-street')?.value.trim() || '';
-    const regionSelect = document.getElementById('address-region');
-    const region = regionSelect ? regionSelect.options[regionSelect.selectedIndex]?.text : '';
-    const citySelect = document.getElementById('address-city');
-    const city = citySelect?.value || '';
-    const brgySelect = document.getElementById('address-barangay');
-    const brgy = brgySelect?.value || '';
-    const postal = document.getElementById('address-postal')?.value.trim() || '';
-    const country = "Philippines";
 
+    const street       = document.getElementById('address-street')?.value.trim() || '';
+    const regionSelect = document.getElementById('address-region');
+    const region       = regionSelect ? regionSelect.options[regionSelect.selectedIndex]?.text : '';
+    const citySelect   = document.getElementById('address-city');
+    const city         = citySelect?.value || '';
+    const brgySelect   = document.getElementById('address-barangay');
+    const brgy         = brgySelect?.value || '';
+    const postal       = document.getElementById('address-postal')?.value.trim() || '';
+    const country      = "Philippines";
+
+    let address = '';
     if (isResident) {
         const purok = document.getElementById('resident-address')?.value || '';
         address = `${street}, ${purok}, ${brgy}, ${city}, ${region}, ${postal}, ${country}`;
@@ -1005,8 +870,7 @@ async function completeRegistration() {
         address = `${street}, ${brgy}, ${city}, ${region}, ${postal}, ${country}`;
     }
 
-    const skills = [...document.querySelectorAll('input[name="skill"]:checked')]
-        .map(cb => cb.value);
+    const skills = [...document.querySelectorAll('input[name="skill"]:checked')].map(cb => cb.value);
 
     const submitBtn = document.querySelector('button[type="submit"]');
     let originalHtml = '';
@@ -1023,21 +887,21 @@ async function completeRegistration() {
         lastName:      document.getElementById('lname')?.value.trim(),
         birthdate:     document.getElementById('birthdate')?.value,
         gender:        document.getElementById('gender')?.value || null,
-        isResident:    isResident,
-        address:       address,
+        isResident,
+        address,
         contactNumber: document.getElementById('contact')?.value.trim(),
         email:         document.getElementById('email')?.value.trim(),
         ecName:        document.getElementById('ec-name')?.value.trim() || null,
         ecNumber:      document.getElementById('ec-num')?.value.trim() || null,
         secQuestion:   question,
         secAnswer:     answer,
-        password:      password,
-        skills:        skills,
+        password,
+        skills,
         otherSkill:    document.getElementById('other-skill')?.value.trim() || null
     };
 
     try {
-        const response = await fetch('https://e-sagip-production.up.railway.app/api/auth/register', {
+        const response = await fetch(`${API_BASE_URL}/auth/register`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(payload)
@@ -1046,107 +910,76 @@ async function completeRegistration() {
         const data = await response.json();
 
         if (response.ok) {
-            formIsDirty = false; // Reset dirty flag
+            formIsDirty = false;
             document.querySelectorAll('.reg-step-panel').forEach(p => p.classList.remove('active'));
             const success = document.getElementById('reg-success');
             if (success) success.classList.add('active');
             window.scrollTo(0, 0);
         } else {
             if (data.error && data.error.includes("already registered")) {
-                const goToLogin = confirm("This email is already registered with an account. Would you like to sign in instead?");
-                if (goToLogin) {
-                    formIsDirty = false; // Reset dirty flag to prevent leave confirmation prompt
-                    window.location.href = 'index.html';
-                    return;
-                }
+                const goToLogin = confirm("This email is already registered. Would you like to sign in instead?");
+                if (goToLogin) { formIsDirty = false; window.location.href = 'index.html'; return; }
             } else {
                 alert(data.error || 'Registration failed. Please try again.');
             }
-            if (submitBtn) {
-                submitBtn.classList.remove('loading');
-                submitBtn.disabled = false;
-                submitBtn.innerHTML = originalHtml;
-            }
+            if (submitBtn) { submitBtn.classList.remove('loading'); submitBtn.disabled = false; submitBtn.innerHTML = originalHtml; }
         }
-
     } catch (err) {
         alert('Could not connect to the server. Please try again.');
         console.error(err);
-        if (submitBtn) {
-            submitBtn.classList.remove('loading');
-            submitBtn.disabled = false;
-            submitBtn.innerHTML = originalHtml;
-        }
+        if (submitBtn) { submitBtn.classList.remove('loading'); submitBtn.disabled = false; submitBtn.innerHTML = originalHtml; }
     }
 }
 
 window.addEventListener('beforeunload', (e) => {
-    if (formIsDirty) {
-        e.preventDefault();
-        e.returnValue = '';
-        return '';
-    }
+    if (formIsDirty) { e.preventDefault(); e.returnValue = ''; return ''; }
 });
 
 // ── Password Strength Meter ──────────────────────────────────────────
 (function () {
-  const input  = document.getElementById('reg-password');
-  const segs   = [1, 2, 3, 4].map(n => document.getElementById('seg' + n));
-  const label  = document.getElementById('pw-strength-label');
-  const hint   = document.getElementById('pw-hint');
+    const input = document.getElementById('reg-password');
+    const segs  = [1, 2, 3, 4].map(n => document.getElementById('seg' + n));
+    const label = document.getElementById('pw-strength-label');
+    const hint  = document.getElementById('pw-hint');
 
-  const reqs = {
-    len:   { el: document.getElementById('req-len'),   test: v => v.length >= 8,            text: 'At least 8 characters' },
-    upper: { el: document.getElementById('req-upper'), test: v => /[A-Z]/.test(v),          text: 'Uppercase letter' },
-    num:   { el: document.getElementById('req-num'),   test: v => /[0-9]/.test(v),          text: 'Number' },
-    sym:   { el: document.getElementById('req-sym'),   test: v => /[^A-Za-z0-9]/.test(v),  text: 'Special character' }
-  };
+    const reqs = {
+        len:   { el: document.getElementById('req-len'),   test: v => v.length >= 8,           text: 'At least 8 characters' },
+        upper: { el: document.getElementById('req-upper'), test: v => /[A-Z]/.test(v),         text: 'Uppercase letter' },
+        num:   { el: document.getElementById('req-num'),   test: v => /[0-9]/.test(v),         text: 'Number' },
+        sym:   { el: document.getElementById('req-sym'),   test: v => /[^A-Za-z0-9]/.test(v), text: 'Special character' }
+    };
 
-  const levels = [
-    { color: '#E24B4A', label: 'Weak',        hint: 'Try adding numbers or symbols' },
-    { color: '#EF9F27', label: 'Fair',        hint: 'Getting there — add more variety' },
-    { color: '#639922', label: 'Strong',      hint: 'A special character would help' },
-    { color: '#1D9E75', label: 'Very Strong', hint: '' }
-  ];
+    const levels = [
+        { color: '#E24B4A', label: 'Weak',        hint: 'Try adding numbers or symbols' },
+        { color: '#EF9F27', label: 'Fair',        hint: 'Getting there — add more variety' },
+        { color: '#639922', label: 'Strong',      hint: 'A special character would help' },
+        { color: '#1D9E75', label: 'Very Strong', hint: '' }
+    ];
 
-  if (!input) return;
+    if (!input) return;
 
-  input.addEventListener('input', () => {
-    const v = input.value;
-
-    let score = 0;
-    for (const r of Object.values(reqs)) {
-      const met = r.test(v);
-      if (met) score++;
-      r.el.textContent = (met ? '✓ ' : '✗ ') + r.text;
-      r.el.style.color = met ? '#1D9E75' : 'gray';
-    }
-
-    if (!v) {
-      segs.forEach(s => s.style.background = '#ddd');
-      label.textContent = '';
-      hint.textContent  = '';
-      return;
-    }
-
-    const idx = Math.min(score - 1, 3);
-    const lvl = levels[Math.max(idx, 0)];
-
-    segs.forEach((s, i) => {
-      s.style.background = i <= idx ? lvl.color : '#ddd';
+    input.addEventListener('input', () => {
+        const v = input.value;
+        let score = 0;
+        for (const r of Object.values(reqs)) {
+            const met = r.test(v);
+            if (met) score++;
+            if (r.el) { r.el.textContent = (met ? '✓ ' : '✗ ') + r.text; r.el.style.color = met ? '#1D9E75' : 'gray'; }
+        }
+        if (!v) { segs.forEach(s => { if (s) s.style.background = '#ddd'; }); if (label) label.textContent = ''; if (hint) hint.textContent = ''; return; }
+        const idx = Math.min(score - 1, 3);
+        const lvl = levels[Math.max(idx, 0)];
+        segs.forEach((s, i) => { if (s) s.style.background = i <= idx ? lvl.color : '#ddd'; });
+        if (label) { label.textContent = lvl.label; label.style.color = lvl.color; }
+        if (hint)  hint.textContent = lvl.hint;
     });
-
-    label.textContent = lvl.label;
-    label.style.color = lvl.color;
-    hint.textContent  = lvl.hint;
-  });
 })();
 
 /* ===== BIRTHDATE AGE DISPLAY ===== */
 
 function calcAge(dateStr) {
     if (!dateStr) return -1;
-    const dob   = new Date(dateStr);
+    const dob = new Date(dateStr);
     const today = new Date();
     let age = today.getFullYear() - dob.getFullYear();
     const m = today.getMonth() - dob.getMonth();
@@ -1161,35 +994,21 @@ function updateAgeFeedback(dateStr) {
     const ageErrEl   = document.getElementById('age-err');
 
     if (!eligibleEl || !minorEl) return;
-
     eligibleEl.classList.add('hidden');
     minorEl.classList.add('hidden');
-
     if (!dateStr) return;
 
     const age = calcAge(dateStr);
     if (age < 0 || age > 120) return;
 
-    if (age >= 18) {
-        if (ageOkEl) ageOkEl.textContent = age;
-        eligibleEl.classList.remove('hidden');
-    } else {
-        if (ageErrEl) ageErrEl.textContent = age;
-        minorEl.classList.remove('hidden');
-    }
+    if (age >= 18) { if (ageOkEl) ageOkEl.textContent = age; eligibleEl.classList.remove('hidden'); }
+    else           { if (ageErrEl) ageErrEl.textContent = age; minorEl.classList.remove('hidden'); }
 }
-
 
 /* ===== FEED POST MODAL ===== */
 
-function openPostModal() {
-    document.getElementById('postModal')?.classList.remove('hidden');
-}
-
-function closePostModal() {
-    document.getElementById('postModal')?.classList.add('hidden');
-    clearPostForm();
-}
+function openPostModal() { document.getElementById('postModal')?.classList.remove('hidden'); }
+function closePostModal() { document.getElementById('postModal')?.classList.add('hidden'); clearPostForm(); }
 
 function clearPostForm() {
     ['postTitle', 'post-date', 'post-loc', 'post-img', 'post-award', 'post-cap', 'post-vol', 'post-fam'].forEach(id => {
@@ -1216,22 +1035,17 @@ function validatePostForm() {
     document.querySelectorAll('.field-error').forEach(e => e.remove());
     document.querySelectorAll('.input-error').forEach(e => e.classList.remove('input-error'));
 
-    let isValid   = true;
+    let isValid = true;
     const missing = [];
 
-    requiredFields.forEach(function (field) {
+    requiredFields.forEach(field => {
         const input = document.getElementById(field.id);
         if (!input) return;
-
-        const isEmpty = field.id === 'post-img'
-            ? input.files.length === 0
-            : input.value.trim() === '';
-
+        const isEmpty = field.id === 'post-img' ? input.files.length === 0 : input.value.trim() === '';
         if (isEmpty) {
             isValid = false;
             missing.push(field.label);
             input.classList.add('input-error');
-
             const error = document.createElement('span');
             error.className = 'field-error';
             error.textContent = `${field.label} is required.`;
@@ -1239,63 +1053,44 @@ function validatePostForm() {
         }
     });
 
-    if (!isValid) {
-        alert(`Please fill in the following required fields:\n\n• ${missing.join('\n• ')}`);
-    }
-
+    if (!isValid) alert(`Please fill in the following required fields:\n\n• ${missing.join('\n• ')}`);
     return isValid;
 }
-
 
 /* ===== DOM READY ===== */
 
 document.addEventListener('DOMContentLoaded', () => {
     loadVolunteers();
-    loadDashboardSummaryMetrics(); // ← added
+    loadDashboardSummaryMetrics();
 
     function restrictToLetters(el) {
         if (!el) return;
         const allowed = ['Backspace', 'Delete', 'ArrowLeft', 'ArrowRight', 'Tab', ' ', '-', "'"];
-        el.addEventListener('keydown', e => {
-            if (!allowed.includes(e.key) && !/^[a-zA-Z\s'\-]$/.test(e.key)) e.preventDefault();
-        });
-        el.addEventListener('paste', e => {
-            if (/[^a-zA-Z\s'\-]/.test(e.clipboardData.getData('text'))) e.preventDefault();
-        });
-        el.addEventListener('drop', e => {
-            if (/[^a-zA-Z\s'\-]/.test(e.dataTransfer.getData('text'))) e.preventDefault();
-        });
+        el.addEventListener('keydown', e => { if (!allowed.includes(e.key) && !/^[a-zA-Z\s'\-]$/.test(e.key)) e.preventDefault(); });
+        el.addEventListener('paste',   e => { if (/[^a-zA-Z\s'\-]/.test(e.clipboardData.getData('text'))) e.preventDefault(); });
+        el.addEventListener('drop',    e => { if (/[^a-zA-Z\s'\-]/.test(e.dataTransfer.getData('text'))) e.preventDefault(); });
     }
 
     function restrictToNumbers(el) {
         if (!el) return;
         const allowed = ['Backspace', 'Delete', 'ArrowLeft', 'ArrowRight'];
-        el.addEventListener('keydown', e => {
-            if (!allowed.includes(e.key) && !/^[0-9]$/.test(e.key)) e.preventDefault();
-        });
-        el.addEventListener('paste', e => {
-            if (/[^0-9]/.test(e.clipboardData.getData('text'))) e.preventDefault();
-        });
-        el.addEventListener('drop', e => {
-            if (/[^0-9]/.test(e.dataTransfer.getData('text'))) e.preventDefault();
-        });
+        el.addEventListener('keydown', e => { if (!allowed.includes(e.key) && !/^[0-9]$/.test(e.key)) e.preventDefault(); });
+        el.addEventListener('paste',   e => { if (/[^0-9]/.test(e.clipboardData.getData('text'))) e.preventDefault(); });
+        el.addEventListener('drop',    e => { if (/[^0-9]/.test(e.dataTransfer.getData('text'))) e.preventDefault(); });
     }
 
     function restrictToSlots(el) {
         if (!el) return;
         const allowed = ['Backspace', 'Delete', 'ArrowLeft', 'ArrowRight', 'Tab', 'Home', 'End'];
-        el.addEventListener('keydown', e => {
-            if (!allowed.includes(e.key) && !/^\d$/.test(e.key)) e.preventDefault();
-        });
+        el.addEventListener('keydown', e => { if (!allowed.includes(e.key) && !/^\d$/.test(e.key)) e.preventDefault(); });
         el.addEventListener('input', () => {
             const val = parseInt(el.value);
             if (isNaN(val) || val < 1) el.value = '';
-            else if (val > 1000)       el.value = 1000;
+            else if (val > 1000) el.value = 1000;
         });
         el.addEventListener('paste', e => {
             e.preventDefault();
-            const text = (e.clipboardData || window.clipboardData).getData('text');
-            const num  = parseInt(text.replace(/\D/g, ''));
+            const num = parseInt((e.clipboardData || window.clipboardData).getData('text').replace(/\D/g, ''));
             if (!isNaN(num)) el.value = Math.min(Math.max(num, 1), 1000);
         });
     }
@@ -1310,40 +1105,27 @@ document.addEventListener('DOMContentLoaded', () => {
     restrictToSlots(document.getElementById('post-vol'));
 
     const residentCheckbox = document.getElementById('resident');
-    if (residentCheckbox) {
-        residentCheckbox.addEventListener('change', toggleResidentAddressFields);
-    }
+    if (residentCheckbox) residentCheckbox.addEventListener('change', toggleResidentAddressFields);
     toggleResidentAddressFields();
     setupLiveValidation();
 
     const birthdateInput = document.getElementById('birthdate');
     if (birthdateInput) {
         const today = new Date();
-        const yyyy  = today.getFullYear();
-        const mm    = String(today.getMonth() + 1).padStart(2, '0');
-        const dd    = String(today.getDate()).padStart(2, '0');
-        birthdateInput.max = `${yyyy}-${mm}-${dd}`;
-        birthdateInput.addEventListener('change', () => {
-            updateAgeFeedback(birthdateInput.value);
-        });
+        birthdateInput.max = `${today.getFullYear()}-${String(today.getMonth()+1).padStart(2,'0')}-${String(today.getDate()).padStart(2,'0')}`;
+        birthdateInput.addEventListener('change', () => updateAgeFeedback(birthdateInput.value));
     }
 
     const schedInput = document.getElementById('sched');
     if (schedInput) {
-        const now       = new Date();
-        const offset    = now.getTimezoneOffset() * 60000;
-        const local     = new Date(now - offset);
-        const formatted = local.toISOString().slice(0, 16);
-        schedInput.min  = formatted;
+        const now = new Date();
+        schedInput.min = new Date(now - now.getTimezoneOffset() * 60000).toISOString().slice(0, 16);
     }
 
     const postDateInput = document.getElementById('post-date');
     if (postDateInput) {
         const today = new Date();
-        const yyyy  = today.getFullYear();
-        const mm    = String(today.getMonth() + 1).padStart(2, '0');
-        const dd    = String(today.getDate()).padStart(2, '0');
-        postDateInput.max = `${yyyy}-${mm}-${dd}`;
+        postDateInput.max = `${today.getFullYear()}-${String(today.getMonth()+1).padStart(2,'0')}-${String(today.getDate()).padStart(2,'0')}`;
     }
 
     const othersCheckbox = document.getElementById('skill-others');
@@ -1357,16 +1139,13 @@ document.addEventListener('DOMContentLoaded', () => {
     const noneCheckbox = document.querySelector('#skill-tags input[value="None"]');
     if (noneCheckbox) {
         noneCheckbox.addEventListener('change', () => {
-            const otherCheckboxes = document.querySelectorAll('#skill-tags input[type="checkbox"]:not([value="None"])');
-            otherCheckboxes.forEach(cb => {
-                cb.checked  = false;
+            document.querySelectorAll('#skill-tags input[type="checkbox"]:not([value="None"])').forEach(cb => {
+                cb.checked = false;
                 cb.disabled = noneCheckbox.checked;
                 const tag = cb.closest('label')?.querySelector('.skill-tag');
                 if (tag) tag.style.color = noneCheckbox.checked ? 'var(--text-muted)' : '';
             });
-            if (noneCheckbox.checked) {
-                document.getElementById('others-div')?.classList.add('hidden');
-            }
+            if (noneCheckbox.checked) document.getElementById('others-div')?.classList.add('hidden');
         });
 
         document.querySelectorAll('#skill-tags input[type="checkbox"]:not([value="None"])').forEach(cb => {
@@ -1384,12 +1163,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const registrationForm = document.getElementById('registration-form');
     if (registrationForm) {
-        registrationForm.addEventListener('input', () => {
-            formIsDirty = true;
-        });
-        registrationForm.addEventListener('change', () => {
-            formIsDirty = true;
-        });
+        registrationForm.addEventListener('input',  () => { formIsDirty = true; });
+        registrationForm.addEventListener('change', () => { formIsDirty = true; });
         registrationForm.addEventListener('submit', event => {
             event.preventDefault();
             if (currentStep === 3)      completeRegistration();
@@ -1399,42 +1174,30 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     const addPostBtn = document.getElementById('addPostBtn');
-    if (addPostBtn) {
-        addPostBtn.addEventListener('click', openPostModal);
-    }
+    if (addPostBtn) addPostBtn.addEventListener('click', openPostModal);
 
     const publishBtn = document.getElementById('publishPost');
     if (publishBtn) {
         publishBtn.addEventListener('click', () => {
-            if (validatePostForm()) {
-                publishPost();
-                closePostModal();
-            }
+            if (validatePostForm()) { publishPost(); closePostModal(); }
         });
     }
 
     const cancelBtn = document.getElementById('cancelPost');
-    if (cancelBtn) {
-        cancelBtn.addEventListener('click', closePostModal);
-    }
+    if (cancelBtn) cancelBtn.addEventListener('click', closePostModal);
 
     const closeBtn = document.querySelector('#postModal .close-btn');
-    if (closeBtn) {
-        closeBtn.addEventListener('click', closePostModal);
-    }
+    if (closeBtn) closeBtn.addEventListener('click', closePostModal);
 
-    ['postTitle', 'post-date', 'post-loc', 'post-img', 'post-award', 'post-cap', 'post-vol', 'post-fam']
-        .forEach(id => {
-            const el = document.getElementById(id);
-            if (!el) return;
-            el.addEventListener(el.type === 'file' ? 'change' : 'input', () => {
-                el.classList.remove('input-error');
-                const err = el.parentNode.querySelector('.field-error');
-                if (err) err.remove();
-            });
+    ['postTitle', 'post-date', 'post-loc', 'post-img', 'post-award', 'post-cap', 'post-vol', 'post-fam'].forEach(id => {
+        const el = document.getElementById(id);
+        if (!el) return;
+        el.addEventListener(el.type === 'file' ? 'change' : 'input', () => {
+            el.classList.remove('input-error');
+            el.parentNode.querySelector('.field-error')?.remove();
         });
+    });
 });
-
 
 /* ===== DASHBOARD METRICS ===== */
 
@@ -1442,10 +1205,8 @@ async function loadDashboardSummaryMetrics() {
     try {
         const response = await fetch(`${API_BASE_URL}/operations/dashboard-stats`);
         if (!response.ok) throw new Error("Failed to fetch metrics.");
-
         const stats = await response.json();
 
-        // ── Admin page ───────────────────────────────────────────
         const totalVolElement     = document.querySelector('.stat-value-v');
         const activeVolSubElement = document.querySelector('.stat-card:nth-child(1) .stat-sub');
         const activeOpsElement    = document.querySelector('.stat-value-op');
@@ -1456,7 +1217,6 @@ async function loadDashboardSummaryMetrics() {
         if (activeOpsElement)    activeOpsElement.textContent    = stats.activeOperations;
         if (enrolledSubElement)  enrolledSubElement.textContent  = `${stats.enrolledVolunteers} enrolled`;
 
-        // ── Volunteer page (Feed tab impact stats + footer) ──────
         const totalVolImpact = document.getElementById('totalVolunteers');
         const completedOpsEl = document.getElementById('completedOperations');
         const footerVolCount = document.getElementById('vol-num');
@@ -1470,12 +1230,11 @@ async function loadDashboardSummaryMetrics() {
     }
 }
 
-
 /* ===== SKILLS DISTRIBUTION ===== */
 
 async function loadLiveSkillsDistributionGraph() {
     try {
-        const response = await fetch('https://e-sagip-production.up.railway.app/api/auth/volunteers');
+        const response = await fetch(`${API_BASE_URL}/auth/volunteers`);
         if (!response.ok) throw new Error("Failed to fetch volunteers.");
 
         const volunteersList = await response.json();
@@ -1483,8 +1242,7 @@ async function loadLiveSkillsDistributionGraph() {
 
         volunteersList.forEach(v => {
             if (v.status === 'active') {
-                const skillArray = Array.isArray(v.skills) ? v.skills : [];
-                skillArray.forEach(skillName => {
+                (Array.isArray(v.skills) ? v.skills : []).forEach(skillName => {
                     const cleanName = skillName.trim();
                     dataMap[cleanName] = (dataMap[cleanName] || 0) + 1;
                 });
@@ -1497,15 +1255,12 @@ async function loadLiveSkillsDistributionGraph() {
             const labelEl = row.querySelector('.skill-label');
             const barEl   = row.querySelector('.skill-bar');
             const countEl = row.querySelector('.skill-count');
-
             if (!labelEl || !barEl || !countEl) return;
 
             const skillName = labelEl.textContent.trim();
             const count     = dataMap[skillName] || 0;
-            const width     = (count / highestCount) * 100;
-
             countEl.textContent = count;
-            barEl.style.width   = `${width}%`;
+            barEl.style.width   = `${(count / highestCount) * 100}%`;
         });
 
     } catch (error) {
