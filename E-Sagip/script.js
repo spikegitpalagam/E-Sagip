@@ -1,7 +1,5 @@
 const API_BASE_URL = 'https://e-sagip-production.up.railway.app/api';
-//
-//
-//
+
 /* ===== LOGIN PAGE ===== */
 let allVolunteers = [];
 //
