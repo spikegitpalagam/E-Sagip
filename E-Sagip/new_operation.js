@@ -98,6 +98,8 @@ async function handleSaLogout() {
 
 // ── Deploy Operation ─────────────────────────────────────────────────
 async function handleDeployOp() {
+  const idempotencyKey = crypto.randomUUID();
+
   const titleInput    = document.querySelector('.form-group input[placeholder="e.g. Flood Relief Distribution"]');
   const locationInput = document.querySelector('.form-group input[placeholder="Purok/Street, Brgy. 628, Sta. Mesa"]');
   const schedInput    = document.getElementById('sched');
@@ -170,6 +172,7 @@ async function handleDeployOp() {
         skills,
         otherSkill: othersChecked ? otherSkillVal : null,
         createdBy: adminId,
+        idempotencyKey,
       }),
     });
 
@@ -273,6 +276,39 @@ async function handleDeployOp() {
     alert('Failed to deploy operation: ' + err.message);
   } finally {
     if (deployBtn) { deployBtn.disabled = false; deployBtn.innerHTML = '🚀Deploy Operation'; }
+  }
+}
+
+// ── Mark an operation as complete ──────────────────────────────────
+async function completeOp(operationId) {
+  if (!confirm('Mark this operation as complete?')) return;
+
+  try {
+    const res = await fetch(`${API_BASE_URL}/operations/${operationId}/complete`, {
+      method: 'PATCH'
+    });
+    const data = await res.json().catch(() => ({}));
+
+    if (!res.ok || !data.success) {
+      throw new Error(data.error || `Server returned ${res.status}`);
+    }
+
+    const card = document.querySelector(`.op-card[data-op-id="${operationId}"]`);
+    if (card) card.remove();
+
+    const statEl = document.querySelector('.stat-value-op');
+    if (statEl) statEl.textContent = Math.max(0, Number(statEl.textContent) - 1);
+
+    const list = document.getElementById('operation-list');
+    if (list && list.children.length === 0) {
+      const noOpt = document.querySelector('.empty-state');
+      if (noOpt) noOpt.style.display = '';
+    }
+
+    alert('✅ Operation marked as complete.');
+  } catch (err) {
+    console.error('Complete operation error:', err);
+    alert('Failed to mark operation as complete: ' + err.message);
   }
 }
 
