@@ -131,167 +131,162 @@ if (activeOpsContainer) {
     activeOpsContainer.innerHTML = opsHTML;
 }
 
-// ---------- Volunteer Filters ----------
-const uniqueSkills = [
-  "All Skills",
-  ...new Set(volunteers.flatMap(v => v.skills))
-];
-
+// ---------- Volunteer Filters (now backed by real API data) ----------
+let volunteers = [];
+let admins = [];
 let activeFilter = "All Skills";
 let searchTerm = "";
 
-function renderFilters() {
+async function loadVolunteersForSuperadmin() {
+  try {
+    const res = await fetch(`${API_BASE_URL}/auth/volunteers`);
+    const data = await res.json();
 
-    const filterContainer = document.getElementById("skill-filters");
-
-    if (!filterContainer) return;
-
-    filterContainer.innerHTML = uniqueSkills.map(skill => `
-        <button class="filter-pill ${skill === activeFilter ? "active" : ""}"
-            data-skill="${skill}">
-            ${skill}
-        </button>
-    `).join("");
-
-    document.querySelectorAll(".filter-pill").forEach(btn => {
-
-        btn.addEventListener("click", () => {
-
-            activeFilter = btn.dataset.skill;
-
-            renderFilters();
-
-            renderVolunteers();
-
-        });
-
-    });
-
-}
-
-function renderVolunteers() {
-
-    const resultsCount = document.getElementById("results-count");
-    const volunteerList = document.getElementById("vol-list");
-
-    if (!resultsCount || !volunteerList) return;
-
-    const term = searchTerm.toLowerCase();
-
-    const filtered = volunteers.filter(v => {
-
-        const matchesSkill =
-            activeFilter === "All Skills" ||
-            v.skills.includes(activeFilter);
-
-        const matchesSearch =
-            v.name.toLowerCase().includes(term) ||
-            v.skills.some(s => s.toLowerCase().includes(term));
-
-        return matchesSkill && matchesSearch;
-
-    });
-
-    resultsCount.textContent =
-        `${filtered.length} volunteer${filtered.length === 1 ? "" : "s"} found`;
-
-    volunteerList.innerHTML =
-        filtered.map(v => `
-        <div class="card vol-card">
-            <div class="vol-top">
-                <div class="vol-left">
-                    <div class="avatar">${v.initials}</div>
-
-                    <div>
-                        <div class="vol-name-row">
-                            <span class="vol-name">${v.name}</span>
-                            <span class="status-badge ${v.status}">
-                                ${v.status}
-                            </span>
-                        </div>
-
-                        <div class="vol-meta">${v.location}</div>
-                        <div class="vol-meta">${v.phone}</div>
-
-                        <div class="vol-skills">
-                            ${v.skills.map(skill => `<span class="skill-tag">${skill}</span>`).join("")}
-                        </div>
-                    </div>
-                </div>
-
-                <div class="vol-ops">
-                    <div class="num">${v.ops}</div>
-                    <div class="lbl">ops</div>
-                </div>
-            </div>
-        </div>
-        `).join("");
-
-}
-
-const searchInput = document.getElementById("vol-search");
-
-if (searchInput) {
-
-    searchInput.addEventListener("input", e => {
-        searchTerm = e.target.value;
-        renderVolunteers();
-    });
+    // Adapt backend shape (first_name/last_name/skills array) to what this page's render expects
+    volunteers = data.map(v => ({
+      name: `${v.first_name} ${v.last_name}`,
+      initials: ((v.first_name?.[0] || '') + (v.last_name?.[0] || '')).toUpperCase(),
+      status: v.status,
+      location: v.address,
+      phone: v.contact_number,
+      skills: v.skills || [],
+      ops: v.ops || 0
+    }));
 
     renderFilters();
     renderVolunteers();
-
+  } catch (err) {
+    console.error('Failed to load volunteers for superadmin:', err);
+  }
 }
+
+function renderFilters() {
+  const uniqueSkills = ["All Skills", ...new Set(volunteers.flatMap(v => v.skills))];
+  const filterContainer = document.getElementById("skill-filters");
+  if (!filterContainer) return;
+
+  filterContainer.innerHTML = uniqueSkills.map(skill => `
+    <button class="filter-pill ${skill === activeFilter ? "active" : ""}" data-skill="${skill}">
+      ${skill}
+    </button>
+  `).join("");
+
+  document.querySelectorAll(".filter-pill").forEach(btn => {
+    btn.addEventListener("click", () => {
+      activeFilter = btn.dataset.skill;
+      renderFilters();
+      renderVolunteers();
+    });
+  });
+}
+
+function renderVolunteers() {
+  const resultsCount = document.getElementById("results-count");
+  const volunteerList = document.getElementById("vol-list");
+  if (!resultsCount || !volunteerList) return;
+
+  const term = searchTerm.toLowerCase();
+
+  const filtered = volunteers.filter(v => {
+    const matchesSkill = activeFilter === "All Skills" || v.skills.includes(activeFilter);
+    const matchesSearch = v.name.toLowerCase().includes(term) ||
+      v.skills.some(s => s.toLowerCase().includes(term));
+    return matchesSkill && matchesSearch;
+  });
+
+  resultsCount.textContent = `${filtered.length} volunteer${filtered.length === 1 ? "" : "s"} found`;
+
+  volunteerList.innerHTML = filtered.map(v => `
+    <div class="card vol-card">
+      <div class="vol-top">
+        <div class="vol-left">
+          <div class="avatar">${v.initials}</div>
+          <div>
+            <div class="vol-name-row">
+              <span class="vol-name">${v.name}</span>
+              <span class="status-badge ${v.status}">${v.status}</span>
+            </div>
+            <div class="vol-meta">${v.location}</div>
+            <div class="vol-meta">${v.phone}</div>
+            <div class="vol-skills">
+              ${v.skills.map(skill => `<span class="skill-tag">${skill}</span>`).join("")}
+            </div>
+          </div>
+        </div>
+        <div class="vol-ops">
+          <div class="num">${v.ops}</div>
+          <div class="lbl">ops</div>
+        </div>
+      </div>
+    </div>
+  `).join("");
+}
+
+const searchInput = document.getElementById("vol-search");
+if (searchInput) {
+  searchInput.addEventListener("input", e => {
+    searchTerm = e.target.value;
+    renderVolunteers();
+  });
+}
+
+// Kick off the real data load
+document.addEventListener('DOMContentLoaded', loadVolunteersForSuperadmin);
 
 // ---------- Admin List ----------
 
-const adminContainer = document.getElementById("adminContainer");
-const adminCount = document.getElementById("admin-count");
+function renderAdmins() {
+    const adminContainer = document.getElementById("adminContainer");
+    const adminCount = document.getElementById("admin-count");
 
-if (adminContainer) {
-    adminContainer.innerHTML = admins.map(a => `
-        <div class="card admin-card">
-          <div class="admin-top">
-            <div class="ad-logo">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20">
-                <path d="M12 2L4 5v6c0 5.25 3.5 10.15 8 11.35C16.5 21.15 20 16.25 20 11V5L12 2z"/>
-              </svg>
+    if (adminContainer) {
+        adminContainer.innerHTML = admins.map(a => `
+            <div class="card admin-card">
+              <div class="admin-top">
+                <div class="ad-logo">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20">
+                    <path d="M12 2L4 5v6c0 5.25 3.5 10.15 8 11.35C16.5 21.15 20 16.25 20 11V5L12 2z"/>
+                  </svg>
+                </div>
+                <div class="ad-meta">
+                  <div class="admin-name">${a.name}</div>
+                  <div class="admin-email">${a.email}</div>
+                  <span class="role-badge">admin</span>
+                </div>
+              </div>
+
+              <hr class="ad-divider">
+
+              <div class="ad-btn">
+                <button class="a-edit" onclick="openAdminEditModal(this)">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14">
+                    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+                    <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                  </svg>
+                  Edit
+                </button>
+                <button class="a-remove" onclick="openAdminDeleteModal(this)">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14">
+                    <polyline points="3 6 5 6 21 6"/>
+                    <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/>
+                    <path d="M10 11v6"/>
+                    <path d="M14 11v6"/>
+                    <path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/>
+                  </svg>
+                  Remove
+                </button>
+              </div>
             </div>
-            <div class="ad-meta">
-              <div class="admin-name">${a.name}</div>
-              <div class="admin-email">${a.email}</div>
-              <span class="role-badge">admin</span>
-            </div>
-          </div>
+        `).join("");
+    }
 
-          <hr class="ad-divider">
-
-          <div class="ad-btn">
-            <button class="a-edit" onclick="openAdminEditModal(this)">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14">
-                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
-                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
-              </svg>
-              Edit
-            </button>
-            <button class="a-remove" onclick="openAdminDeleteModal(this)">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14">
-                <polyline points="3 6 5 6 21 6"/>
-                <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/>
-                <path d="M10 11v6"/>
-                <path d="M14 11v6"/>
-                <path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/>
-              </svg>
-              Remove
-            </button>
-          </div>
-        </div>
-    `).join("");
+    if (adminCount) {
+        adminCount.textContent = `${admins.length} administrator account${admins.length === 1 ? "" : "s"}`;
+    }
 }
 
-if (adminCount) {
-    adminCount.textContent = `${admins.length} administrator account${admins.length === 1 ? "" : "s"}`;
-}
+// Render admins once on load (currently an empty array until a real /admins endpoint exists)
+renderAdmins();
 
 /* ==========================================
    SUPERADMIN COMMUNITY EDIT
