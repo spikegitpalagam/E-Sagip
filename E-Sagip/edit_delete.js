@@ -27,7 +27,7 @@ function closeEditModal() {
   _activeCard = null;
 }
 
-function saveEditModal() {
+async function saveEditModal() {
   const name    = document.getElementById('edit-name').value.trim();
   const contact = document.getElementById('edit-contact').value.trim();
   const address = document.getElementById('edit-address').value.trim();
@@ -38,25 +38,37 @@ function saveEditModal() {
     return;
   }
 
-  if (_activeCard) {
-    const nameNode = _activeCard.querySelector('.vol-name');
-    nameNode.childNodes[0].textContent = name + ' ';
-
-    const badge = nameNode.querySelector('.vol-badge');
-    if (badge && status) {
-      badge.textContent = status;
-      badge.className   = 'vol-badge ' + status.toLowerCase();
+  const id = _activeCard ? _activeCard.dataset.id : null;
+  if (id) {
+    const baseUrl = typeof API_BASE_URL !== 'undefined' ? API_BASE_URL : 'https://e-sagip-production.up.railway.app/api';
+    try {
+      const response = await fetch(`${baseUrl}/auth/volunteers/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, contact, address, status })
+      });
+      if (!response.ok) throw new Error('Failed to update volunteer on server');
+      
+      // Refresh list
+      if (document.body.classList.contains('superadmin-page')) {
+        if (typeof loadVolunteersForSuperadmin === 'function') {
+          await loadVolunteersForSuperadmin();
+        }
+      } else {
+        if (typeof loadVolunteers === 'function') {
+          await loadVolunteers();
+        }
+      }
+    } catch (err) {
+      console.error('Error saving volunteer edits:', err);
+      alert('Could not save volunteer changes. Please try again.');
+      return;
     }
-
-    _activeCard.querySelector('.vol-meta').textContent = address + ' · ' + contact;
-
-    const initials = name.split(' ').map(w => w[0]).slice(0, 2).join('').toUpperCase();
-    const avatar   = _activeCard.querySelector('.vol-avatar');
-    if (avatar) avatar.textContent = initials;
   }
 
   closeEditModal();
 }
+
 
 function openRemoveModal(btn) {
   _activeCard = btn.closest('.vol-card');
