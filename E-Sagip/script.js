@@ -279,18 +279,19 @@ async function handleSaLogout() {
     if (!confirmed) return;
 
    try {
-        if (
-            currentUser &&
-            typeof window.logAuditAction === 'function'
-        ) {
-            await window.logAuditAction(
+        const currentUser = getCurrentUser();
+
+        if (currentUser && typeof logAuditAction === 'function') {
+            await logAuditAction(
                 'LOGOUT',
                 currentUser.name,
                 `Role: ${currentUser.role}`
             );
         }
+
     } catch (err) {
-        console.error('Audit logging failed:', err);
+        console.error('Audit log failed:', err);
+
     } finally {
         localStorage.removeItem('currentUser');
         localStorage.removeItem('user');
