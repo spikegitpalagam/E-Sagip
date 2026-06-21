@@ -2343,3 +2343,138 @@ body.community-editing .community-edit-btn{
     display:inline-block;
     width:calc(100% - 45px);
 }
+
+/* ==========================================================
+   VOLUNTEER PORTAL - OPERATIONS CARD LAYOUT & STYLING
+   ========================================================== */
+
+.portal-container #operationsContainer {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    margin-top: 10px;
+}
+
+.portal-container .op-card {
+    background: var(--white);
+    border-radius: 16px;
+    padding: 20px;
+    border: 1px solid #ececec;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.portal-container .op-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 18px rgba(74, 0, 21, 0.08);
+}
+
+.portal-container .op-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2px;
+}
+
+.portal-container .op-name {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--text-dark);
+}
+
+.portal-container .op-count {
+    font-size: 12px;
+    font-weight: 600;
+    padding: 4px 10px;
+    border-radius: 8px;
+    background: rgba(128, 0, 32, 0.08);
+    color: var(--primary);
+    display: inline-flex;
+    align-items: center;
+}
+
+.portal-container .op-count.full {
+    background: #ffebee;
+    color: #c62828;
+}
+
+.portal-container .meta-container {
+    margin-bottom: 0px;
+}
+
+.portal-container .op-meta {
+    display: flex;
+    flex-direction: row;
+    gap: 18px;
+    flex-wrap: wrap;
+}
+
+.portal-container .op-meta span {
+    font-size: 12.5px;
+    color: var(--text-muted);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.portal-container .op-meta svg {
+    width: 14px;
+    height: 14px;
+    stroke: var(--text-muted);
+}
+
+.portal-container .op-progress-bar {
+    height: 6px;
+    background: var(--progress-bg);
+    border-radius: 99px;
+    overflow: hidden;
+    margin-top: 4px;
+}
+
+.portal-container .op-progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--primary) 0%, var(--primary-light) 100%);
+    border-radius: 99px;
+}
+
+.portal-container .comp-container {
+    margin-top: 4px;
+    display: flex;
+    justify-content: flex-end;
+}
+
+.portal-container .btn-join {
+    background: var(--primary);
+    color: var(--white);
+    border: none;
+    border-radius: 999px;
+    padding: 10px 24px;
+    font-family: var(--font-main);
+    font-size: 13.5px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s ease, transform 0.15s ease, box-shadow 0.2s ease;
+    box-shadow: 0 3px 8px rgba(128, 0, 32, 0.12);
+}
+
+.portal-container .btn-join:hover:not(:disabled) {
+    background: var(--primary-light);
+    box-shadow: 0 4px 12px rgba(128, 0, 32, 0.22);
+    transform: translateY(-1px);
+}
+
+.portal-container .btn-join:active:not(:disabled) {
+    transform: translateY(0);
+}
+
+.portal-container .btn-join:disabled,
+.portal-container .btn-join.btn-full {
+    background-color: #dee2e6 !important;
+    color: #adb5bd !important;
+    box-shadow: none !important;
+    cursor: not-allowed;
+    transform: none !important;
+}
