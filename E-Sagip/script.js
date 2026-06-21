@@ -100,10 +100,10 @@ async function approveVolunteer(id) {
         });
 
         // Log to audit
-        await logAuditAction('APPROVE_VOLUNTEER',
-            `Volunteer #${id}`,
-            null
-        );
+        // Log to audit
+if (typeof logAuditAction === 'function') {
+    await logAuditAction('APPROVE_VOLUNTEER', `Volunteer #${id}`, null);
+}
 
         if (document.body.classList.contains('superadmin-page')) {
             if (typeof loadVolunteersForSuperadmin === 'function') await loadVolunteersForSuperadmin();
@@ -140,7 +140,10 @@ async function removeVolunteer(id) {
         });
 
         // Log to audit
-        await logAuditAction('REMOVE_VOLUNTEER', volName, 'Removed by admin');
+        // Log to audit
+if (typeof logAuditAction === 'function') {
+    await logAuditAction('REMOVE_VOLUNTEER', volName, 'Removed by admin');
+}
 
         if (document.body.classList.contains('superadmin-page')) {
             if (typeof loadVolunteersForSuperadmin === 'function') await loadVolunteersForSuperadmin();
@@ -306,16 +309,16 @@ async function handleLogout() {
 
     try {
         const currentUser = getCurrentUser();
-        if (currentUser) {
+        if (currentUser && typeof logAuditAction === 'function') {
             await logAuditAction('LOGOUT', currentUser.name, `Role: ${currentUser.role}`);
         }
+    } catch (err) {
+        console.error('Audit log failed:', err);
+    } finally {
         localStorage.removeItem('currentUser');
         localStorage.removeItem('user');
         sessionStorage.clear();
         window.location.href = 'index.html';
-    } catch (err) {
-        console.error('Logout failed:', err);
-        alert('Something went wrong during logout. Please try again.');
     }
 }
 
