@@ -144,7 +144,6 @@ async function loadVolunteersForSuperadmin() {
 
     // Adapt backend shape (first_name/last_name/skills array) to what this page's render expects
     volunteers = data.map(v => ({
-      id: v.id,
       name: `${v.first_name} ${v.last_name}`,
       initials: ((v.first_name?.[0] || '') + (v.last_name?.[0] || '')).toUpperCase(),
       status: v.status,
@@ -155,7 +154,7 @@ async function loadVolunteersForSuperadmin() {
     }));
 
     renderFilters();
-    renderVolunteersForSuperadmin();
+    renderVolunteers();
   } catch (err) {
     console.error('Failed to load volunteers for superadmin:', err);
   }
@@ -176,15 +175,15 @@ function renderFilters() {
     btn.addEventListener("click", () => {
       activeFilter = btn.dataset.skill;
       renderFilters();
-      renderVolunteersForSuperadmin();
+      renderVolunteers();
     });
   });
 }
 
-function renderVolunteersForSuperadmin() {
-  const resultsCount = document.getElementById("vol-count");
+function renderVolunteers() {
+  const resultsCount = document.getElementById("results-count");
   const volunteerList = document.getElementById("vol-list");
-  if (!volunteerList) return;
+  if (!resultsCount || !volunteerList) return;
 
   const term = searchTerm.toLowerCase();
 
@@ -195,74 +194,44 @@ function renderVolunteersForSuperadmin() {
     return matchesSkill && matchesSearch;
   });
 
-  if (resultsCount) {
-    resultsCount.textContent = `${filtered.length} volunteer${filtered.length === 1 ? "" : "s"} found`;
-  }
+  resultsCount.textContent = `${filtered.length} volunteer${filtered.length === 1 ? "" : "s"} found`;
 
-  if (filtered.length === 0) {
-    volunteerList.innerHTML = `
-      <div class="empty-state">
-        <div class="empty-icon">👥</div>
-        <h3>No Volunteers found</h3>
-        <p>Try a different search or filter.</p>
-      </div>`;
-    return;
-  }
-
-  volunteerList.innerHTML = filtered.map(v => {
-    const isApproved = v.status === 'active';
-    const approveText = isApproved ? 'approved' : '✓ Approve';
-    const approveDisabled = isApproved ? 'disabled' : '';
-    return `
-      <div class="card vol-card" data-id="${v.id}">
-        <div class="vol-top">
-          <div class="vol-left">
-            <div class="avatar">${v.initials}</div>
-            <div>
-              <div class="vol-name-row">
-                <span class="vol-name">${v.name} <span class="vol-badge ${v.status}">${v.status}</span></span>
-              </div>
-              <div class="vol-meta">${v.location} · ${v.phone}</div>
-              <div class="vol-skills">
-                ${v.skills.map(skill => `<span class="skill-tag">${skill}</span>`).join("")}
-              </div>
+  volunteerList.innerHTML = filtered.map(v => `
+    <div class="card vol-card">
+      <div class="vol-top">
+        <div class="vol-left">
+          <div class="avatar">${v.initials}</div>
+          <div>
+            <div class="vol-name-row">
+              <span class="vol-name">${v.name}</span>
+              <span class="status-badge ${v.status}">${v.status}</span>
+            </div>
+            <div class="vol-meta">${v.location}</div>
+            <div class="vol-meta">${v.phone}</div>
+            <div class="vol-skills">
+              ${v.skills.map(skill => `<span class="skill-tag">${skill}</span>`).join("")}
             </div>
           </div>
-          <div class="vol-ops">
-            <div class="num">${v.ops}</div>
-            <div class="lbl">ops</div>
-          </div>
         </div>
-        <div class="vol-ops-btn" style="margin-top: 12px; gap: 8px;">
-          <button class="v-edit" onclick="openEditModal(this)">✏️ Edit</button>
-          <button class="v-approve" onclick="approveVolunteer(${v.id})" ${approveDisabled}>${approveText}</button>
-          <button class="v-remove" onclick="removeVolunteer(${v.id})">🗑 Remove</button>
+        <div class="vol-ops">
+          <div class="num">${v.ops}</div>
+          <div class="lbl">ops</div>
         </div>
       </div>
-    `;
-  }).join("");
-}
-
-function setVolFilter(btn, skill) {
-  document.querySelectorAll('#vol-filter-row .vfilter-btn')
-    .forEach(b => b.classList.remove('active'));
-  btn.classList.add('active');
-
-  activeFilter = skill === 'all' ? 'All Skills' : skill;
-  renderVolunteersForSuperadmin();
+    </div>
+  `).join("");
 }
 
 const searchInput = document.getElementById("vol-search");
 if (searchInput) {
   searchInput.addEventListener("input", e => {
     searchTerm = e.target.value;
-    renderVolunteersForSuperadmin();
+    renderVolunteers();
   });
 }
 
 // Kick off the real data load
 document.addEventListener('DOMContentLoaded', loadVolunteersForSuperadmin);
-
 
 // ---------- Admin List ----------
 

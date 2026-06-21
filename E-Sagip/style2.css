@@ -1799,29 +1799,14 @@ color:#666;
     color:#222;
 }
 
-.superadmin-page .vol-badge {
+.superadmin-page .status-badge{
+    background:#dff3df;
+    color:#2e7d32;
     padding:4px 10px;
     border-radius:999px;
     font-size:12px;
     font-weight:600;
-    display: inline-block;
 }
-
-.superadmin-page .vol-badge.active {
-    background:#dff3df;
-    color:#2e7d32;
-}
-
-.superadmin-page .vol-badge.pending {
-    background:#fff9c4;
-    color:#f57f17;
-}
-
-.superadmin-page .vol-badge.inactive {
-    background:#ffebee;
-    color:#c62828;
-}
-
 
 .superadmin-page .vol-meta{
     font-size:14px;

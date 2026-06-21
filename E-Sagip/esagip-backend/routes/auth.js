@@ -115,25 +115,4 @@ router.delete('/volunteers/:id', async (req, res) => {
     }
 });
 
-// 6. UPDATE A VOLUNTEER
-router.put('/volunteers/:id', async (req, res) => {
-    const { name, contact, address, status } = req.body;
-
-    const nameParts = name.trim().split(/\s+/);
-    const firstName = nameParts[0] || '';
-    const lastName = nameParts.slice(1).join(' ') || '';
-
-    try {
-        await db.query(
-            'UPDATE volunteers SET first_name = ?, last_name = ?, contact_number = ?, address = ?, status = ? WHERE id = ?',
-            [firstName, lastName, contact, address, status, req.params.id]
-        );
-        res.json({ success: true });
-    } catch (err) {
-        console.error(err);
-        res.status(500).json({ error: "Could not update volunteer." });
-    }
-});
-
 module.exports = router;
-

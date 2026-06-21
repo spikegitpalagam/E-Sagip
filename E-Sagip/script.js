@@ -36,9 +36,6 @@ function renderVolunteers(volunteers) {
     volList.innerHTML = volunteers.map(v => {
         const initials = (v.first_name[0] || '') + (v.last_name[0] || '');
         const skillTags = (v.skills || []).map(s => `<span class="vstag">${s}</span>`).join('');
-        const isApproved = v.status === 'active';
-        const approveText = isApproved ? 'approved' : '✓ Approve';
-        const approveDisabled = isApproved ? 'disabled' : '';
         return `
             <div class="vol-card" data-id="${v.id}">
                 <div class="vol-ops">
@@ -50,8 +47,7 @@ function renderVolunteers(volunteers) {
                     </div>
                 </div>
                 <div class="vol-ops-btn">
-                    <button class="v-edit" onclick="openEditModal(this)">✏️ Edit</button>
-                    <button class="v-approve" onclick="approveVolunteer(${v.id})" ${approveDisabled}>${approveText}</button>
+                    <button class="v-approve" onclick="approveVolunteer(${v.id})">✓ Approve</button>
                     <button class="v-remove" onclick="removeVolunteer(${v.id})">🗑 Remove</button>
                 </div>
             </div>
@@ -83,14 +79,8 @@ function filterVolunteers() {
 
 async function approveVolunteer(id) {
     try {
-        await fetch(`${API_BASE_URL}/auth/volunteers/${id}/approve`, { method: 'PUT' });
-        if (document.body.classList.contains('superadmin-page')) {
-            if (typeof loadVolunteersForSuperadmin === 'function') {
-                await loadVolunteersForSuperadmin();
-            }
-        } else {
-            await loadVolunteers();
-        }
+        await fetch(`https://e-sagip-production.up.railway.app/api/auth/volunteers/${id}/approve`, { method: 'PUT' });
+        loadVolunteers();
     } catch (err) {
         console.error('Failed to approve volunteer:', err);
         alert('Could not approve volunteer. Please try again.');
@@ -100,14 +90,8 @@ async function approveVolunteer(id) {
 async function removeVolunteer(id) {
     if (!confirm('Permanently remove this volunteer?')) return;
     try {
-        await fetch(`${API_BASE_URL}/auth/volunteers/${id}`, { method: 'DELETE' });
-        if (document.body.classList.contains('superadmin-page')) {
-            if (typeof loadVolunteersForSuperadmin === 'function') {
-                await loadVolunteersForSuperadmin();
-            }
-        } else {
-            await loadVolunteers();
-        }
+        await fetch(`https://e-sagip-production.up.railway.app/api/auth/volunteers/${id}`, { method: 'DELETE' });
+        loadVolunteers();
     } catch (err) {
         console.error('Failed to remove volunteer:', err);
         alert('Could not remove volunteer. Please try again.');
