@@ -264,7 +264,7 @@ function switchSubNav(btn, tab) {
     document.querySelectorAll('.subnav-btn').forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
 
-    const panels = ['dashboard', 'newop', 'volunteers', 'admins', 'feed'];
+    const panels = ['dashboard', 'newop', 'volunteers', 'admins', 'feed', 'auditlog'];
     panels.forEach(id => {
         const el = document.getElementById('tab-' + id);
         if (el) el.classList.toggle('hidden', id !== tab);
