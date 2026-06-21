@@ -132,6 +132,7 @@ if (activeOpsContainer) {
 }
 
 // ---------- Volunteer Filters ----------
+// ---------- Volunteer Filters ----------
 const uniqueSkills = [
   "All Skills",
   ...new Set(volunteers.flatMap(v => v.skills))
@@ -141,34 +142,24 @@ let activeFilter = "All Skills";
 let searchTerm = "";
 
 function renderFilters() {
-
-    const filterContainer = document.getElementById("skill-filters");
-
-    if (!filterContainer) return;
-
-    filterContainer.innerHTML = uniqueSkills.map(skill => `
-        <button class="filter-pill ${skill === activeFilter ? "active" : ""}"
-            data-skill="${skill}">
-            ${skill}
-        </button>
-    `).join("");
-
-    document.querySelectorAll(".filter-pill").forEach(btn => {
-
-        btn.addEventListener("click", () => {
-
-            activeFilter = btn.dataset.skill;
-
-            renderFilters();
-
-            renderVolunteers();
-
-        });
-
-    });
-
+  ...
 }
 
+function renderVolunteers() {
+  ...
+}
+
+const searchInput = document.getElementById("vol-search");
+
+if (searchInput) {
+  searchInput.addEventListener("input", e => {
+    searchTerm = e.target.value;
+    renderVolunteers();
+  });
+
+  renderFilters();
+  renderVolunteers();
+}
 function renderVolunteers() {
 
     const resultsCount = document.getElementById("results-count");
