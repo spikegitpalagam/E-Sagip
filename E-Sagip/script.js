@@ -214,6 +214,34 @@ async function handleAdminLogin() {
     }
 }
 
+async function handleSaLogout() {
+  const confirmed = confirm('Are you sure you want to logout?');
+  if (!confirmed) return;
+
+  try {
+    localStorage.removeItem('user');
+    sessionStorage.clear();
+    window.location.href = 'index.html'; // change to your login page
+  } catch (err) {
+    console.error('Logout failed:', err);
+    alert('Something went wrong during logout. Please try again.');
+  }
+}
+
+async function handleLogout() {
+  const confirmed = confirm('Are you sure you want to logout?');
+  if (!confirmed) return;
+
+  try {
+    localStorage.removeItem('user');
+    sessionStorage.clear();
+    window.location.href = 'index.html'; // change to your login page
+  } catch (err) {
+    console.error('Logout failed:', err);
+    alert('Something went wrong during logout. Please try again.');
+  }
+}
+
 
 /* ===== ADMIN DASHBOARD ===== */
 
@@ -914,4 +942,3 @@ async function loadLiveSkillsDistributionGraph() {
         console.error("Failed calculating skills distribution:", error);
     }
 }
-
