@@ -274,119 +274,121 @@ function hideFieldError(errorId) {
    STEP 1: Find account by email
    ============================================================ */
 function handleFindAccount() {
-  const emailInput = document.getElementById("rec-email");
-  const email = emailInput.value.trim();
-  hideFieldError("email-error");
- 
-  if (!email) {
-    document.getElementById("email-error").textContent =
-      "Please enter your registered email address.";
-    showFieldError("email-error");
-    return;
-  }
- 
-  // ---- TODO: Replace with real lookup (API call) ----
-  // Demo "database" of registered accounts and their security questions.
-  const demoAccounts = {
-    "juan@email.com": {
-      question: "What is your mother's maiden name?"
+    const emailInput = document.getElementById("rec-email");
+    const email = emailInput.value.trim();
+    hideFieldError("email-error");
+
+    if (!email) {
+        document.getElementById("email-error").textContent = "Please enter your registered email address.";
+        showFieldError("email-error");
+        return;
     }
-  };
- 
-  const account = demoAccounts[email.toLowerCase()];
- 
-  if (!account) {
-    document.getElementById("email-error").textContent =
-      "No account found with that email address.";
-    showFieldError("email-error");
-    return;
-  }
-  // ---- end TODO ----
- 
-  recoveryState.email = email;
-  recoveryState.securityQuestion = account.question;
- 
-  document.getElementById("security-question-text").textContent =
-    account.question;
- 
-  showStep("step-security");
+
+    fetch('https://e-sagip-production.up.railway.app/api/auth/recovery/find', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email })
+    })
+    .then(res => res.json().then(data => ({ ok: res.ok, data })))
+    .then(({ ok, data }) => {
+        if (!ok) {
+            document.getElementById("email-error").textContent = data.error || "No account found with that email address.";
+            showFieldError("email-error");
+            return;
+        }
+
+        recoveryState.email = email;
+        recoveryState.securityQuestion = data.securityQuestion;
+        document.getElementById("security-question-text").textContent = data.securityQuestion;
+        showStep("step-security");
+    })
+    .catch(err => {
+        console.error(err);
+        document.getElementById("email-error").textContent = "Could not connect to the server. Please try again.";
+        showFieldError("email-error");
+    });
 }
- 
-/* ============================================================
-   STEP 2: Verify security question answer
-   ============================================================ */
+
 function handleVerifyAnswer() {
-  const answerInput = document.getElementById("rec-answer");
-  const answer = answerInput.value.trim();
-  hideFieldError("answer-error");
- 
-  if (!answer) {
-    document.getElementById("answer-error").textContent =
-      "Please enter your answer.";
-    showFieldError("answer-error");
-    return;
-  }
- 
-  // ---- TODO: Replace with real verification (API call) ----
-  // For demo purposes, any non-empty answer is accepted.
-  const isCorrect = true;
-  // ---- end TODO ----
- 
-  if (!isCorrect) {
-    document.getElementById("answer-error").textContent =
-      "That answer doesn't match our records.";
-    showFieldError("answer-error");
-    return;
-  }
- 
-  recoveryState.securityAnswer = answer;
-  showStep("step-reset");
+    const answerInput = document.getElementById("rec-answer");
+    const answer = answerInput.value.trim();
+    hideFieldError("answer-error");
+
+    if (!answer) {
+        document.getElementById("answer-error").textContent = "Please enter your answer.";
+        showFieldError("answer-error");
+        return;
+    }
+
+    fetch('https://e-sagip-production.up.railway.app/api/auth/recovery/verify', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: recoveryState.email, answer })
+    })
+    .then(res => res.json().then(data => ({ ok: res.ok, data })))
+    .then(({ ok, data }) => {
+        if (!ok) {
+            document.getElementById("answer-error").textContent = data.error || "That answer doesn't match our records.";
+            showFieldError("answer-error");
+            return;
+        }
+
+        recoveryState.securityAnswer = answer;
+        showStep("step-reset");
+    })
+    .catch(err => {
+        console.error(err);
+        document.getElementById("answer-error").textContent = "Could not connect to the server. Please try again.";
+        showFieldError("answer-error");
+    });
 }
- 
-/* ============================================================
-   STEP 3: Set a new password
-   ============================================================ */
+
 function handleResetPassword() {
-  const newPasswordInput = document.getElementById("rec-new-password");
-  const confirmPasswordInput = document.getElementById("rec-confirm-password");
- 
-  const newPassword = newPasswordInput.value;
-  const confirmPassword = confirmPasswordInput.value;
- 
-  hideFieldError("new-password-error");
-  hideFieldError("confirm-password-error");
- 
-  let hasError = false;
- 
-  if (newPassword.length < 8) {
-    showFieldError("new-password-error");
-    hasError = true;
-  }
- 
-  if (confirmPassword !== newPassword || confirmPassword === "") {
-    showFieldError("confirm-password-error");
-    hasError = true;
-  }
- 
-  if (hasError) return;
- 
-  // ---- TODO: Replace with real password update (API call) ----
-  // e.g. send recoveryState.email + newPassword to your backend.
-  // ---- end TODO ----
- 
-  showStep("step-success");
+    const newPasswordInput = document.getElementById("rec-new-password");
+    const confirmPasswordInput = document.getElementById("rec-confirm-password");
+
+    const newPassword = newPasswordInput.value;
+    const confirmPassword = confirmPasswordInput.value;
+
+    hideFieldError("new-password-error");
+    hideFieldError("confirm-password-error");
+
+    let hasError = false;
+
+    if (newPassword.length < 8) {
+        showFieldError("new-password-error");
+        hasError = true;
+    }
+
+    if (confirmPassword !== newPassword || confirmPassword === "") {
+        showFieldError("confirm-password-error");
+        hasError = true;
+    }
+
+    if (hasError) return;
+
+    fetch('https://e-sagip-production.up.railway.app/api/auth/recovery/reset', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            email: recoveryState.email,
+            answer: recoveryState.securityAnswer,
+            newPassword
+        })
+    })
+    .then(res => res.json().then(data => ({ ok: res.ok, data })))
+    .then(({ ok, data }) => {
+        if (!ok) {
+            alert(data.error || "Could not reset password. Please try again.");
+            return;
+        }
+        showStep("step-success");
+    })
+    .catch(err => {
+        console.error(err);
+        alert("Could not connect to the server. Please try again.");
+    });
 }
- 
-
-function setFilter(button){
-
-    document.querySelectorAll(".ops-filters button")
-        .forEach(btn => btn.classList.remove("active"));
-
-    button.classList.add("active");
-
-}
-
 
 // ===== Join modal & approval check =====
 function openJoinModal(operationName) {
