@@ -5,7 +5,6 @@ const BLOCKED_WORDS = [
   'bobo', 'tanga', 'inutil', 'leche', 'punyeta'
 ];
 
-// tracks which fields currently have profanity
 const profanityFlags = {};
 
 function containsProfanity(text) {
@@ -45,18 +44,13 @@ function applyProfanityFilter(el) {
     const warning = document.getElementById(warningId);
 
     if (containsProfanity(this.value)) {
-      // sanitize the field value
       const cursor = this.selectionStart;
       this.value = sanitizeText(this.value);
       this.setSelectionRange(cursor, cursor);
-
-      // flag this field as dirty — even though text is now asterisks,
-      // we still block deploy until user clears the field
       profanityFlags[el.id] = true;
       this.style.borderColor = '#c0392b';
       if (warning) warning.style.display = 'block';
     } else {
-      // only clear flag if no asterisk blocks remain
       profanityFlags[el.id] = false;
       this.style.borderColor = '';
       if (warning) warning.style.display = 'none';
@@ -67,6 +61,31 @@ function applyProfanityFilter(el) {
       if (counter) counter.textContent = this.value.length;
     }
   });
+}
+
+// ── Field Validation Helpers ──────────────────────────────────────────
+function setFieldError(el, hasError) {
+  if (!el) return;
+  el.style.borderColor = hasError ? '#c0392b' : '';
+}
+
+function clearAllFieldErrors(fields) {
+  fields.forEach(el => setFieldError(el, false));
+}
+
+// ── Logout ────────────────────────────────────────────────────────────
+async function handleSaLogout() {
+  const confirmed = confirm('Are you sure you want to logout?');
+  if (!confirmed) return;
+
+  try {
+    localStorage.removeItem('user');
+    sessionStorage.clear();
+    window.location.href = 'index.html';
+  } catch (err) {
+    console.error('Logout failed:', err);
+    alert('Something went wrong during logout. Please try again.');
+  }
 }
 
 // ── Deploy Operation ─────────────────────────────────────────────────
@@ -83,8 +102,20 @@ async function handleDeployOp() {
   const slots       = slotsInput?.value;
   const description = descInput?.value.trim() || '';
 
+  // ── Required fields validation with red border ───────────────────
+  let hasError = false;
+
+  setFieldError(titleInput,    !title);
+  setFieldError(locationInput, !location);
+  setFieldError(schedInput,    !sched);
+  setFieldError(slotsInput,    !slots);
+
   if (!title || !location || !sched || !slots) {
-    alert('Please fill in all required fields (Title, Location, Schedule, Slots).');
+    hasError = true;
+  }
+
+  if (hasError) {
+    alert('Please fill in all required fields.');
     return;
   }
 
@@ -208,6 +239,7 @@ async function handleDeployOp() {
     document.querySelectorAll('.dashboard-content').forEach(tab => tab.classList.add('hidden'));
     document.getElementById('tab-dashboard').classList.remove('hidden');
 
+    // ── Reset form ───────────────────────────────────────────────
     titleInput.value    = '';
     locationInput.value = '';
     schedInput.value    = '';
@@ -220,7 +252,8 @@ async function handleDeployOp() {
     document.getElementById('others-div').classList.add('hidden');
     document.getElementById('other-skill').value = '';
 
-    // reset profanity flags after successful deploy
+    // clear red borders and profanity flags
+    clearAllFieldErrors([titleInput, locationInput, schedInput, slotsInput]);
     Object.keys(profanityFlags).forEach(k => profanityFlags[k] = false);
 
     const descCount = document.getElementById('desc-count');
@@ -325,9 +358,19 @@ document.addEventListener('DOMContentLoaded', function () {
 
   const titleInput    = document.querySelector('.form-group input[placeholder="e.g. Flood Relief Distribution"]');
   const locationInput = document.querySelector('.form-group input[placeholder="Purok/Street, Brgy. 628, Sta. Mesa"]');
+  const schedInput    = document.getElementById('sched');
+  const slotsInput    = document.getElementById('slots');
   const descInput     = document.getElementById('desc-op');
 
   applyProfanityFilter(titleInput);
   applyProfanityFilter(locationInput);
   applyProfanityFilter(descInput);
+
+  // ── Clear red border as user fills in each field ─────────────────
+  [titleInput, locationInput, schedInput, slotsInput].forEach(el => {
+    if (!el) return;
+    el.addEventListener('input', function () {
+      if (this.value.trim()) setFieldError(this, false);
+    });
+  });
 });
