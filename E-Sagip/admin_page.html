@@ -360,10 +360,12 @@
       <label class="form-lbl" for="edit-status">Status</label>
        <select class="edit-status" id="edit-status">
             <option disabled selected>Select status</option>
-            <option>active</option>
-            <option>inactive</option>
+            <option value="pending">pending</option>
+            <option value="active">active</option>
+            <option value="inactive">inactive</option>
       </select>
     </div>
+
     <div class="modal-footer">
       <button class="btn-cancel" onclick="closeEditModal()">Cancel</button>
       <button class="btn-save" onclick="saveEditModal()">Save Changes</button>

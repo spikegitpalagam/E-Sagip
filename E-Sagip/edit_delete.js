@@ -39,24 +39,77 @@ function saveEditModal() {
   }
 
   if (_activeCard) {
-    const nameNode = _activeCard.querySelector('.vol-name');
-    nameNode.childNodes[0].textContent = name + ' ';
+    const id = _activeCard.dataset.id;
+    
+    // Split name into first_name and last_name for backend-like structure
+    const nameParts = name.split(/\s+/);
+    const firstName = nameParts[0] || '';
+    const lastName = nameParts.slice(1).join(' ') || '';
 
-    const badge = nameNode.querySelector('.vol-badge');
-    if (badge && status) {
-      badge.textContent = status;
-      badge.className   = 'vol-badge ' + status.toLowerCase();
+    // Update in-memory array in script.js (admin page)
+    if (typeof allVolunteers !== 'undefined') {
+      const idx = allVolunteers.findIndex(v => String(v.id) === String(id));
+      if (idx !== -1) {
+        allVolunteers[idx].first_name = firstName;
+        allVolunteers[idx].last_name = lastName;
+        allVolunteers[idx].contact_number = contact;
+        allVolunteers[idx].address = address;
+        allVolunteers[idx].status = status;
+      }
     }
 
-    _activeCard.querySelector('.vol-meta').textContent = address + ' · ' + contact;
+    // Update in-memory array in superadmin.js (superadmin page)
+    if (typeof volunteers !== 'undefined') {
+      const idx = volunteers.findIndex(v => String(v.id) === String(id));
+      if (idx !== -1) {
+        volunteers[idx].name = name;
+        volunteers[idx].initials = name.split(' ').map(w => w[0]).slice(0, 2).join('').toUpperCase();
+        volunteers[idx].location = address;
+        volunteers[idx].phone = contact;
+        volunteers[idx].status = status;
+      }
+    }
+
+    // Update DOM directly
+    const nameNode = _activeCard.querySelector('.vol-name');
+    if (nameNode) {
+      if (nameNode.childNodes[0]) {
+        nameNode.childNodes[0].textContent = name + ' ';
+      }
+      const badge = nameNode.querySelector('.vol-badge');
+      if (badge && status) {
+        badge.textContent = status;
+        badge.className = 'vol-badge ' + status.toLowerCase();
+        
+        // Also update approve button text & state on card
+        const approveBtn = _activeCard.querySelector('.v-approve');
+        if (approveBtn) {
+          if (status === 'active') {
+            approveBtn.textContent = 'approved';
+            approveBtn.disabled = true;
+          } else {
+            approveBtn.textContent = '✓ Approve';
+            approveBtn.disabled = false;
+          }
+        }
+      }
+    }
+
+    const meta = _activeCard.querySelector('.vol-meta');
+    if (meta) {
+      meta.textContent = address + ' · ' + contact;
+    }
 
     const initials = name.split(' ').map(w => w[0]).slice(0, 2).join('').toUpperCase();
-    const avatar   = _activeCard.querySelector('.vol-avatar');
-    if (avatar) avatar.textContent = initials;
+    const avatar = _activeCard.querySelector('.vol-avatar') || _activeCard.querySelector('.avatar');
+    if (avatar) {
+      avatar.textContent = initials;
+    }
   }
 
   closeEditModal();
 }
+
 
 function openRemoveModal(btn) {
   _activeCard = btn.closest('.vol-card');
