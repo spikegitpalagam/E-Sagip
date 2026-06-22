@@ -1,0 +1,580 @@
+/* ============================================================
+   E-SAGIP — SUPERADMIN THEME
+   Drop this file AFTER style.css and style2.css.
+   All rules are scoped to body.superadmin-page so they
+   never bleed into volunteer or admin pages.
+   ============================================================ */
+
+/* ----------------------------------------------------------
+   1. DESIGN TOKENS  — navy command palette
+   ---------------------------------------------------------- */
+body.superadmin-page {
+  /* Core backgrounds */
+  --primary:        #1a3260;   /* navy — replaces maroon as the main brand */
+  --primary-dark:   #0f1f3d;   /* deep navy */
+  --primary-light:  #2a4a7f;   /* steel blue */
+  --accent:         #c8a84b;   /* gold — authority accent */
+  --accent-light:   #e8c96a;
+  --accent-dark:    #a0832e;
+
+  /* Page surfaces */
+  --bg-dark:        #0f1f3d;
+  --bg-deeper:      #081429;
+  --off-white:      #f0f3f8;   /* cool-tinted off-white, not warm rose */
+  --white:          #ffffff;
+  --light-gray:     #e8edf5;
+  --mid-gray:       #b0bdd4;
+  --gray:           #6b7c99;
+  --dark-gray:      #2c3a52;
+
+  /* Text */
+  --text-dark:      #0d1b30;
+  --text-muted:     #5a6e8a;
+
+  /* Utility */
+  --card-shadow:    0 4px 20px rgba(15, 31, 61, 0.14);
+  --input-border:   #c5d0e4;
+  --progress-bg:    #d0daea;
+
+  /* Warning stays universal */
+  --warning-bg:     #fff8e1;
+  --warning-border: #f9c500;
+  --warning-text:   #7a5c00;
+
+  background: var(--off-white);
+}
+
+/* ----------------------------------------------------------
+   2. TOP NAV
+   ---------------------------------------------------------- */
+body.superadmin-page .topnav {
+  background: var(--bg-deeper);
+  border-bottom: 2px solid var(--accent);
+  box-shadow: 0 2px 12px rgba(8, 20, 41, 0.45);
+}
+
+body.superadmin-page .topnav-brand h2 {
+  color: #ffffff;
+  letter-spacing: 0.02em;
+}
+
+body.superadmin-page .topnav-brand p {
+  color: var(--accent);
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  font-size: 9px;
+  opacity: 1;
+}
+
+body.superadmin-page .icon-btn {
+  background: rgba(200, 168, 75, 0.12);
+  border: 1px solid rgba(200, 168, 75, 0.3);
+  color: var(--accent);
+}
+
+body.superadmin-page .icon-btn:hover {
+  background: rgba(200, 168, 75, 0.22);
+}
+
+/* ----------------------------------------------------------
+   3. SUB NAV
+   ---------------------------------------------------------- */
+body.superadmin-page .subnav {
+  background: var(--bg-dark);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+body.superadmin-page .subnav-btn {
+  color: rgba(176, 189, 212, 0.75);
+  border-bottom-color: transparent;
+}
+
+body.superadmin-page .subnav-btn:hover {
+  color: #c8d6ec;
+}
+
+body.superadmin-page .subnav-btn.active {
+  color: var(--accent);
+  border-bottom-color: var(--accent);
+  font-weight: 700;
+}
+
+/* ----------------------------------------------------------
+   4. SECTION TITLE  — uppercase gold rule
+   ---------------------------------------------------------- */
+body.superadmin-page .section-title {
+  color: var(--accent);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+body.superadmin-page .section-title::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: rgba(200, 168, 75, 0.25);
+}
+
+/* ----------------------------------------------------------
+   5. STAT CARDS
+   ---------------------------------------------------------- */
+body.superadmin-page .stat-card {
+  background: #ffffff;
+  border: 1px solid #d0daea;
+  border-top: 3px solid var(--primary);
+  box-shadow: var(--card-shadow);
+}
+
+body.superadmin-page .stat-card .stat-label {
+  color: var(--text-muted);
+  font-weight: 600;
+  text-transform: uppercase;
+  font-size: 10px;
+  letter-spacing: 0.06em;
+}
+
+body.superadmin-page .stat-card .stat-value-v,
+body.superadmin-page .stat-card .stat-value-op {
+  color: var(--primary-dark);
+}
+
+body.superadmin-page .stat-card .stat-icon.red {
+  background: rgba(26, 50, 96, 0.1);
+  color: var(--primary);
+}
+
+body.superadmin-page .stat-card .stat-icon.orange {
+  background: rgba(200, 168, 75, 0.12);
+  color: var(--accent-dark);
+}
+
+/* ----------------------------------------------------------
+   6. OPERATION CARDS
+   ---------------------------------------------------------- */
+body.superadmin-page .op-card {
+  background: #ffffff;
+  border: 1px solid #d0daea;
+  border-left: 4px solid var(--accent);
+  box-shadow: var(--card-shadow);
+}
+
+body.superadmin-page .op-name {
+  color: var(--text-dark);
+}
+
+body.superadmin-page .op-progress-fill {
+  background: linear-gradient(90deg, var(--primary) 0%, var(--primary-light) 100%);
+}
+
+body.superadmin-page .complete {
+  border-color: #1a6040;
+  background-color: #e6f4ee;
+  color: #1a6040;
+}
+
+/* ----------------------------------------------------------
+   7. EXPORT CARD
+   ---------------------------------------------------------- */
+body.superadmin-page .export-card {
+  background: #ffffff;
+  border: 1px solid #d0daea;
+  box-shadow: var(--card-shadow);
+}
+
+body.superadmin-page .export-row {
+  border-color: #e2eaf5;
+}
+
+body.superadmin-page .export-row:hover {
+  background: #f5f8ff;
+  border-color: var(--primary-light);
+}
+
+body.superadmin-page .export-right {
+  border-color: var(--primary-light);
+  color: var(--primary);
+}
+
+body.superadmin-page .export-right:hover {
+  border-color: var(--accent-dark);
+  color: var(--accent-dark);
+}
+
+body.superadmin-page .export-right svg {
+  stroke: var(--primary);
+}
+
+/* ----------------------------------------------------------
+   8. NEW OPERATION FORM
+   ---------------------------------------------------------- */
+body.superadmin-page .newop-card {
+  background: #ffffff;
+  border: 1px solid #d0daea;
+  box-shadow: var(--card-shadow);
+}
+
+body.superadmin-page .btn-deploy {
+  background: var(--primary);
+  color: #ffffff;
+  letter-spacing: 0.02em;
+  font-weight: 700;
+}
+
+body.superadmin-page .btn-deploy:hover {
+  background: var(--primary-light);
+}
+
+body.superadmin-page .admin-add-btn {
+  background: var(--primary);
+}
+
+body.superadmin-page .admin-add-btn:hover {
+  background: var(--primary-light);
+}
+
+body.superadmin-page .skill-tags-wrap label .skill-tag {
+  background: rgba(26, 50, 96, 0.08);
+  color: var(--primary);
+}
+
+body.superadmin-page .skill-tags-wrap label .skill-tag:hover {
+  background: rgba(26, 50, 96, 0.14);
+}
+
+body.superadmin-page .skill-tags-wrap label input[type="checkbox"]:checked + .skill-tag {
+  background: var(--primary);
+  color: #ffffff;
+}
+
+body.superadmin-page .skill-tags-wrap label input[type="checkbox"]:checked + .skill-tag:hover {
+  background: var(--primary-light);
+}
+
+body.superadmin-page .form-group input:focus,
+body.superadmin-page .form-group select:focus,
+body.superadmin-page .form-group textarea:focus {
+  border-color: var(--primary-light);
+}
+
+/* ----------------------------------------------------------
+   9. VOLUNTEER CARDS & FILTERS
+   ---------------------------------------------------------- */
+body.superadmin-page .vol-card {
+  background: #ffffff;
+  border: 1px solid #d0daea;
+  box-shadow: var(--card-shadow);
+}
+
+body.superadmin-page .avatar {
+  background: #e0e8f5;
+  color: var(--primary);
+}
+
+body.superadmin-page .vol-name {
+  color: var(--text-dark);
+}
+
+body.superadmin-page .vol-ops .num {
+  color: var(--primary);
+}
+
+body.superadmin-page .vol-actions button {
+  border-color: var(--primary);
+  color: var(--primary);
+}
+
+body.superadmin-page .vol-actions button:hover {
+  background: var(--primary);
+  color: #ffffff;
+}
+
+body.superadmin-page .vfilter-btn {
+  border-color: #c5d0e4;
+  color: var(--primary-dark);
+}
+
+body.superadmin-page .vfilter-btn:hover {
+  background: #edf1f9;
+}
+
+body.superadmin-page .vfilter-btn.active {
+  background: var(--primary);
+  color: #ffffff;
+  border-color: var(--primary);
+}
+
+body.superadmin-page .vstag,
+body.superadmin-page .skill-tag {
+  background: rgba(26, 50, 96, 0.08);
+  color: var(--primary);
+}
+
+/* vol-search */
+body.superadmin-page .vol-search-wrap {
+  border-color: #c5d0e4;
+}
+
+body.superadmin-page .vol-search-wrap input:focus {
+  border-color: var(--primary);
+}
+
+/* ----------------------------------------------------------
+   10. ADMIN CARDS
+   ---------------------------------------------------------- */
+body.superadmin-page .admin-card {
+  background: #ffffff;
+  border: 1px solid #d0daea;
+  box-shadow: var(--card-shadow);
+}
+
+body.superadmin-page .admin-top .ad-logo {
+  background: rgba(26, 50, 96, 0.12);
+  color: var(--primary-dark);
+}
+
+body.superadmin-page .admin-top .role-badge {
+  background: rgba(200, 168, 75, 0.14);
+  border-color: var(--accent-dark);
+  color: var(--accent-dark);
+}
+
+body.superadmin-page .a-edit {
+  border-color: var(--primary);
+  color: var(--primary);
+}
+
+body.superadmin-page .a-edit:hover {
+  border-color: var(--primary-light);
+  color: var(--primary-light);
+}
+
+body.superadmin-page .a-remove {
+  border-color: #c0392b;
+  color: #c0392b;
+}
+
+body.superadmin-page .a-remove:hover {
+  border-color: #922b21;
+  color: #922b21;
+}
+
+body.superadmin-page .ad-search-wrap {
+  border-color: #c5d0e4;
+}
+
+/* ----------------------------------------------------------
+   11. FEED TAB
+   ---------------------------------------------------------- */
+body.superadmin-page .add-post-btn {
+  background: var(--primary);
+}
+
+body.superadmin-page .add-post-btn:hover {
+  background: var(--primary-light);
+}
+
+body.superadmin-page .feed-quote-card {
+  background: linear-gradient(135deg, var(--bg-deeper) 0%, var(--bg-dark) 100%);
+  border: 1px solid rgba(200, 168, 75, 0.2);
+}
+
+body.superadmin-page .feed-quote-attr {
+  color: var(--accent);
+}
+
+body.superadmin-page .rso {
+  color: var(--primary-dark);
+}
+
+body.superadmin-page .a-view {
+  color: var(--primary);
+}
+
+/* ----------------------------------------------------------
+   12. AUDIT LOG
+   ---------------------------------------------------------- */
+body.superadmin-page .audit-search-wrap {
+  border-color: #c5d0e4;
+}
+
+body.superadmin-page .audit-search-wrap input:focus {
+  border-color: var(--primary);
+}
+
+body.superadmin-page .audit-clear-btn {
+  border-color: #c0392b;
+  color: #c0392b;
+}
+
+body.superadmin-page .audit-clear-btn:hover {
+  background: #c0392b;
+  color: #ffffff;
+}
+
+/* audit dot colour overrides are fine as-is */
+
+/* ----------------------------------------------------------
+   13. MODALS (volunteer edit, remove, admin edit/delete)
+   ---------------------------------------------------------- */
+body.superadmin-page .modal-box {
+  border-top: 3px solid var(--primary);
+}
+
+body.superadmin-page .modal-title {
+  color: var(--primary-dark);
+}
+
+body.superadmin-page .form-lbl {
+  color: var(--primary);
+}
+
+body.superadmin-page .form-grp input:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(26, 50, 96, 0.1);
+}
+
+body.superadmin-page .btn-save {
+  background: var(--primary);
+}
+
+body.superadmin-page .btn-save:hover {
+  background: var(--primary-light);
+}
+
+/* Feed post modals */
+body.superadmin-page .modal-content {
+  border-top: 3px solid var(--primary);
+}
+
+body.superadmin-page .modal-content .modal-header h2 {
+  color: var(--primary-dark);
+}
+
+body.superadmin-page .form-group label {
+  color: var(--primary);
+}
+
+body.superadmin-page .primary-btn {
+  background: var(--primary);
+}
+
+body.superadmin-page .primary-btn:hover {
+  background: var(--primary-light);
+}
+
+body.superadmin-page .form-group input,
+body.superadmin-page .form-group textarea {
+  border-color: #c5d0e4;
+  background-color: #f5f8ff;
+}
+
+body.superadmin-page .form-group input:focus,
+body.superadmin-page .form-group textarea:focus {
+  border-color: var(--primary-light);
+  background-color: #f0f5ff;
+}
+
+/* Admin modals */
+body.superadmin-page .admin-modal-box {
+  border-top: 3px solid var(--primary);
+}
+
+body.superadmin-page .admin-modal-box label {
+  color: var(--primary);
+}
+
+body.superadmin-page .admin-modal-box input:focus {
+  border-color: var(--primary);
+}
+
+body.superadmin-page .admin-modal-actions .btn-save,
+body.superadmin-page .admin-modal-actions .btn-delete {
+  background: var(--primary);
+}
+
+body.superadmin-page .admin-modal-actions .btn-save:hover,
+body.superadmin-page .admin-modal-actions .btn-delete:hover {
+  background: var(--primary-dark);
+}
+
+/* ----------------------------------------------------------
+   14. EMPTY STATES
+   ---------------------------------------------------------- */
+body.superadmin-page .empty-state {
+  border: 1px solid #d0daea;
+}
+
+body.superadmin-page .empty-icon {
+  background: #e8edf5;
+  color: var(--primary);
+}
+
+body.superadmin-page .empty-state h3 {
+  color: var(--primary-dark);
+}
+
+body.superadmin-page .empty-btn {
+  background: var(--primary);
+}
+
+body.superadmin-page .empty-btn:hover {
+  background: var(--primary-light);
+}
+
+/* ----------------------------------------------------------
+   15. VOLUNTEER STATUS BADGES
+   ---------------------------------------------------------- */
+body.superadmin-page .vol-badge.active {
+  background: rgba(22, 101, 52, 0.12);
+  color: #166534;
+}
+
+body.superadmin-page .vol-badge.pending {
+  background: rgba(180, 120, 0, 0.12);
+  color: #92600a;
+}
+
+body.superadmin-page .vol-badge.inactive {
+  background: rgba(153, 27, 27, 0.12);
+  color: #991b1b;
+}
+
+/* ----------------------------------------------------------
+   16. VOLUNTEER / ADMIN BUTTON PAIRS  (v-edit, v-remove etc.)
+   ---------------------------------------------------------- */
+body.superadmin-page .v-edit {
+  border-color: var(--primary);
+  color: var(--primary);
+}
+
+body.superadmin-page .v-edit:hover {
+  border-color: var(--primary-light);
+  color: var(--primary-light);
+}
+
+/* ----------------------------------------------------------
+   17. SCROLLBAR (optional, Chromium only)
+   ---------------------------------------------------------- */
+body.superadmin-page ::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+body.superadmin-page ::-webkit-scrollbar-track {
+  background: var(--light-gray);
+}
+
+body.superadmin-page ::-webkit-scrollbar-thumb {
+  background: var(--primary-light);
+  border-radius: 3px;
+}
+
+body.superadmin-page ::-webkit-scrollbar-thumb:hover {
+  background: var(--primary);
+}
