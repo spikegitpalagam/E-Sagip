@@ -57,7 +57,7 @@ function printLog() {
   const cards = document.querySelectorAll('.recent-op-card');
 
   let tableHTML = `
-    <h2 style="color: #800020; margin-bottom: 16px; text-align: center;">E-Sagip Operation Database</h2>
+    <h2 style="color: #800020; margin-bottom: 16px; text-align: center;">Operation Logs</h2>
     <table style="width:100%; border-collapse:collapse; font-family:Arial; font-size:13px;">
       <thead>
         <tr style="background:#f0f0f0;">
@@ -74,27 +74,47 @@ function printLog() {
   cards.forEach(card => {
     const title      = card.querySelector('.recent-op-name')?.textContent.trim() || '';
     const date       = card.querySelector('.recent-op-date')?.textContent.trim() || '';
-    const location   = card.querySelector('.recent-op-loc')?.textContent.trim() || '';
-    const volunteers = card.querySelector('.badge-vol')?.textContent.trim() || '';
-    const families   = card.querySelector('.badge-helped')?.textContent.trim() || '';
+
+    // Strip SVG text from location
+    const locEl      = card.querySelector('.recent-op-loc');
+    const location   = locEl ? [...locEl.childNodes]
+                        .filter(n => n.nodeType === Node.TEXT_NODE)
+                        .map(n => n.textContent.trim())
+                        .filter(Boolean)
+                        .join('') : '';
+
+    // Strip SVG text from badges
+    const volEl      = card.querySelector('.badge-vol');
+    const volunteers = volEl ? [...volEl.childNodes]
+                        .filter(n => n.nodeType === Node.TEXT_NODE)
+                        .map(n => n.textContent.trim())
+                        .filter(Boolean)
+                        .join('') : '';
+
+    const famEl      = card.querySelector('.badge-helped');
+    const families   = famEl ? [...famEl.childNodes]
+                        .filter(n => n.nodeType === Node.TEXT_NODE)
+                        .map(n => n.textContent.trim())
+                        .filter(Boolean)
+                        .join('') : '';
 
     tableHTML += `
       <tr>
         <td style="border:1px solid #560019; padding:8px;">${title}</td>
         <td style="border:1px solid #560019; padding:8px;">${date}</td>
         <td style="border:1px solid #560019; padding:8px;">${location}</td>
-        <td style="border:1px solid #560019; padding:8px; text-align:center;">${volunteers}</td>
-        <td style="border:1px solid #560019; padding:8px; text-align:center;">${families}</td>
+        <td style="border:1px solid #560019; padding:8px;">${volunteers}</td>
+        <td style="border:1px solid #560019; padding:8px;">${families}</td>
       </tr>
     `;
   });
 
   tableHTML += `</tbody></table>`;
 
-   const printWindow = window.open('', '_blank');
+  const printWindow = window.open('', '_blank');
   printWindow.document.write(`
     <html>
-      <head><title>E-Sagip Operation Database</title></head>
+      <head><title>Operation Logs</title></head>
       <body>${tableHTML}</body>
     </html>
   `);
